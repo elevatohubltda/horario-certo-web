@@ -6,7 +6,6 @@ import 'react-modern-calendar-datepicker/lib/DatePicker.css';
 import { Calendar } from "react-modern-calendar-datepicker";
 import { getTodayToCalendar, monthsOfYear, myCustomLocale } from '../util/date';
 import { CalendarContainer } from '../components/calendar/style';
-import { MiddlePageColumn } from '../components/middle-page-column/style';
 import '../style/index.css';
 
 function Home() {
