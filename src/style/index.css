@@ -1,0 +1,157 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+
+.establishmentBox{
+  width: fit-content;
+  padding: 0 4rem;
+  display: flex;
+  align-items: center;
+
+  h3{
+    color: black;
+    font-family: 'Montserrat';
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+
+  img{
+    max-width: 40px;
+    border-radius: 50px;
+    -webkit-box-shadow: 2px 2px 5px 0px rgba(0,0,0,0.15);
+    -moz-box-shadow: 2px 2px 5px 0px rgba(0,0,0,0.15);
+    box-shadow: 2px 2px 5px 0px rgba(0,0,0,0.15);
+  }
+
+  .content{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    span{
+      color: black;
+      font-family: 'Montserrat';
+      text-transform: capitalize;
+      font-size: 0.8rem;
+      margin-left: 1rem;
+      width: max-content;
+    }
+
+    .social-media{
+      display: flex;
+      gap: .5rem;
+  
+      .whatsapp{
+        color: #4ECB5C;
+        font-size: 20px;
+        cursor: pointer;
+      }
+  
+      .instagram{
+        color: #FF0878;
+        font-size: 20px;
+        cursor: pointer;
+      }
+    }
+  }
+}
+.appointments-box{
+  box-shadow: 0 16px 64px  rgba(0, 0, 0, 0.07);
+  width: 100%;
+  margin-right: 2rem;
+  border-radius: .75em;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .header-title{
+    text-transform: uppercase;
+    color: rgba(0,0,0,0.6);
+    font-family: 'Montserrat';
+    margin: 1rem 0 2rem 0;
+  }
+
+  .content{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    
+    .title{
+      text-transform: uppercase;
+      font-size: 1rem;
+      margin-left: 2rem;
+      width: calc(100% - 3.5rem);
+      font-family: 'Montserrat';
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .appointments-available{
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      padding: 1.5rem 0 0 2rem;
+      row-gap: 1.5rem;
+
+      .appointment-item{
+        padding: .5rem 2rem;
+        border-radius: 25px;
+        min-width: 50px;
+        height: 30px;
+        background-color: rgba(106, 90, 205, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 500;
+        color: #fff;
+        cursor: pointer;
+        transition: .3s;
+      }
+
+      .appointment-item:hover{
+        background-color: #6A5ACD;
+      }
+    }
+  }
+}
+.menu{
+  width: 100%;
+  padding-right: 1rem;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1rem;
+
+  button{
+    padding: 0;
+    border: none;
+    background: none;
+    font-family: Montserrat;
+    padding: .25rem 1rem;
+    border-radius: 1.25rem;
+    height: 2.5rem;
+    cursor: pointer;
+    transition: .3s;
+  }
+
+  .be-a-partner{
+    border: 1px solid #6A5ACD;
+    color: #6A5ACD;
+  }
+  .be-a-partner:hover{
+    background-color: #8f85cc;
+    color: #fff;
+  }
+
+  .my-area{
+    background-color: #6A5ACD;
+    border: 1px solid #6A5ACD;
+    color: #fff;
+  }
+
+  .my-area:hover{
+    background-color: #8f85cc;
+    border: 1px solid #6A5ACD;
+  }
+}
