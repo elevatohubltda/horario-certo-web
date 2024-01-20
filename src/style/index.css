@@ -87,11 +87,10 @@
     }
 
     .appointments-available{
-      width: 100%;
       display: flex;
       flex-wrap: wrap;
       gap: 1rem;
-      padding: 1.5rem 0 0 2rem;
+      padding: 1.5rem 0 1.5rem 2rem;
       row-gap: 1.5rem;
 
       .appointment-item{

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import { useState } from 'react';
 import Topbar from '../components/topbar';
 import { Container } from '../components/container/style';
@@ -9,11 +9,15 @@ import { CalendarContainer } from '../components/calendar/style';
 import '../style/index.css';
 
 function Home() {
+  const windowSize = useRef([window.innerWidth, window.innerHeight]);
   const [selectedDay, setSelectedDay] = useState({
     year: new Date().getFullYear(),
     month: Number(new Date().getMonth()+1),
     day: new Date().getDate()
   });
+
+  console.log(windowSize.current[0]);
+  console.log(windowSize.current[1]);
 
   return (
     <>
