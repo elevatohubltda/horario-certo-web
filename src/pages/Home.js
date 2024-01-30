@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useState } from 'react';
 import Topbar from '../components/topbar';
 import { Container } from '../components/container/style';
@@ -31,6 +31,8 @@ function Home() {
   const [schedulingDone, setSchedulingDone] = useState(false);
   const [loading, setLoading] = useState(false);
   const [randomCode, setRandomCode] = useState();
+  
+  const [listSchedulings, setListSchedulings] = useState();
 
   const selectTimebox = (time) => {
     setSelectedTime(time);
@@ -87,6 +89,61 @@ function Home() {
     }
   }
 
+  useEffect(() => {
+    setListSchedulings(
+      [
+        {
+          time: '08:00',
+          available: false,
+          code: 'ABC34'
+        },
+        {
+          time: '08:40',
+          available: true
+        },
+        {
+          time: '09:40',
+          available: true
+        },
+        {
+          time: '10:20',
+          available: false,
+          code: 'DEF69'
+        },
+        {
+          time: '11:00',
+          available: true
+        },
+        {
+          time: '12:20',
+          available: true
+        },
+        {
+          time: '13:00',
+          available: true
+        },
+        {
+          time: '13:40',
+          available: false,
+          code: 'DEF69'
+        },
+        {
+          time: '14:20',
+          available: true,
+        },
+        {
+          time: '16:20',
+          available: false,
+          code: 'DEF69'
+        },
+        {
+          time: '17:00',
+          available: true
+        },
+      ]
+    )
+  }, [selectedDay])
+
   return (
     <>
       <Topbar/>
@@ -103,46 +160,37 @@ function Home() {
           </CalendarContainer>
           <div className='appointments-box'>
             <h2 className='header-title'>{selectedDay.day} de {monthsOfYear[selectedDay.month-1]} de {selectedDay.year}</h2>
-            <div className='content'>
-              <span className='title'>
-                Horários Disponíveis
-              </span>
-              <div className='appointments-available'>
-                <div className='appointment-item unavailable' onClick={() => selectTimebox("08:00")}>
-                  08:00
-                </div>
-                <div className='appointment-item available' onClick={() => selectTimebox("08:40")}>
-                  08:40
-                </div>
-                <div className='appointment-item available' onClick={() => selectTimebox("09:40")}>
-                  09:40
-                </div>
-                <div className='appointment-item unavailable' onClick={() => selectTimebox("10:20")}>
-                  10:20
-                </div>
-                <div className='appointment-item available' onClick={() => selectTimebox("11:00")}>
-                  11:00
-                </div>
-                <div className='appointment-item available' onClick={() => selectTimebox("12:20")}>
-                  12:20
-                </div>
-                <div className='appointment-item available' onClick={() => selectTimebox("13:00")}>
-                  13:00
-                </div>
-                <div className='appointment-item unavailable' onClick={() => selectTimebox("13:40")}>
-                  13:40
-                </div>
-                <div className='appointment-item available' onClick={() => selectTimebox("14:20")}>
-                  14:20
-                </div>
-                <div className='appointment-item unavailable' onClick={() => selectTimebox("16:20")}>
-                  16:20
-                </div>
-                <div className='appointment-item available' onClick={() => selectTimebox("17:00")}>
-                  17:00
+            {listSchedulings &&
+              <div className='content'>
+                <span className='title'>
+                  Horários Disponíveis
+                </span>
+                <div className='appointments-available'>
+                  {listSchedulings.map((item, index) => {
+                    if(item.available){
+                      return (
+                        <div key={'items-'+index} className='appointment-item available' onClick={() => selectTimebox(item.time)}>
+                          {item.time}
+                        </div>
+                      )
+                    } else{
+                      return (
+                        <div key={'items-'+index} className='appointment-item unavailable' onClick={() => selectTimebox(item.time)}>
+                          {item.time}
+                        </div>
+                      )
+                    }
+                    })
+                  }
                 </div>
               </div>
-            </div>
+            }
+            
+            {!listSchedulings && 
+              <div className='content'>
+                <Loading />
+              </div>
+            }
           </div>
           <Modal
             show={isOpen}
