@@ -13,7 +13,6 @@ import '../style/index.css';
 import { formatPhoneNumber } from '../util/format';
 
 function Home() {
-  const windowSize = useRef([window.innerWidth, window.innerHeight]);
   const [selectedDay, setSelectedDay] = useState({
     year: new Date().getFullYear(),
     month: Number(new Date().getMonth()+1),
