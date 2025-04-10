@@ -170,7 +170,11 @@
   .my-area{
     background-color: #6A5ACD;
     border: 1px solid #6A5ACD;
-    color: #fff;
+
+    a{
+      text-decoration: none;
+      color: #fff;
+    }
   }
 
   .my-area:hover{

@@ -20,7 +20,10 @@ export default function Topbar() {
         </div>
         <div className='menu'>
           <button className='be-a-partner'>Seja Parceiro</button>
-          <button className='my-area'>Minha Área</button>
+          <button className='my-area'>
+            <a href="/login">Minha Área
+            </a>
+          </button>
         </div>
     </TopbarStyle>
   );
