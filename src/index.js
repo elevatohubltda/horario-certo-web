@@ -2,8 +2,10 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
+import React from "react";
 
 export default function App() {
+
   return (
     <BrowserRouter>
       <Routes>
@@ -15,4 +17,6 @@ export default function App() {
 }
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<App />);
+root.render(
+  <App />
+);

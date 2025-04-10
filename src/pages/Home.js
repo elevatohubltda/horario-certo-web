@@ -9,7 +9,7 @@ import { CalendarContainer } from '../components/calendar/style';
 import Modal from 'react-bootstrap/Modal';
 import close from '../assets/icons/close.svg';
 import {ReactComponent as Loading} from '../assets/icons/loading-color.svg';
-import '../style/index.css';
+import '../styles/index.css';
 import { formatPhoneNumber } from '../util/format';
 
 function Home() {
@@ -148,16 +148,18 @@ function Home() {
     <>
       <Topbar/>
       <Container>
-          <CalendarContainer>
-            <Calendar
-              value={selectedDay}
-              onChange={setSelectedDay}
-              minimumDate={getTodayToCalendar()}
-              colorPrimary='#6a5acd'
-              locale={myCustomLocale}
-              shouldHighlightWeekends
-            />
-          </CalendarContainer>
+          {typeof window !== 'undefined' && (
+            <CalendarContainer>
+              <Calendar
+                value={selectedDay}
+                onChange={setSelectedDay}
+                minimumDate={getTodayToCalendar()}
+                colorPrimary='#6a5acd'
+                locale={myCustomLocale}
+                shouldHighlightWeekends
+              />
+            </CalendarContainer>
+          )}
           <div className='appointments-box'>
             <h2 className='header-title'>{selectedDay.day} de {monthsOfYear[selectedDay.month-1]} de {selectedDay.year}</h2>
             {listSchedulings &&
