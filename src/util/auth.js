@@ -11,3 +11,8 @@ export function isAvailableLogin(){
     Cookies.remove("expirationDate");
     return false;
 }
+
+export function logout(){
+    Cookies.remove("token");
+    Cookies.remove("expirationDate");
+}
