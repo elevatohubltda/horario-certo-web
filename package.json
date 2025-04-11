@@ -23,7 +23,9 @@
     "react-router-dom": "^6.21.1",
     "react-scripts": "^5.0.1",
     "react-simple-dialogs": "^1.1.0",
+    "react-slick": "^0.30.3",
     "react-toastify": "^11.0.5",
+    "slick-carousel": "^1.8.1",
     "styled-components": "^6.1.2",
     "web-vitals": "^2.1.4"
   },
