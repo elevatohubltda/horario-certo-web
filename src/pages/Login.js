@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Container } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import logo from '../assets/logo.png';
-import '../styles/login.css';
 import { Separator } from '../components/separator/style';
 import { login } from '../services/endpoints/auth';
 import { useNavigate } from 'react-router-dom';
@@ -9,6 +8,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Cookies from "js-cookie";
 import { isAvailableLogin } from '../util/auth';
+import { Container } from '../components/container/style';
 
 function Login() {
   const navigate = useNavigate();
@@ -43,7 +43,7 @@ function Login() {
             secure: true,
             sameSite: "Strict",
           });
-          navigate('/dashboard');
+          navigate('/');
         }
       })
       .catch(err => {
@@ -53,12 +53,12 @@ function Login() {
 
   useEffect(() => {
     if(isAvailableLogin()) {
-      navigate('/dashboard');
+      navigate('/');
     }
   }, [navigate]);
 
   return (
-    <Container>
+    <Container height="100vh" margintop="0" display="flex" justifycontent="center" alignitems="center">
       <div className='login-box'>
         <form>
           <img src={logo} alt="Logo" />
