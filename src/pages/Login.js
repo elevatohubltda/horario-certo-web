@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Cookies from "js-cookie";
+import { isAvailableLogin } from '../util/auth';
 
 function Login() {
   const navigate = useNavigate();
@@ -15,7 +16,6 @@ function Login() {
     username: '',
     password: ''
   });
-  const [token, setToken] = useState();
   const handleError = (error) => {
     toast.error(error);
   };
@@ -33,9 +33,13 @@ function Login() {
     login(userData)
       .then(res => {
         if (res.status === 200) {
-          console.log(res.data);
           Cookies.set("token", res.data.token, {
-            expires: 7,
+            expires: 1,
+            secure: true,
+            sameSite: "Strict",
+          });
+          Cookies.set("expirationDate", res.data.expirationDate, {
+            expires: 1,
             secure: true,
             sameSite: "Strict",
           });
@@ -43,48 +47,41 @@ function Login() {
         }
       })
       .catch(err => {
-        console.log("CATCH");
         handleError(err.response.data);
       });
   }
 
   useEffect(() => {
-    const token = Cookies.get("token");
-    if (token) {
-      setToken(token);
+    if(isAvailableLogin()) {
       navigate('/dashboard');
     }
   }, [navigate]);
 
   return (
-    <>
-      {!token && (
-        <Container>
-          <div className='login-box'>
-            <form>
-              <img src={logo} alt="Logo" />
-              <label>USUÁRIO</label>
-              <input 
-                type="text" 
-                placeholder='Digite seu usuário'
-                value={userData.username}
-                onChange={(e) => handleUserData('username', e.target.value)} 
-              />
-              <label>SENHA</label>
-              <input 
-                type="password" 
-                placeholder='Digite sua senha' 
-                value={userData.password}
-                onChange={(e) => handleUserData('password', e.target.value)}
-              />
-              <Separator width="100%" bordercolor="#ccc" />
-              <Button onClick={handleLogin}>ACESSAR</Button>
-            </form>
-          </div>
-          <ToastContainer position="top-right" autoClose={3000} />
-        </Container>
-      )}
-    </>
+    <Container>
+      <div className='login-box'>
+        <form>
+          <img src={logo} alt="Logo" />
+          <label>USUÁRIO</label>
+          <input 
+            type="text" 
+            placeholder='Digite seu usuário'
+            value={userData.username}
+            onChange={(e) => handleUserData('username', e.target.value)} 
+          />
+          <label>SENHA</label>
+          <input 
+            type="password" 
+            placeholder='Digite sua senha' 
+            value={userData.password}
+            onChange={(e) => handleUserData('password', e.target.value)}
+          />
+          <Separator width="100%" bordercolor="#ccc" />
+          <Button onClick={handleLogin}>ACESSAR</Button>
+        </form>
+      </div>
+      <ToastContainer position="top-right" autoClose={3000} />
+    </Container>
   );
 }
 
