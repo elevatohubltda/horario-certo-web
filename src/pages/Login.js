@@ -43,7 +43,7 @@ function Login() {
             secure: true,
             sameSite: "Strict",
           });
-          navigate('/');
+          navigate('/'+res.data.companyUrl);
         }
       })
       .catch(err => {
@@ -55,11 +55,18 @@ function Login() {
     if(isAvailableLogin()) {
       navigate('/');
     }
-  }, [navigate]);
+  });
 
   return (
-    <Container height="100vh" margintop="0" display="flex" justifycontent="center" alignitems="center">
-      <div className='login-box'>
+    <Container 
+      $height="100vh" 
+      $margin="0" 
+      $display="flex" 
+      $justifycontent="center" 
+      $alignitems="center" 
+      $width="100%" 
+      $backgroundcolor="#f0f0f0"
+    >
         <form>
           <img src={logo} alt="Logo" />
           <label>USUÁRIO</label>
@@ -79,7 +86,6 @@ function Login() {
           <Separator width="100%" bordercolor="#ccc" />
           <Button onClick={handleLogin}>ACESSAR</Button>
         </form>
-      </div>
       <ToastContainer position="top-right" autoClose={3000} />
     </Container>
   );

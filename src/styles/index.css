@@ -12,6 +12,20 @@
   }
 }
 
+.loading-slide{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+  width: 100%;
+  text-align: center;
+
+  div[role="progressbar"] {
+    margin-top: 2rem;
+    margin-left: calc(50% - 30px);
+  }
+}
+
 .horarios-container {
   display: flex;
   justify-content: center;
@@ -123,5 +137,18 @@ form{
       font-size: 1rem;
       cursor: pointer;
       transition: .5s;
+  }
+}
+
+.date-range-selector{
+  .rdrSelected, .rdrInRange, .rdrStartEdge, .rdrEndEdge {
+    background-color: #7567ce !important;
+    color: white !important;
+  }
+  .rdrDayStartPreview, .rdrDayEndPreview, .rdrDayInPreview {
+    border-color: #7567ce !important;
+  }
+  .rdrDateDisplayItemActive {
+    border-color: #7567ce !important;
   }
 }

@@ -2,7 +2,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 const api = axios.create({
-  baseURL: "https://horariocertoservice.leltecnologia.com.br",
+  baseURL: "http://localhost:8080/",
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
@@ -11,10 +11,14 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const token = Cookies.get("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    // Apenas adiciona o token se config.withAuth === true
+    if (config.withAuth) {
+      const token = Cookies.get("token");
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     }
+
     return config;
   },
   (error) => Promise.reject(error)
