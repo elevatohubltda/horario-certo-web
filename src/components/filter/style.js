@@ -1,13 +1,16 @@
 import styled from "styled-components";
 
 // Styled component named StyledButton
-export const FilterStyle = styled.div`
+export const CustomFilterStyle = styled.div`
   display: flex;
   gap: .5rem;
   justify-content: end;
   padding: 1rem 1rem 0 0;
+  width: ${({ width = '100%' }) => width};
+  margin: auto;
+  margin-top: 1rem;
 
-  button{
+  .filter-button{
     padding: 0;
     border: none;
     background: none;
@@ -21,9 +24,14 @@ export const FilterStyle = styled.div`
     color: #6A5ACD;
     font-weight: 500;
   }
-  button:hover{
-    background-color:rgb(76, 64, 148);
-    border: 1px solid rgb(76, 64, 148);
+  .filter-button:hover{
+    background-color:rgb(90, 90, 90);
+    border: 1px solid rgb(90, 90, 90);
+    color: #fff;
+  }
+  .filter-button.active{
+    background-color: #6A5ACD;
+    border: 1px solid #6A5ACD;
     color: #fff;
   }
 `;
