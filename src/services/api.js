@@ -2,7 +2,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 const api = axios.create({
-  baseURL: "https://horariocertoservice.elevatohub.com.br/",
+  baseURL: "https://teste.elevatohub.com.br/",
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
