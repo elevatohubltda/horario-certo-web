@@ -26,6 +26,20 @@
   }
 }
 
+.loading-slide-dashboard{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 100px;
+  width: 100%;
+  text-align: center;
+
+  div[role="progressbar"] {
+    margin-top: 50vh;
+  }
+}
+
 .horarios-container {
   display: flex;
   justify-content: center;

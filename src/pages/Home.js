@@ -117,7 +117,7 @@ export default function Home() {
             whatsapp={companyInfo.whatsapp} 
             instagram={companyInfo.instagram}
           />
-          <CustomFilterStyle width="80%">
+          <CustomFilterStyle $width="80%">
             <button className={filter.indexActive === 0 ? 'active filter-button' : 'filter-button'} onClick={() => handleFilter("3 dias", 0)}>
               3 dias
             </button>

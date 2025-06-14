@@ -4,6 +4,7 @@ export const Container = styled.div`
   display: ${({ $display = 'inherit' }) => $display};
   justify-content: ${({ $justifycontent = 'unset' }) => $justifycontent};
   align-items: ${({ $alignitems = 'unset' }) => $alignitems};
+  flex-direction: ${({ $flexdirection = 'unset' }) => $flexdirection};
   width: ${({ $width = '90%' }) => $width};
   height: ${({ $height = 'max-content' }) => $height};
   margin: ${({ $margin = '1rem auto 0 auto' }) => $margin};
@@ -11,7 +12,7 @@ export const Container = styled.div`
   background-color: ${({ $backgroundcolor = '#f8f8f8' }) => $backgroundcolor};
   border-radius: ${({ $borderradius = '0' }) => $borderradius};
   border: ${({ $border = 'none' }) => $border};
-  box-shadow: 0 0 2px rgba(0, 0, 0, 0.1);
+  box-shadow: ;${({ $boxshadow = '0 0 2px rgba(0, 0, 0, 0.1)' }) => $boxshadow};
 
   .loader {
     width: 48px;

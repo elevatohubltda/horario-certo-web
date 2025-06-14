@@ -43,7 +43,12 @@ function Login() {
             secure: true,
             sameSite: "Strict",
           });
-          navigate('/'+res.data.companyUrl);
+          Cookies.set("companyUrl", res.data.companyUrl, {
+            expires: 1,
+            secure: true,
+            sameSite: "Strict",
+          });
+          navigate('/dashboard');
         }
       })
       .catch(err => {

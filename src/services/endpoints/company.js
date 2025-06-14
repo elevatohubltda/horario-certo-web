@@ -6,3 +6,8 @@ export const getCompanySchedules = (companyUrl, startDate, endDate) => api.get(
     "&startDate=" + startDate +
     "&endDate=" + endDate
     , { withAuth: false });
+export const getCompanySchedulesAuth = (companyUrl, startDate, endDate) => api.get(
+"/company-schedule/list?companyUrl=" + companyUrl +
+"&startDate=" + startDate +
+"&endDate=" + endDate
+, { withAuth: true });

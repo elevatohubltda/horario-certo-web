@@ -8,7 +8,7 @@ export const TopbarStyle = styled.div`
   left: 0;
   right: 0;
   top: 0;
-  box-shadow: 1px 1px 8px 3px rgba(0,0,0,0.1);
+  box-shadow: 1px 1px 6px 0px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
   

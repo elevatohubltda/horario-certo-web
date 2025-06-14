@@ -7,17 +7,18 @@ import { Instagram, WhatsApp } from '@mui/icons-material';
 import businessLogo from '../../assets/images/corporate-building.png';
 import { isAvailableLogin, logout } from '../../util/auth';
 import {Separator} from '../separator/style';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
-import { isMobile } from '../../util/util';
+import { isMobile, openInstagram, openWhatsApp } from '../../util/util';
+import Cookies from "js-cookie";
 
 export default function Topbar({imagem, whatsapp, instagram, name}) {
   const [isAuth, setIsAuth] = useState(false);
   const [open, setOpen] = useState(false);
   const menuRef = useRef(null);
   const navigate = useNavigate();
-  const location = useLocation();
   const [mobile, setMobile] = useState();
+  const companyUrl = Cookies.get("companyUrl");
 
   useEffect(() => {
     if(isAvailableLogin()) {
@@ -46,172 +47,97 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
     setOpen(false);
     toast.success("Desconectado com sucesso!");
     setIsAuth(false);
-    navigate(location.pathname);
+    navigate('/'+companyUrl);
   }
 
-  const openWhatsApp = () => {
-    const url = "https://wa.me/55"+ whatsapp;
-    window.open(url, "_blank"); // Abre o link em uma nova aba
-  };
+  const showEstablishment = (mobile && !isAuth) || (mobile && isAuth) || (!mobile && !isAuth);
 
-  const openInstagram = () => {
-    const url = "https://instagram.com/"+ instagram;
-    window.open(url, "_blank"); // Abre o link em uma nova aba
-  };
+  const renderEstablishment = () => (
+    <div className={!isMobile ? 'establishmentBox' : 'establishmentBoxMobile'}>
+      <img
+        src={
+          mobile
+            ? imagem
+            : imagem === ""
+            ? businessLogo
+            : imagem
+        }
+        alt="Barbearia Seu Zé"
+      />
+      <div className="content">
+        <span>{mobile ? 'Barbearia Seu Zé' : name}</span>
+        <div className="social-media">
+          <WhatsApp className="whatsapp" onClick={() => openWhatsApp(whatsapp)} />
+          <Instagram className="instagram" onClick={() => openInstagram(instagram)} />
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderMenuNotAuth = () => (
+    <>
+      <div className="menu" ref={menuRef}>
+        <button className="menu-button" onClick={() => setOpen(!open)}>
+          <MenuLogo />
+        </button>
+        {open && (
+          <div className="user-dropdown">
+            <div className="dropdown-item">
+              <button onClick={() => handleNavigate('/login')}>Acessar</button>
+            </div>
+            <div className="dropdown-item">
+              <button>Seja Parceiro</button>
+            </div>
+          </div>
+        )}
+      </div>
+    </>
+  );
+
+  const renderMenuAuth = () => (
+    <div className="menu" ref={menuRef}>
+      <button
+        className={mobile ? 'menu-button' : 'user-button'}
+        onClick={() => setOpen(!open)}
+      >
+        {mobile ? <MenuLogo /> : <UserLogo />}
+      </button>
+      {open && (
+        <div className="user-dropdown">
+          <div className="dropdown-item" onClick={() => handleNavigate('/dashboard')}>
+            <button>Dashboard</button>
+          </div>
+          <div className="dropdown-item" onClick={() => handleNavigate('/'+companyUrl)}>
+            <button>Minha agenda</button>
+          </div>
+          <Separator width="100%" bordercolor="#ccc" margin="0" />
+          <div className="dropdown-item">
+            <button onClick={handleLogout}>Sair</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <TopbarStyle>
-        {!mobile && !isAuth && 
-          <>
-            <div className={!isMobile ? 'establishmentBox' : 'establishmentBoxMobile'}>
-            <img src={imagem === "" ? businessLogo : imagem} alt="Barbearia Seu Zé - Imagem" />
-            <div className='content'>
-              <span>{name}</span>
-              <div className='social-media'>
-                <WhatsApp className='whatsapp' onClick={openWhatsApp} />
-                <Instagram className='instagram' onClick={openInstagram} />
-              </div>
-            </div>
-          </div>
-          </>
-        }
-        {!mobile && isAuth && 
-          <img src={logo} alt="Logo" />
-        }
         <>
-          {mobile && isAuth &&
-            <div className={!isMobile ? 'establishmentBox' : 'establishmentBoxMobile'}>
-              <img src={imagem} alt="Barbearia Seu Zé" />
-              <div className='content'>
-                <span>Barbearia Seu Zé</span>
-                <div className='social-media'>
-                  <WhatsApp className='whatsapp' onClick={openWhatsApp}/>
-                  <Instagram className='instagram' onClick={openInstagram} />
-                </div>
-              </div>
-            </div>
-          }
-          {!mobile && !isAuth &&
-            <div className='menu'>
-              <button className='be-a-partner'>Seja Parceiro</button>
-              <button 
-                className='my-area' 
-                onClick={() => handleNavigate('/login')}
-              >
-                Minha Área
+          {showEstablishment && renderEstablishment()}
+
+          {!mobile && isAuth && <img src={logo} alt="Logo" />}
+
+          {!mobile && !isAuth && (
+            <div className="menu">
+              <button className="be-a-partner">Seja Parceiro</button>
+              <button className="my-area" onClick={() => handleNavigate('/login')}>
+                Entrar
               </button>
             </div>
-          }
-          {mobile && !isAuth &&
-            <>
-              <div className={!isMobile ? 'establishmentBox' : 'establishmentBoxMobile'}>
-                <img src={imagem} alt="Barbearia Seu Zé" />
-                <div className='content'>
-                  <span>Barbearia Seu Zé</span>
-                  <div className='social-media'>
-                    <WhatsApp className='whatsapp' onClick={openWhatsApp}/>
-                    <Instagram className='instagram' onClick={openInstagram} />
-                  </div>
-                </div>
-              </div>
-              <div className="menu" ref={menuRef}>
-                <button 
-                  className="menu-button" 
-                  onClick={() => setOpen(!open)}
-                >
-                  <MenuLogo />
-                </button>
-    
-                {open && (
-                  <div className="user-dropdown">
-                    <div className="dropdown-item">
-                      <button onClick={() => handleNavigate('/login')}>
-                        Minha Área
-                      </button>
-                    </div>
-                    <div className="dropdown-item">
-                      <button>
-                        Seja Parceiro
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </>
-          }
+          )}
+
+          {mobile && !isAuth && renderMenuNotAuth()}
+          {isAuth && renderMenuAuth()}
         </>
-        {isAuth && (
-          !mobile ?
-          <div className="menu" ref={menuRef}>
-            <button 
-              className="user-button" 
-              onClick={() => setOpen(!open)}
-            >
-              <UserLogo />
-            </button>
-
-            {open && (
-              <div className="user-dropdown">
-                <div className="dropdown-item">
-                  <button>
-                    Painel
-                  </button>
-                </div>
-                <div className="dropdown-item">
-                  <button>
-                    Minha conta
-                  </button>
-                </div>
-                <Separator 
-                  width="100%" 
-                  bordercolor="#ccc" 
-                  margin="0" 
-                />
-                <div className="dropdown-item">
-                  <button
-                    onClick={() => handleLogout()}>
-                    Sair
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-          :
-          <div className="menu" ref={menuRef}>
-            <button 
-              className="menu-button" 
-              onClick={() => setOpen(!open)}
-            >
-              <MenuLogo />
-            </button>
-
-            {open && (
-              <div className="user-dropdown">
-                <div className="dropdown-item">
-                  <button>
-                    Painel
-                  </button>
-                </div>
-                <div className="dropdown-item">
-                  <button>
-                    Minha conta
-                  </button>
-                </div>
-                <Separator 
-                  width="100%" 
-                  bordercolor="#ccc" 
-                  margin="0" 
-                />
-                <div className="dropdown-item">
-                  <button
-                    onClick={() => handleLogout()}>
-                    Sair
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
       <ToastContainer position={isMobile ? 'bottom-right' : 'top-right'} className={isMobile ? 'mobile' : 'desktop'} autoClose={3000} />
     </TopbarStyle>
   );
