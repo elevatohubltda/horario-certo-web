@@ -6,6 +6,9 @@ import {
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import Config from './pages/Config';
+import ChangePassword from './pages/ChangePassword';
+import Register from './pages/Register';
 
 const router = createBrowserRouter(
   [
@@ -20,6 +23,18 @@ const router = createBrowserRouter(
     {
       path: '/dashboard',
       element: <Dashboard />,
+    },
+    {
+      path: '/configuracoes',
+      element: <Config />,
+    },
+    {
+      path: '/alterar-senha',
+      element: <ChangePassword />,
+    },
+    {
+      path: '/registro',
+      element: <Register />,
     },
   ],
   {

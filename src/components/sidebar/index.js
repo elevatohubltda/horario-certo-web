@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react"
 import styled from "styled-components"
-import { Home, User, Settings, PanelLeftClose, PanelLeftOpen, DollarSignIcon } from "lucide-react"
-import { useLocation } from "react-router-dom"
+import { Home, User, Settings, PanelLeftClose, PanelLeftOpen, DollarSignIcon, KeyRound } from "lucide-react"
+import { useLocation, useNavigate } from "react-router-dom"
 import { isMobile } from "../../util/util"
 
 const SidebarContainer = styled.div`
@@ -75,12 +75,14 @@ const Sidebar = ({ children }) => {
   const [mobile, setMobile] = useState();
   const location = useLocation();
   const currentPage = location.pathname.split('/').filter(Boolean)[0];
+  const navigate = useNavigate();
 
   const menuItems = [
-    { icon: <Home size={currentPage === 'dashboard' ? 18 : 14} />, label: "Dashboard" },
-    { icon: <User size={currentPage === 'clientes' ? 18 : 14} />, label: "Clientes" },
-    { icon: <DollarSignIcon size={currentPage === 'plano' ? 18 : 14} />, label: "Meu plano" },
-    { icon: <Settings size={currentPage === 'configuracoes' ? 18 : 14} />, label: "Configurações" },
+    { icon: <Home size={currentPage === 'dashboard' ? 18 : 14} />, label: "Dashboard", url: "/dashboard" },
+    //{ icon: <User size={currentPage === 'clientes' ? 18 : 14} />, label: "Clientes", url: "/clientes" },
+    { icon: <DollarSignIcon size={currentPage === 'plano' ? 18 : 14} />, label: "Meu plano", url: "/plano" },
+    { icon: <Settings size={currentPage === 'configuracoes' ? 18 : 14} />, label: "Configurações", url: "/configuracoes" },
+    { icon: <KeyRound size={currentPage === 'alterar-senha' ? 18 : 14} />, label: "Alterar senha", url: "/alterar-senha" },
   ]
 
   useEffect(() => {
@@ -95,7 +97,11 @@ const Sidebar = ({ children }) => {
 
         <MenuList>
           {menuItems.map((item, index) => (
-            <MenuItem key={index} $isOpen={isOpen} $isActive={currentPage === item.label.toLowerCase()}>
+            <MenuItem 
+            key={index} 
+            $isOpen={isOpen} 
+            $isActive={currentPage === item.label.toLowerCase()}
+            onClick={() => navigate(item.url)}>
               {item.icon}
               <Label $isVisible={isOpen} $isActive={currentPage === item.label.toLowerCase()}>{item.label}</Label>
             </MenuItem>

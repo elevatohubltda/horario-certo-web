@@ -32,3 +32,13 @@ export function transformarHorariosPorData(array) {
   
     return resultado;
 }
+
+export function paraHoraSemSegundos(hora) {
+  // Exemplo: "14:30:00" → "14:30"
+  return hora.slice(0, 5);
+}
+
+export function paraHoraCompleta(hora) {
+  // Exemplo: "14:30" → "14:30:00"
+  return hora.length === 5 ? `${hora}:00` : hora;
+}

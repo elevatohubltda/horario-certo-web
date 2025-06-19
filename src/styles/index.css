@@ -110,7 +110,6 @@
 form{
   display: flex;
   flex-direction: column;
-  width: 300px;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -141,7 +140,7 @@ form{
       border: 1px solid #6A5ACD;
   }
 
-  button{
+  .btn-primary{
       border: 1px solid #7567ce;
       border-radius: 1rem;
       color: #fff;
@@ -151,6 +150,19 @@ form{
       font-size: 1rem;
       cursor: pointer;
       transition: .5s;
+  }
+  .btn-link{
+      text-decoration: none;
+      background: transparent;
+      border: none;
+      color: #6A5ACD;
+      font-weight: 700;
+      cursor: pointer;
+      transition: .8s;
+
+    &:hover{
+      text-decoration: underline;
+    }
   }
 }
 

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { ClipboardPenLineIcon, CircleXIcon, PhoneIcon } from "lucide-react";
+import { ClipboardPenLineIcon, CircleXIcon, PhoneIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import styled from 'styled-components';
 import { openWhatsApp } from '../../util/util';
 import { ThreeDots } from "react-loader-spinner";
@@ -69,90 +69,98 @@ const SortedTable = ({ data, loading }) => {
         )
     }
 
+    if (data.length === 0) {
+        return (
+            <div className="loading-slide-dashboard">
+                <p>Nenhum horário encontrado.</p>
+            </div>
+        );
+    }
+
     return (
         <>
-        <table
-            border="1"
-            cellPadding="8"
-            cellSpacing="0"
-            style={{
-            borderCollapse: 'collapse',
-            width: '100%',
-            marginTop: '20px',
-            border: 'none'
-            }}
-        >
-            <thead style={{ backgroundColor: '#6a5acd0a', textAlign: 'center' }}>
-            <tr>
-                <th>Data</th>
-                <th>Horário</th>
-                <th>Nome</th>
-                <th>Status</th>
-                <th>Ações</th>
-            </tr>
-            </thead>
-            <tbody style={{ fontSize: '14px', color: '#333' }}>
-            {currentData.map((item, index) => {
-                const dateObj = new Date(item.schedule);
-                const date = dateObj.toLocaleDateString();
-                const time = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-                return (
-                <tr key={index} style={{ textAlign: 'center' }}>
-                    <td>{date}</td>
-                    <td>{time}</td>
-                    <td>{item.name ?? '-'}</td>
-                    <td style={{ color: item.available ? 'green' : 'red' }}>
-                    {item.available ? 'Disponível' : 'Agendado'}
-                    </td>
-                    <td>
-                    <ActionButton>
-                        <Button onClick={() => handleEdit(item.id)}>
-                        <ClipboardPenLineIcon size={16} color='blue' />
-                        </Button>
-                        {!item.available && (
-                        <>
-                            <Button onClick={() => handleCancel(item.id)}>
-                            <CircleXIcon size={16} color='red' />
-                            </Button>
-                            <Button onClick={() => handleContact(item.telephone)}>
-                            <PhoneIcon size={16} color='green' />
-                            </Button>
-                        </>
-                        )}
-                    </ActionButton>
-                    </td>
+            <table
+                border="1"
+                cellPadding="8"
+                cellSpacing="0"
+                style={{
+                borderCollapse: 'collapse',
+                width: '100%',
+                marginTop: '20px',
+                border: 'none'
+                }}
+            >
+                <thead style={{ backgroundColor: '#6a5acd0a', textAlign: 'center' }}>
+                <tr>
+                    <th>Data</th>
+                    <th>Horário</th>
+                    <th>Nome</th>
+                    <th>Status</th>
+                    <th>Ações</th>
                 </tr>
-                );
-            })}
-            </tbody>
-        </table>
+                </thead>
+                <tbody style={{ fontSize: '14px', color: '#333' }}>
+                {currentData.map((item, index) => {
+                    const dateObj = new Date(item.schedule);
+                    const date = dateObj.toLocaleDateString();
+                    const time = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-        <Pagination>
-            <PageButton
-            onClick={() => setCurrentPage(p => p - 1)}
-            disabled={currentPage === 1}
-            >
-            Anterior
-            </PageButton>
-            {[...Array(totalPages)].map((_, i) => (
-            <PageButton
-                key={i}
-                onClick={() => setCurrentPage(i + 1)}
-                active={currentPage === i + 1}
-            >
-                {i + 1}
-            </PageButton>
-            ))}
-            <PageButton
-            onClick={() => setCurrentPage(p => p + 1)}
-            disabled={currentPage === totalPages}
-            >
-            Próxima
-            </PageButton>
-        </Pagination>
-    </>
-  );
+                    return (
+                    <tr key={index} style={{ textAlign: 'center' }}>
+                        <td>{date}</td>
+                        <td>{time}</td>
+                        <td>{item.name ?? '-'}</td>
+                        <td style={{ color: item.available ? 'green' : 'red' }}>
+                        {item.available ? 'Disponível' : 'Agendado'}
+                        </td>
+                        <td>
+                        <ActionButton>
+                            <Button onClick={() => handleEdit(item.id)}>
+                            <ClipboardPenLineIcon size={16} color='blue' />
+                            </Button>
+                            {!item.available && (
+                            <>
+                                <Button onClick={() => handleCancel(item.id)}>
+                                <CircleXIcon size={16} color='red' />
+                                </Button>
+                                <Button onClick={() => handleContact(item.telephone)}>
+                                <PhoneIcon size={16} color='green' />
+                                </Button>
+                            </>
+                            )}
+                        </ActionButton>
+                        </td>
+                    </tr>
+                    );
+                })}
+                </tbody>
+            </table>
+
+            <Pagination>
+                <PageButton
+                onClick={() => setCurrentPage(p => p - 1)}
+                disabled={currentPage === 1}
+                >
+                <ChevronLeftIcon size={16} />
+                </PageButton>
+                {[...Array(totalPages)].map((_, i) => (
+                <PageButton
+                    key={i}
+                    onClick={() => setCurrentPage(i + 1)}
+                    active={currentPage === i + 1}
+                >
+                    {i + 1}
+                </PageButton>
+                ))}
+                <PageButton
+                onClick={() => setCurrentPage(p => p + 1)}
+                disabled={currentPage === totalPages}
+                >
+                <ChevronRightIcon size={16} />
+                </PageButton>
+            </Pagination>
+        </>
+    );
 };
 
 export default SortedTable;

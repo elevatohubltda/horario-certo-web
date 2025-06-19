@@ -65,7 +65,7 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
         alt="Barbearia Seu Zé"
       />
       <div className="content">
-        <span>{mobile ? 'Barbearia Seu Zé' : name}</span>
+        <span>{name}</span>
         <div className="social-media">
           <WhatsApp className="whatsapp" onClick={() => openWhatsApp(whatsapp)} />
           <Instagram className="instagram" onClick={() => openInstagram(instagram)} />
@@ -110,7 +110,7 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
           <div className="dropdown-item" onClick={() => handleNavigate('/'+companyUrl)}>
             <button>Minha agenda</button>
           </div>
-          <Separator width="100%" bordercolor="#ccc" margin="0" />
+          <Separator $width="100%" $bordercolor="#ccc" $margin="0" />
           <div className="dropdown-item">
             <button onClick={handleLogout}>Sair</button>
           </div>

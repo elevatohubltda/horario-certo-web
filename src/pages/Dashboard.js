@@ -23,7 +23,7 @@ export default function Dashboard() {
   });
   const [loading, setLoading] = React.useState(true);
   const [loadingSchedule, setLoadingSchedule] = React.useState(true);
-  const [companyInfo, setCompanyInfo] = React.useState();
+  const [companyInfo, setCompanyInfo] = React.useState(Cookies.get("companyInfo") ? Cookies.get("companyInfo") : undefined);
   const companyUrl = Cookies.get("companyUrl");
   const [horarios, setHorarios] = React.useState([]);
   const navigate = useNavigate();
@@ -87,6 +87,11 @@ export default function Dashboard() {
       try {
         const response = await getCompany(companyUrl);
         await sleep(2000);
+        Cookies.set("companyInfo", JSON.stringify(response.data), {
+          expires: 1,
+          secure: true,
+          sameSite: "Strict",
+        });
         setCompanyInfo(response.data);
         setLoading(false);
       } catch (error) {
@@ -95,7 +100,9 @@ export default function Dashboard() {
       }
     }
     if(isAvailableLogin()) {
-      getCompanyInfo();
+      if(companyInfo === undefined || companyInfo === null) {
+        getCompanyInfo();
+      }
       setMobile(isMobile()); 
     } else{
       navigate("/"+companyUrl);
@@ -124,6 +131,22 @@ export default function Dashboard() {
                 $boxshadow="0"
             >
                 <Sidebar>
+                  {loading && companyInfo === undefined &&
+                    <Container 
+                      $width="100%" 
+                      $height="100vh" 
+                      $margin="0" 
+                      $padding="0" 
+                      $backgroundcolor="none"
+                      $borderradius="0" 
+                      $border="none"
+                      $display="flex" 
+                      $justifycontent="center" 
+                      $alignitems="center"
+                    >
+                      <span className="loader"></span>
+                    </Container>
+                  }
                     <CustomFilterStyle $width="100%" $padding="1rem 0 0 0">
                         <button className={filter.indexActive === 0 ? 'active filter-button' : 'filter-button'} onClick={() => handleFilter("3 dias", 0)}>
                             3 dias
@@ -140,26 +163,8 @@ export default function Dashboard() {
                     </CustomFilterStyle>
                     <SortedTable data={horarios} loading={loadingSchedule}/>
                 </Sidebar>
-            
             </Container>
-            
         </>
-      }
-      {loading && companyInfo === undefined &&
-        <Container 
-          $width="100%" 
-          $height="100vh" 
-          $margin="0" 
-          $padding="0" 
-          $backgroundcolor="none"
-          $borderradius="0" 
-          $border="none"
-          $display="flex" 
-          $justifycontent="center" 
-          $alignitems="center"
-        >
-          <span className="loader"></span>
-        </Container>
       }
     </>
   );

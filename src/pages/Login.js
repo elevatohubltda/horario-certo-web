@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Button } from 'react-bootstrap';
 import logo from '../assets/logo.png';
 import { Separator } from '../components/separator/style';
+import { Title } from '../components/title';
 import { login } from '../services/endpoints/auth';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from "react-toastify";
@@ -72,7 +73,7 @@ function Login() {
       $width="100%" 
       $backgroundcolor="#f0f0f0"
     >
-        <form>
+        <form style={{ width: '300px'}}>
           <img src={logo} alt="Logo" />
           <label>USUÁRIO</label>
           <input 
@@ -88,8 +89,18 @@ function Login() {
             value={userData.password}
             onChange={(e) => handleUserData('password', e.target.value)}
           />
-          <Separator width="100%" bordercolor="#ccc" />
           <Button onClick={handleLogin}>ACESSAR</Button>
+          <Separator $width="50%" $bordercolor="#ccc" $margin="2rem 25% 0 25%" />
+          <Title
+            $fontweight="300"
+            $fontsize="14px"
+            $color="#000"
+            $align="center"
+            $margin="1rem auto 0.5rem auto"
+          >
+            <span>Não tem uma conta ainda? </span>
+          </Title>
+          <Button variant="link" onClick={() => navigate('/registro')}>cadastre aqui</Button>
         </form>
       <ToastContainer position="top-right" autoClose={3000} />
     </Container>
