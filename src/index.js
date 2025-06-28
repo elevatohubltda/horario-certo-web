@@ -1,6 +1,7 @@
 import ReactDOM from 'react-dom/client';
 import {
   createBrowserRouter,
+  Navigate,
   RouterProvider,
 } from 'react-router-dom';
 import Home from './pages/Home';
@@ -12,6 +13,10 @@ import Register from './pages/Register';
 
 const router = createBrowserRouter(
   [
+    {
+      path: '/',
+      element: <Navigate to="/login" replace />,
+    },
     {
       path: '/:companyUrl',
       element: <Home />,
