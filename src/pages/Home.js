@@ -9,7 +9,7 @@ import { getWeekDay } from "../util/date";
 import Topbar from "../components/topbar";
 import { Container } from "../components/container/style";
 import { CustomFilterStyle } from "../components/filter/style";
-import { useParams } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 import { getCompany, getCompanySchedules } from "../services/endpoints/company";
 import { transformarHorariosPorData } from "../util/format";
 import { ThreeDots } from "react-loader-spinner";
@@ -37,6 +37,8 @@ export default function Home() {
   const [loadingSchedule, setLoadingSchedule] = React.useState(true);
   const [companyInfo, setCompanyInfo] = React.useState();
   const [horarios, setHorarios] = React.useState([]);
+
+  
 
   const handleFilter = (name, index, startDate, endDate) => {
     switch (name) {
@@ -104,6 +106,9 @@ export default function Home() {
   }, [filter]);
 
   useEffect(() => {
+    if (['login', 'dashboard', 'configuracoes', 'alterar-senha', 'registro'].includes(companyUrl)) {
+      return <Navigate to="/login" replace />;
+    }
     getCompanyInfo();
   }, [companyUrl]);
 
