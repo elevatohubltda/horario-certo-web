@@ -11,10 +11,15 @@ import { Container } from "../components/container/style";
 import { CustomFilterStyle } from "../components/filter/style";
 import { useParams } from "react-router-dom";
 import { getCompany, getCompanySchedules } from "../services/endpoints/company";
-import { transformarHorariosPorData } from "../util/format";
+import { formataNumeroTelefone, formatSchedulesToISO, transformarHorariosPorData } from "../util/format";
 import { ThreeDots } from "react-loader-spinner";
 import DateRangeSelector from "../components/dateRangeSelector";
-
+import Dialog from "../components/dialog";
+import { Title } from "../components/title";
+import { Separator } from "../components/separator/style";
+import { Button } from "react-bootstrap";
+import { createReservedSchedule, removeReservedSchedule } from "../services/endpoints/reservedSchedule";
+import { ToastContainer, toast } from "react-toastify";
 
 export default function Home() {
   const settings = {
@@ -37,8 +42,17 @@ export default function Home() {
   const [loadingSchedule, setLoadingSchedule] = React.useState(true);
   const [companyInfo, setCompanyInfo] = React.useState();
   const [horarios, setHorarios] = React.useState([]);
-
-  
+  const [open, setOpen] = React.useState(false);
+  const [selectedSchedule, setSelectedSchedule] = React.useState(
+    {
+      data: "",
+      horario: "",
+      nome: "",
+      telefone: ""
+    }
+  );
+  const [available, setAvailable] = React.useState()
+  const [code, setCode] = React.useState()
 
   const handleFilter = (name, index, startDate, endDate) => {
     switch (name) {
@@ -60,7 +74,8 @@ export default function Home() {
         break;
       default:
         if (!startDate || !endDate) {
-          console.error("startDate e endDate são obrigatórios para esse filtro.");
+          
+          toast.error("É necessário selecionar uma data de início e uma data de fim para esse filtro.");
           return;
         }
         setFilter({
@@ -81,7 +96,7 @@ export default function Home() {
       setCompanyInfo(response.data);
       setLoading(false);
     } catch (error) {
-      console.error("Erro ao buscar os dados da empresa:", error);
+      toast.error("Erro ao buscar os dados da empresa:", error);
       setLoading(false);
     }
   }
@@ -96,8 +111,46 @@ export default function Home() {
       setHorarios(transformarHorariosPorData(response.data));
       setLoadingSchedule(false);
     } catch (error) {
-      console.error("Erro ao buscar os dados da empresa:", error);
+      toast.error("Erro ao buscar os horários da empresa:", error);
       setLoadingSchedule(false);
+    }
+  }
+
+  const selectSchedule = (data, horario, available, nome) => {
+    setAvailable(available);
+    setSelectedSchedule({ data, horario, nome});
+    setOpen(true);
+  }
+
+  const makeSchedule = async () => {
+    const scheduleISOFormat = formatSchedulesToISO({date: selectedSchedule.data, schedules: [selectedSchedule.horario]});
+    const reservedSchedule = {
+      name: selectedSchedule.nome,
+      telephone: selectedSchedule.telefone.replace(/\D/g, ''),
+      schedule: scheduleISOFormat[0]
+    }
+    try {
+      const response = await createReservedSchedule(companyUrl, reservedSchedule);
+      toast.success("Agendamento criado com sucesso:", response.data);
+      setOpen(false);
+    } catch (error) {
+      toast.error("Erro ao criar agendamento:", error);
+    }
+  }
+
+  const makeCancelSchedule = async () => {
+    const scheduleISOFormat = formatSchedulesToISO({date: selectedSchedule.data, schedules: [selectedSchedule.horario]});
+    const reservedSchedule = {
+      telephone: selectedSchedule.telefone.replace(/\D/g, ''),
+      schedule: scheduleISOFormat[0],
+      cancelCode: code
+    }
+    try {
+      const response = await removeReservedSchedule(companyUrl, reservedSchedule);
+      toast.success("Agendamento cancelado com sucesso!");
+      setOpen(false);
+    } catch (error) {
+      toast.error("Erro ao cancelar agendamento:", error);
     }
   }
 
@@ -145,13 +198,13 @@ export default function Home() {
                   <h3>{item.data}</h3>
                   <span>{"("+getWeekDay(item.data)+")"}</span>
                   <div className="horarios-container">
-                    {item.horarios.map((horario, i) => (
+                    {item.horarios.map((iteminside, i) => (
                       <button 
-                        key={i} 
-                        className="horario-btn"
-                        onClick={() => alert(`Horário selecionado: ${horario}`)}
+                        key={i}
+                        className={iteminside.available === false ? 'horario-btn horario-btn-unavailable' : 'horario-btn'}
+                        onClick={() => selectSchedule(item.data, iteminside.horario, iteminside.available, iteminside.name)}
                       >
-                        {horario}
+                        {iteminside.horario}
                       </button>
                     ))}
                   </div>
@@ -172,6 +225,122 @@ export default function Home() {
             </Slider>
           </Container>
         </>
+      }
+      {open && available && 
+        <Dialog open={open} onClose={() => setOpen(false)}>
+          <Title
+            $fontweight="600"
+            $fontsize="1.25rem"
+            $color="#6A5ACD"
+            $texttransform="uppercase"
+          >
+            Confirme seu agendamento
+          </Title>
+          <Separator $width="100%" $bordercolor="#ccc" $margin="1rem 0 3rem 0" />
+          <form style={{ backgroundColor: "transparent", boxShadow: "none", width: "100%", padding: "0" }}>
+            <label>Data:</label>
+            <input type="text" value={selectedSchedule.data} readOnly />
+            <label>Horário:</label>
+            <input type="text" value={selectedSchedule.horario} readOnly />
+            <label>Digite seu nome:</label>
+            <input 
+              type="text" 
+              value={selectedSchedule.nome} 
+              onChange={(e) => setSelectedSchedule({ ...selectedSchedule, nome: e.target.value })}
+            />
+            <label>Digite seu telefone com DDD:</label>
+            <input 
+              type="text" 
+              value={formataNumeroTelefone(selectedSchedule.telefone || "")} 
+              onChange={(e) => setSelectedSchedule({ ...selectedSchedule, telefone: formataNumeroTelefone(e.target.value) }) }
+            />
+            <Separator $width="100%" $bordercolor="#ccc" />
+            <Container
+                $width="auto"
+                $display="flex"
+                $alignitems="flex-end"
+                $justifycontent="space-between"
+                $margin="0"
+                $backgroundcolor="transparent"
+            >
+              <Button
+                style={{ fontSize: "0.8rem", padding: "0.5rem 1rem", backgroundColor: "transparent", borderColor: "transparent", color: "#6A5ACD" }}
+                onClick={() => setOpen(false)}
+              >
+                  Voltar
+              </Button>
+              <Button
+                style={{ fontSize: "0.8rem", padding: "0.5rem 1rem", backgroundColor: "#6A5ACD", borderColor: "#6A5ACD" }}
+                onClick={makeSchedule}
+                disabled={!selectedSchedule.nome || !selectedSchedule.telefone}
+              >
+                  Agendar
+              </Button>
+            </Container>
+          </form>
+        </Dialog>
+      }
+      {open && !available && 
+        <Dialog open={open} onClose={() => setOpen(false)}>
+          <Title
+            $fontweight="600"
+            $fontsize="1.25rem"
+            $color="#6A5ACD"
+            $texttransform="uppercase"
+          >
+            Cancele seu agendamento
+          </Title>
+          <Separator $width="100%" $bordercolor="#ccc" $margin="1rem 0 3rem 0" />
+          <form style={{ backgroundColor: "transparent", boxShadow: "none", width: "100%", padding: "0" }}>
+            <label>Data:</label>
+            <input type="text" value={selectedSchedule.data} readOnly />
+            <label>Horário:</label>
+            <input type="text" value={selectedSchedule.horario} readOnly />
+            <label>Nome:</label>
+            <input 
+              type="text" 
+              value={selectedSchedule.nome} 
+              onChange={(e) => setSelectedSchedule({ ...selectedSchedule, nome: e.target.value })}
+              readOnly
+            />
+            <label>Digite seu telefone com DDD:</label>
+            <input 
+              type="text" 
+              value={formataNumeroTelefone(selectedSchedule.telefone || "")} 
+              onChange={(e) => setSelectedSchedule({ ...selectedSchedule, telefone: formataNumeroTelefone(e.target.value) }) }
+            />
+            <label>Digite seu código de cancelamento:</label>
+            <input 
+              type="text" 
+              value={code} 
+              onChange={(e) => setCode(e.target.value)}
+            />
+            <Separator $width="100%" $bordercolor="#ccc" />
+            <Container
+                $width="auto"
+                $display="flex"
+                $alignitems="flex-end"
+                $justifycontent="space-between"
+                $margin="0"
+                $backgroundcolor="transparent"
+            >
+              <Button
+                style={{ fontSize: "0.8rem", padding: "0.5rem 1rem", backgroundColor: "transparent", borderColor: "transparent", color: "#6A5ACD" }}
+                onClick={() => setOpen(false)}
+              >
+                  Voltar
+              </Button>
+              <Button
+                style={{ fontSize: "0.8rem", padding: "0.5rem 1rem", backgroundColor: "#d80101", borderColor: "#d80101" }}
+                onClick={makeCancelSchedule}
+                disabled={!selectedSchedule.code && !selectedSchedule.telefone}
+              >
+                  Cancelar
+              </Button>
+            </Container>
+            <ToastContainer position="top-right" autoClose={3000} closeButton={false} />
+          </form>
+        </Dialog>
       }
       {loading && companyInfo === undefined &&
         <Container 

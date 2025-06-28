@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"
 import styled from "styled-components"
-import { Home, User, Settings, PanelLeftClose, PanelLeftOpen, DollarSignIcon, KeyRound } from "lucide-react"
+import { Home, Settings, PanelLeftClose, PanelLeftOpen, DollarSignIcon, KeyRound, CalendarDays } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { isMobile } from "../../util/util"
 
@@ -80,6 +80,7 @@ const Sidebar = ({ children }) => {
   const menuItems = [
     { icon: <Home size={currentPage === 'dashboard' ? 18 : 14} />, label: "Dashboard", url: "/dashboard" },
     //{ icon: <User size={currentPage === 'clientes' ? 18 : 14} />, label: "Clientes", url: "/clientes" },
+    { icon: <CalendarDays size={currentPage === 'meus-agendamentos' ? 18 : 14} />, label: "Criar agendamentos", url: "/criar-agendamentos" },
     { icon: <DollarSignIcon size={currentPage === 'plano' ? 18 : 14} />, label: "Meu plano", url: "/plano" },
     { icon: <Settings size={currentPage === 'configuracoes' ? 18 : 14} />, label: "Configurações", url: "/configuracoes" },
     { icon: <KeyRound size={currentPage === 'alterar-senha' ? 18 : 14} />, label: "Alterar senha", url: "/alterar-senha" },

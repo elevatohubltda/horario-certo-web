@@ -14,9 +14,14 @@ export const createCompany = (companyData) => api.post(
     }
 );
 
-export const updateCompany = (companyData) => api.put(
+export const updateCompany = (companyData, companyUrl) => api.put(
     "/company",
-    companyData , 
+    {
+        name: companyData.name, 
+        instagram: companyData.instagram,
+        whatsapp: companyData.whatsapp,
+        url: companyUrl
+    } , 
     { withAuth: true,
         headers: {
           "Content-Type": "application/json",

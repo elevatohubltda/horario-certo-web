@@ -14,7 +14,7 @@ api.interceptors.request.use(
   (config) => {
     // Apenas adiciona o token se config.withAuth === true
     if (config.withAuth) {
-      const token = Cookies.get("token");
+      const token = Cookies.get("token") ? Cookies.get("token") : 'null';
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }

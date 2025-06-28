@@ -1,7 +1,6 @@
 import ReactDOM from 'react-dom/client';
 import {
   createBrowserRouter,
-  Navigate,
   RouterProvider,
 } from 'react-router-dom';
 import Home from './pages/Home';
@@ -10,12 +9,13 @@ import Dashboard from './pages/Dashboard';
 import Config from './pages/Config';
 import ChangePassword from './pages/ChangePassword';
 import Register from './pages/Register';
+import MySchedule from './pages/MySchedule';
 
 const router = createBrowserRouter(
   [
     {
-      path: '/',
-      element: <Navigate to="/login" replace />,
+      path: '/:companyUrl',
+      element: <Home />,
     },
     {
       path: '/login',
@@ -38,8 +38,8 @@ const router = createBrowserRouter(
       element: <Register />,
     },
     {
-      path: '/:companyUrl((?!login|dashboard|configuracoes|alterar-senha|registro)[a-z0-9-]+)',
-      element: <Home />,
+      path: '/criar-agendamentos',
+      element: <MySchedule />,
     },
   ],
   {
@@ -49,7 +49,6 @@ const router = createBrowserRouter(
     },
   }
 );
-
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<RouterProvider router={router} />);
