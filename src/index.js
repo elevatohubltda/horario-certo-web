@@ -18,10 +18,6 @@ const router = createBrowserRouter(
       element: <Navigate to="/login" replace />,
     },
     {
-      path: '/:companyUrl',
-      element: <Home />,
-    },
-    {
       path: '/login',
       element: <Login />,
     },
@@ -40,6 +36,10 @@ const router = createBrowserRouter(
     {
       path: '/registro',
       element: <Register />,
+    },
+    {
+      path: '/:companyUrl((?!login|dashboard|configuracoes|alterar-senha|registro)[a-z0-9-]+)',
+      element: <Home />,
     },
   ],
   {
