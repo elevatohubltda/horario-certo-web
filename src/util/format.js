@@ -96,3 +96,20 @@ export function formatSchedulesToISO(scheduleData) {
     return localISOString;
   }).filter(Boolean);
 }
+
+export const maskTime = (value) => {
+  // Remove tudo que não for dígito
+  let v = value.replace(/\D/g, '');
+
+  if (v.length >= 3) {
+    // Se tiver 3 ou mais dígitos, insere ':'
+    v = v.slice(0, 2) + ':' + v.slice(2, 4);
+  }
+
+  // Limita a 5 caracteres: HH:MM
+  if (v.length > 5) {
+    v = v.slice(0, 5);
+  }
+
+  return v;
+};

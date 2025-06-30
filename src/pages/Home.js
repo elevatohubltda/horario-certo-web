@@ -146,7 +146,7 @@ export default function Home() {
       cancelCode: code
     }
     try {
-      const response = await removeReservedSchedule(companyUrl, reservedSchedule);
+      await removeReservedSchedule(companyUrl, reservedSchedule);
       toast.success("Agendamento cancelado com sucesso!");
       setOpen(false);
     } catch (error) {

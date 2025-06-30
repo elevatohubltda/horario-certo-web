@@ -14,6 +14,20 @@ export const createReservedSchedule = (companyUrl, schedule) => {
     );
 };
 
+export const updateSchedule = (companyUrl, schedule) => {
+  const params = new URLSearchParams({ companyUrl }).toString();
+  return api.put(
+    `/reserved-schedule?${params}`,
+    schedule,
+        {
+            withAuth: true,
+            headers: {
+                "Content-Type": "application/json",
+            },
+        }  
+    );
+};
+
 export const removeReservedSchedule = (companyUrl, schedule) => {
   const params = new URLSearchParams({ companyUrl }).toString();
 
@@ -21,6 +35,20 @@ export const removeReservedSchedule = (companyUrl, schedule) => {
     `/reserved-schedule?${params}`,
     {
       data: schedule,
+      withAuth: true,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+};
+
+export const removeReservedScheduleByOwner = (companyUrl, schedule, onlyUncheck) => {
+  const params = new URLSearchParams({ companyUrl, schedule, onlyUncheck }).toString();
+
+  return api.delete(
+    `/reserved-schedule/owner?${params}`,
+    {
       withAuth: true,
       headers: {
         "Content-Type": "application/json",

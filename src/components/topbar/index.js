@@ -55,12 +55,7 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
   const renderEstablishment = () => (
     <div className={!isMobile ? 'establishmentBox' : 'establishmentBoxMobile'}>
       <img
-        src={
-          mobile
-            ? imagem
-            : imagem === ""
-            ? businessLogo
-            : imagem
+        src={ mobile ? imagem : imagem === "" ? businessLogo : imagem
         }
         alt="Barbearia Seu Zé"
       />
@@ -105,11 +100,28 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
       {open && (
         <div className="user-dropdown">
           <div className="dropdown-item" onClick={() => handleNavigate('/dashboard')}>
-            <button>Dashboard</button>
+            <button>Meu painel</button>
           </div>
           <div className="dropdown-item" onClick={() => handleNavigate('/'+companyUrl)}>
             <button>Minha agenda</button>
           </div>
+          {mobile ? 
+            <>
+              <div className="dropdown-item" onClick={() => handleNavigate('/criar-agendamentos')}>
+                <button>Criar agenda</button>
+              </div>
+              <div className="dropdown-item" onClick={() => handleNavigate('/plano')}>
+                <button>Meu plano</button>
+              </div>
+              <div className="dropdown-item" onClick={() => handleNavigate('/alterar-senha')}>
+                <button>Alterar senha</button>
+              </div>
+              <div className="dropdown-item" onClick={() => handleNavigate('/configuracoes')}>
+                <button>Configurações</button>
+              </div>
+            </>
+          : <></>
+          }
           <Separator $width="100%" $bordercolor="#ccc" $margin="0" />
           <div className="dropdown-item">
             <button onClick={handleLogout}>Sair</button>

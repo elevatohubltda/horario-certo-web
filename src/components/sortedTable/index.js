@@ -3,6 +3,15 @@ import { ClipboardPenLineIcon, CircleXIcon, PhoneIcon, ChevronLeftIcon, ChevronR
 import styled from 'styled-components';
 import { openWhatsApp } from '../../util/util';
 import { ThreeDots } from "react-loader-spinner";
+import { removeReservedScheduleByOwner, updateSchedule } from '../../services/endpoints/reservedSchedule';
+import Cookies from "js-cookie";
+import ConfirmDialog from '../confirmDialog';
+import { toast, ToastContainer } from 'react-toastify';
+import { maskTime, paraHoraCompleta, paraHoraSemSegundos } from '../../util/format';
+import Dialog from '../dialog';
+import { Title } from '../title';
+import { Separator } from '../separator/style';
+import { Container } from '../container/style';
 
 const ActionButton = styled.div`
     display: flex;  
@@ -41,9 +50,15 @@ const PageButton = styled.button`
     }
 `;
 
-const SortedTable = ({ data, loading }) => {
+const SortedTable = ({ data, loading, isMobile }) => {
     const itemsPerPage = 10;
+    const companyUrl = Cookies.get("companyUrl");
     const [currentPage, setCurrentPage] = useState(1);
+    const [onlyUncheck, setOnlyUncheck] = useState(false);
+    const [showDialogConfirm, setShowDialogConfirm] = useState(false);
+    const [showDialogEdit, setShowDialogEdit] = useState(false);
+    const [confirmMessage, setConfirmMessage] = useState();
+    const [selectedSchedule, setSelectedSchedule] = useState()
 
     const sortedData = useMemo(
         () => [...data].sort((a, b) => new Date(a.schedule) - new Date(b.schedule)),
@@ -57,8 +72,125 @@ const SortedTable = ({ data, loading }) => {
     }, [sortedData, currentPage]);
 
     const handleEdit = (id) => console.log(`Edit item with id: ${id}`);
-    const handleCancel = (id) => console.log(`Cancel item with id: ${id}`);
+
+    const handleConfirm = async () => {
+        const response = await removeReservedScheduleByOwner(companyUrl, selectedSchedule, false)
+        if(response.status === 200){
+            toast.success(response.data);
+            setShowDialogConfirm(false);
+            setSelectedSchedule();
+        } else{
+            toast.error("Erro ao cancelar");
+        }
+    };
+    const handleCancel = async () => {
+        const response = await removeReservedScheduleByOwner(companyUrl, selectedSchedule, true)
+        if(response.status === 200){
+            toast.success(response.data);
+            setShowDialogConfirm(false);
+            setSelectedSchedule();
+        } else{
+            toast.error("Erro ao cancelar");
+        }
+    };
+    const handleOpenDialogConfirm = (item, schedule) => {
+        setSelectedSchedule(schedule)
+        if(item.available === true){
+            setConfirmMessage("Deseja, de fato, apagar o horário?");
+        } else {
+            setConfirmMessage("Existe um agendamento vigente para esse horário. Deseja apagar o horário mesmo assim?");
+        }
+        setShowDialogConfirm(true);
+    }
+    const handleOpenEditConfirm = (item) => {
+        const [datePart, timePart] = item.schedule.split("T")
+        setSelectedSchedule({date: datePart, schedule_old: paraHoraSemSegundos(timePart), schedule_new: paraHoraSemSegundos(timePart)})
+        setShowDialogEdit(true);
+    }
+
+    const handleSelectedSchedule = (parameter, value) => {
+        setSelectedSchedule((prev) => ({
+            ...prev,
+            [parameter]: value
+        }));
+    }
+
     const handleContact = (telephone) => openWhatsApp(telephone);
+    
+    const getStatusCell = (item) => {
+        const today = new Date();
+        const itemDateObj = new Date(item.schedule);
+
+        today.setHours(0, 0, 0, 0);
+        itemDateObj.setHours(0, 0, 0, 0);
+
+        const diffTime = today - itemDateObj;
+        const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
+        if (diffDays > 0) {
+            return (
+            <td style={{ color: item.available ? 'gray' : 'blue' }}>
+                {item.available ? 'Expirado' : 'Concluído'}
+            </td>
+            );
+        } else {
+            return (
+            <td style={{ color: item.available ? 'green' : 'red' }}>
+                {item.available ? 'Disponível' : 'Agendado'}
+            </td>
+            );
+        }
+    };
+
+    const getActionButtons = (item, handleOpenEditConfirm, handleOpenDialogConfirm, handleContact) => {
+        const today = new Date();
+        const itemDateObj = new Date(item.schedule);
+
+        today.setHours(0, 0, 0, 0);
+        itemDateObj.setHours(0, 0, 0, 0);
+
+        const buttons = [];
+
+        if (item.available && itemDateObj >= today) {
+            buttons.push(
+            <Button key="edit" onClick={() => handleOpenEditConfirm(item)}>
+                <ClipboardPenLineIcon size={16} color="blue" />
+            </Button>,
+            <Button key="cancel" onClick={() => handleOpenDialogConfirm(item, item.schedule)}>
+                <CircleXIcon size={16} color="red" />
+            </Button>
+            );
+        }
+
+        if (!item.available && itemDateObj <= today) {
+            buttons.push(
+            <Button key="phone" onClick={() => handleContact(item.telephone)}>
+                <PhoneIcon size={16} color="green" />
+            </Button>
+            );
+        }
+
+        return buttons.length > 0 ? (
+            <td><ActionButton>{buttons}</ActionButton></td>
+        ) : <td>-</td>;
+    };
+
+    const makeEditCall = async () => {
+        const response = await updateSchedule(
+            companyUrl, 
+            {   
+                new: selectedSchedule.date+"T"+selectedSchedule.schedule_new+":00", 
+                old: selectedSchedule.date+"T"+selectedSchedule.schedule_old+":00"
+            }
+        )
+        if(response.status === 200){
+            toast.success(response.data);
+            setShowDialogEdit(false);
+            setSelectedSchedule();
+        } else{
+            toast.error("Erro ao editar");
+        }
+    }
 
     if(loading) {
         return (
@@ -110,26 +242,8 @@ const SortedTable = ({ data, loading }) => {
                         <td>{date}</td>
                         <td>{time}</td>
                         <td>{item.name ?? '-'}</td>
-                        <td style={{ color: item.available ? 'green' : 'red' }}>
-                        {item.available ? 'Disponível' : 'Agendado'}
-                        </td>
-                        <td>
-                        <ActionButton>
-                            <Button onClick={() => handleEdit(item.id)}>
-                            <ClipboardPenLineIcon size={16} color='blue' />
-                            </Button>
-                            {!item.available && (
-                            <>
-                                <Button onClick={() => handleCancel(item.id)}>
-                                <CircleXIcon size={16} color='red' />
-                                </Button>
-                                <Button onClick={() => handleContact(item.telephone)}>
-                                <PhoneIcon size={16} color='green' />
-                                </Button>
-                            </>
-                            )}
-                        </ActionButton>
-                        </td>
+                        {getStatusCell(item)}
+                        {getActionButtons(item, handleOpenEditConfirm, handleOpenDialogConfirm, handleContact)}
                     </tr>
                     );
                 })}
@@ -159,6 +273,59 @@ const SortedTable = ({ data, loading }) => {
                 <ChevronRightIcon size={16} />
                 </PageButton>
             </Pagination>
+            <ConfirmDialog
+                isOpen={showDialogConfirm}
+                title="Confirmação"
+                message={confirmMessage}
+                onConfirm={handleConfirm}
+                onCancel={handleCancel}
+                close={() => setShowDialogConfirm(false)}
+            />
+            <ToastContainer position={isMobile ? 'bottom-right' : 'top-right'} className={isMobile ? 'mobile' : 'desktop'} autoClose={3000} />
+            {showDialogEdit && 
+                <Dialog open={showDialogEdit} onClose={() => setShowDialogEdit(false)}>
+                    <Title
+                        $fontweight="600"
+                        $fontsize="1.25rem"
+                        $color="#6A5ACD"
+                        $texttransform="uppercase"
+                    >
+                        Altere o agendamento
+                    </Title>
+                    <Separator $width="100%" $bordercolor="#ccc" $margin="1rem 0 3rem 0" />
+                    <form style={{ backgroundColor: "transparent", boxShadow: "none", width: "100%", padding: "0" }}>
+                        <label>Horário:</label>
+                        <input 
+                            type="text" 
+                            value={selectedSchedule.schedule_new}
+                            onChange={(e) => handleSelectedSchedule('schedule_new',maskTime(e.target.value))}
+                        />
+                        <Separator $width="100%" $bordercolor="#ccc" />
+                        <Container
+                            $width="auto"
+                            $display="flex"
+                            $alignitems="flex-end"
+                            $justifycontent="space-between"
+                            $margin="0"
+                            $backgroundcolor="transparent"
+                        >
+                        <Button
+                            style={{ fontSize: "0.8rem", padding: "0.5rem 1rem", backgroundColor: "transparent", borderColor: "transparent", color: "#6A5ACD" }}
+                            onClick={() => setShowDialogEdit(false)}
+                            type="button"
+                        >
+                            Voltar
+                        </Button>
+                        <Button
+                            style={{ fontSize: "0.8rem", padding: "0.5rem 1rem", backgroundColor: "#6A5ACD", borderColor: "#6A5ACD" }}
+                            onClick={makeEditCall}
+                        >
+                            Salvar
+                        </Button>
+                        </Container>
+                    </form>
+                </Dialog>
+            }
         </>
     );
 };

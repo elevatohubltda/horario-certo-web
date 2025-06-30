@@ -11,13 +11,13 @@ import { Title } from "../components/title";
 import { Separator } from "../components/separator/style";
 import { ToastContainer, toast } from "react-toastify";
 import { Button } from "react-bootstrap";
-import { formatSchedulesToISO, paraHoraCompleta, paraHoraSemSegundos } from "../util/format";
+import { formatSchedulesToISO, maskTime, paraHoraCompleta } from "../util/format";
 import { XIcon } from "lucide-react";
 import { createSchedule } from "../services/endpoints/companySchedule";
 
 export default function MySchedule() {
     const companyUrl = Cookies.get("companyUrl");
-    const companyInfo = React.useState(JSON.parse(Cookies.get("companyInfo")));
+    const companyInfo = JSON.parse(Cookies.get("companyInfo"));
     const [loading, setLoading] = React.useState(true);
     const [mobile, setMobile] = React.useState();
     const navigate = useNavigate();
@@ -30,10 +30,7 @@ export default function MySchedule() {
             interval: []
         }
     );
-    const [interval, setInterval] = React.useState({
-        start: "",
-        end: ""
-    });
+    const [interval, setInterval] = React.useState({});
     const [schedule, setSchedule] = React.useState([]);
 
     const insertInterval = () => {
@@ -135,6 +132,7 @@ export default function MySchedule() {
                     <Container
                         $width="90%"
                         $padding="0"
+                        $flexdirection={mobile ? "column" : "row"}
                         $backgroundcolor="#fff"
                         $borderradius="1rem"
                     >
@@ -175,7 +173,8 @@ export default function MySchedule() {
                                         <input
                                             type="text"
                                             placeholder='Digite o horário no formato HH:mm'
-                                            value={paraHoraSemSegundos(scheduleData?.openTime || '')}
+                                            maxLength={5}
+                                            value={maskTime(scheduleData?.openTime || '')}
                                             onChange={(e) => handleScheduleData('openTime', paraHoraCompleta(e.target.value))}
                                             style={{ border: "1px solid #f3f3f3", marginTop: "1rem" }}
                                         />
@@ -183,7 +182,8 @@ export default function MySchedule() {
                                         <input
                                             type="text"
                                             placeholder='Digite o horário no formato HH:mm'
-                                            value={paraHoraSemSegundos(scheduleData?.closeTime || '')}
+                                            maxLength={5}
+                                            value={maskTime(scheduleData?.closeTime || '')}
                                             onChange={(e) => handleScheduleData('closeTime', e.target.value)}
                                             style={{ border: "1px solid #f3f3f3", marginTop: "1rem" }}
                                         />
@@ -199,7 +199,8 @@ export default function MySchedule() {
                                         <input
                                             type="text"
                                             placeholder='Digite o horário no formato HH:mm'
-                                            value={paraHoraSemSegundos(interval.start || '')}
+                                            maxLength={5}
+                                            value={maskTime(interval.start || '')}
                                             onChange={(e) => handleInterval('start', e.target.value)}
                                             style={{ border: "1px solid #f3f3f3", marginTop: "1rem" }}
                                         />
@@ -207,11 +208,19 @@ export default function MySchedule() {
                                         <input
                                             type="text"
                                             placeholder='Digite o horário no formato HH:mm'
-                                            value={paraHoraSemSegundos(interval.end || '')}
+                                            maxLength={5}
+                                            value={maskTime(interval.end || '')}
                                             onChange={(e) => handleInterval('end', e.target.value)}
                                             style={{ border: "1px solid #f3f3f3", marginTop: "1rem" }}
                                         />
-                                        <div style={{ display: "flex", margin: "1rem 0 .5rem 0", gap: "1rem" }}>
+                                        <div style={{ 
+                                            display: "flex", 
+                                            margin: "1rem 0 .5rem 0", 
+                                            gap: "1rem",
+                                            flexWrap: "wrap",
+                                            alignItems: "center",
+                                            justifyContent: "center"
+                                        }}>
                                             <Button
                                                 style={{ 
                                                     width: "max-content", 

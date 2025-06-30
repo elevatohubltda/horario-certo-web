@@ -23,7 +23,7 @@ export default function Dashboard() {
   });
   const [loading, setLoading] = React.useState(true);
   const [loadingSchedule, setLoadingSchedule] = React.useState(true);
-  const [companyInfo, setCompanyInfo] = React.useState(Cookies.get("companyInfo") ? Cookies.get("companyInfo") : undefined);
+  const [companyInfo, setCompanyInfo] = React.useState(Cookies.get("companyInfo") ? JSON.parse(Cookies.get("companyInfo")) : undefined);
   const companyUrl = Cookies.get("companyUrl");
   const [horarios, setHorarios] = React.useState([]);
   const navigate = useNavigate();
@@ -161,7 +161,7 @@ export default function Dashboard() {
                             }}
                         />
                     </CustomFilterStyle>
-                    <SortedTable data={horarios} loading={loadingSchedule}/>
+                    <SortedTable data={horarios} loading={loadingSchedule} isMobile={mobile}/>
                 </Sidebar>
             </Container>
         </>
