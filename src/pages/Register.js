@@ -120,7 +120,7 @@ function Register() {
 
     useEffect(() => {
         setMobile(isMobile());
-    })
+    },[])
 
     return (
         <Container
@@ -216,7 +216,7 @@ function Register() {
                 </div>
 
             </form>
-            {mobile != undefined &&
+            {mobile !== undefined &&
                 <ToastContainer position={mobile ? "bottom-center" : "top-right"} autoClose={3000} style={{margin: 'auto 5% 1rem 5%', width: '90%'}} />
             }
         </Container>

@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import "../styles/index.css";
 import Topbar from "../components/topbar";
 import { Container } from "../components/container/style";
-import { updateCompanyProperties } from "../services/endpoints/company";
 import Cookies from "js-cookie";
 import Sidebar from "../components/sidebar";
 import { isAvailableLogin } from "../util/auth";
