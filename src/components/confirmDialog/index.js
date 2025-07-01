@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Separator } from '../separator/style';
 
 // Overlay escuro atrás do modal
 const Overlay = styled.div`
@@ -15,19 +16,40 @@ const Overlay = styled.div`
   z-index: 1000;
 `;
 
-// Caixinha branca
+const CloseButton = styled.button`
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: transparent;
+  font-size: 1.25rem;
+  cursor: pointer;
+  font-size: 1.5rem;
+  border: 1px solid black;
+  border-radius: 2rem;
+  padding: 0;
+  width: 30px;
+  color: #616161;
+  border-color: #616161;
+
+  &:hover{
+    color: #000;
+    border-color: #000;
+  }
+`;
+
 const DialogBox = styled.div`
+  position: relative;
   background: white;
   padding: 24px;
   border-radius: 8px;
-  width: 100%;
+  width: 80%;
   max-width: 400px;
   text-align: center;
 `;
 
 // Botões
 const ButtonGroup = styled.div`
-  margin-top: 20px;
+  margin-top: 2rem;
   display: flex;
   justify-content: space-around;
   gap: 12px;
@@ -51,7 +73,7 @@ const Button = styled.button`
   `}
 `;
 
-const ConfirmDialog = ({ isOpen, title, message, onConfirm, onCancel, close }) => {
+const ConfirmDialog = ({ isOpen, title, message, onConfirm, onCancel, close, confirmText, cancelText }) => {
   if (!isOpen) return null;
 
   const handleOutsideClick = () => {
@@ -65,11 +87,15 @@ const ConfirmDialog = ({ isOpen, title, message, onConfirm, onCancel, close }) =
   return (
     <Overlay $isOpen={isOpen} onClick={handleOutsideClick}>
       <DialogBox onClick={stopPropagation}>
+        <CloseButton onClick={close}>&times;</CloseButton>
         <h2>{title}</h2>
+        <Separator $width="100%" $bordercolor="#ccc" $margin="1rem 0 1rem 0" />
         <p>{message}</p>
         <ButtonGroup>
-          <Button variant="confirm" type='submit' onClick={onConfirm}>Confirmar</Button>
-          <Button variant="cancel" onClick={onCancel}>Cancelar</Button>
+          {onCancel && 
+            <Button variant="cancel" onClick={onCancel}>{cancelText}</Button>
+          }
+          <Button variant="confirm" type='submit' onClick={onConfirm}>{confirmText}</Button>
         </ButtonGroup>
       </DialogBox>
     </Overlay>

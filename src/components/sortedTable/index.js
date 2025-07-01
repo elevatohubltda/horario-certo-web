@@ -7,7 +7,7 @@ import { removeReservedScheduleByOwner, updateSchedule } from '../../services/en
 import Cookies from "js-cookie";
 import ConfirmDialog from '../confirmDialog';
 import { toast, ToastContainer } from 'react-toastify';
-import { maskTime, paraHoraCompleta, paraHoraSemSegundos } from '../../util/format';
+import { maskTime, paraHoraSemSegundos } from '../../util/format';
 import Dialog from '../dialog';
 import { Title } from '../title';
 import { Separator } from '../separator/style';
@@ -21,14 +21,37 @@ const ActionButton = styled.div`
 `;
 
 const Button = styled.button`
-    background: none;
+    padding: 8px 16px;
     border: none;
+    border-radius: 4px;
     cursor: pointer;
-    padding: 2px;
 
-    &:hover svg {
-        stroke-width: 3;
-    }
+    ${({ variant }) =>
+        variant === 'confirm'
+        ? `
+        background-color: #6A5ACD;
+        color: white;
+    `
+        : (
+            (variant === 'icon') ?
+        `
+        background-color: transparent;
+        padding: 0;
+    `
+            : (
+            (variant === 'link') ?
+            `
+        background-color: transparent;
+        color: #000;
+    `
+                :
+               `
+            background-color: #ccc;
+            color: #333;
+        ` 
+        )
+    )
+}
 `;
 
 const Pagination = styled.div`
@@ -54,7 +77,6 @@ const SortedTable = ({ data, loading, isMobile }) => {
     const itemsPerPage = 10;
     const companyUrl = Cookies.get("companyUrl");
     const [currentPage, setCurrentPage] = useState(1);
-    const [onlyUncheck, setOnlyUncheck] = useState(false);
     const [showDialogConfirm, setShowDialogConfirm] = useState(false);
     const [showDialogEdit, setShowDialogEdit] = useState(false);
     const [confirmMessage, setConfirmMessage] = useState();
@@ -70,8 +92,6 @@ const SortedTable = ({ data, loading, isMobile }) => {
         const start = (currentPage - 1) * itemsPerPage;
         return sortedData.slice(start, start + itemsPerPage);
     }, [sortedData, currentPage]);
-
-    const handleEdit = (id) => console.log(`Edit item with id: ${id}`);
 
     const handleConfirm = async () => {
         const response = await removeReservedScheduleByOwner(companyUrl, selectedSchedule, false)
@@ -96,7 +116,7 @@ const SortedTable = ({ data, loading, isMobile }) => {
     const handleOpenDialogConfirm = (item, schedule) => {
         setSelectedSchedule(schedule)
         if(item.available === true){
-            setConfirmMessage("Deseja, de fato, apagar o horário?");
+            setConfirmMessage("Deseja, de fato, apagar o horário da sua agenda?");
         } else {
             setConfirmMessage("Existe um agendamento vigente para esse horário. Deseja apagar o horário mesmo assim?");
         }
@@ -153,10 +173,10 @@ const SortedTable = ({ data, loading, isMobile }) => {
 
         if (item.available && itemDateObj >= today) {
             buttons.push(
-            <Button key="edit" onClick={() => handleOpenEditConfirm(item)}>
+            <Button variant="icon" key="edit" onClick={() => handleOpenEditConfirm(item)}>
                 <ClipboardPenLineIcon size={16} color="blue" />
             </Button>,
-            <Button key="cancel" onClick={() => handleOpenDialogConfirm(item, item.schedule)}>
+            <Button variant="icon" key="cancel" onClick={() => handleOpenDialogConfirm(item, item.schedule)}>
                 <CircleXIcon size={16} color="red" />
             </Button>
             );
@@ -164,8 +184,11 @@ const SortedTable = ({ data, loading, isMobile }) => {
 
         if (!item.available && itemDateObj <= today) {
             buttons.push(
-            <Button key="phone" onClick={() => handleContact(item.telephone)}>
+            <Button variant="icon" key="phone" onClick={() => handleContact(item.telephone)}>
                 <PhoneIcon size={16} color="green" />
+            </Button>,
+            <Button variant="icon" key="cancel" onClick={() => handleOpenDialogConfirm(item, item.schedule)}>
+                <CircleXIcon size={16} color="red" />
             </Button>
             );
         }
@@ -211,44 +234,46 @@ const SortedTable = ({ data, loading, isMobile }) => {
 
     return (
         <>
-            <table
-                border="1"
-                cellPadding="8"
-                cellSpacing="0"
-                style={{
-                borderCollapse: 'collapse',
-                width: '100%',
-                marginTop: '20px',
-                border: 'none'
-                }}
-            >
-                <thead style={{ backgroundColor: '#6a5acd0a', textAlign: 'center' }}>
-                <tr>
-                    <th>Data</th>
-                    <th>Horário</th>
-                    <th>Nome</th>
-                    <th>Status</th>
-                    <th>Ações</th>
-                </tr>
-                </thead>
-                <tbody style={{ fontSize: '14px', color: '#333' }}>
-                {currentData.map((item, index) => {
-                    const dateObj = new Date(item.schedule);
-                    const date = dateObj.toLocaleDateString();
-                    const time = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-                    return (
-                    <tr key={index} style={{ textAlign: 'center' }}>
-                        <td>{date}</td>
-                        <td>{time}</td>
-                        <td>{item.name ?? '-'}</td>
-                        {getStatusCell(item)}
-                        {getActionButtons(item, handleOpenEditConfirm, handleOpenDialogConfirm, handleContact)}
+            <div style={{ overflowX: 'auto', width: '100%'}}>
+                <table
+                    border="1"
+                    cellPadding="8"
+                    cellSpacing="0"
+                    style={{
+                    borderCollapse: 'collapse',
+                    width: '100%',
+                    marginTop: '20px',
+                    border: 'none'
+                    }}
+                >
+                    <thead style={{ backgroundColor: '#6a5acd0a', textAlign: 'center' }}>
+                    <tr>
+                        <th>Data</th>
+                        <th>Horário</th>
+                        <th>Nome</th>
+                        <th>Status</th>
+                        <th>Ações</th>
                     </tr>
-                    );
-                })}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody style={{ fontSize: '14px', color: '#333' }}>
+                    {currentData.map((item, index) => {
+                        const dateObj = new Date(item.schedule);
+                        const date = dateObj.toLocaleDateString();
+                        const time = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                        return (
+                        <tr key={index} style={{ textAlign: 'center' }}>
+                            <td>{date}</td>
+                            <td>{time}</td>
+                            <td>{item.name ?? '-'}</td>
+                            {getStatusCell(item)}
+                            {getActionButtons(item, handleOpenEditConfirm, handleOpenDialogConfirm, handleContact)}
+                        </tr>
+                        );
+                    })}
+                    </tbody>
+                </table>
+            </div>
 
             <Pagination>
                 <PageButton
@@ -278,7 +303,9 @@ const SortedTable = ({ data, loading, isMobile }) => {
                 title="Confirmação"
                 message={confirmMessage}
                 onConfirm={handleConfirm}
-                onCancel={handleCancel}
+                onCancel={confirmMessage && confirmMessage.includes('vigente') ? handleCancel : null}
+                confirmText={confirmMessage && confirmMessage.includes('vigente') ? "Cancelar e apagar horário" : "Confirmar"}
+                cancelText={confirmMessage && confirmMessage.includes('vigente') ? "Apenas cancelar" : ""}
                 close={() => setShowDialogConfirm(false)}
             />
             <ToastContainer position={isMobile ? 'bottom-right' : 'top-right'} className={isMobile ? 'mobile' : 'desktop'} autoClose={3000} />
@@ -317,7 +344,8 @@ const SortedTable = ({ data, loading, isMobile }) => {
                             Voltar
                         </Button>
                         <Button
-                            style={{ fontSize: "0.8rem", padding: "0.5rem 1rem", backgroundColor: "#6A5ACD", borderColor: "#6A5ACD" }}
+                            variant="confirm"
+                            style={{ fontSize: "0.8rem", padding: "0.5rem 1rem" }}
                             onClick={makeEditCall}
                         >
                             Salvar

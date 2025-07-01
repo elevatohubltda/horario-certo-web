@@ -219,7 +219,14 @@ export default function Config() {
                                                     style={{ border: 'none', boxShadow: 'none', fontSize:'12px', margin: '0', height: 'max-content', padding:'0', color: '#666' }}
                                                     name={companyLogo !== '' ? companyLogo.name : 'logo'}
                                                     onChange={(event) => {
-                                                        setCompanyLogo(event.target.files[0]);
+                                                        const file = event.target.files[0];
+                                                        const maxSizeInBytes = 2 * 1024 * 1024;
+                                                        if (file && file.size > maxSizeInBytes) {
+                                                            alert("O arquivo selecionado é maior que 2MB. Por favor, escolha um arquivo menor.");
+                                                            event.target.value = ''; // limpa o input
+                                                            return;
+                                                        }
+                                                        setCompanyLogo(file);
                                                     }}
                                                 />
                                                 <span style={{ fontSize: '10px', color: '#666' }}>

@@ -50,7 +50,7 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
     navigate('/'+companyUrl);
   }
 
-  const showEstablishment = (mobile && !isAuth) || (mobile && isAuth) || (!mobile && !isAuth);
+  const showEstablishment = (mobile && !isAuth) || (!mobile && !isAuth);
 
   const renderEstablishment = () => (
     <div className={!isMobile ? 'establishmentBox' : 'establishmentBoxMobile'}>
@@ -136,7 +136,7 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
         <>
           {showEstablishment && renderEstablishment()}
 
-          {!mobile && isAuth && <img src={logo} alt="Logo" />}
+          {isAuth && <img src={logo} alt="Logo" />}
 
           {!mobile && !isAuth && (
             <div className="menu">

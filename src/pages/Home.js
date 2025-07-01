@@ -20,6 +20,8 @@ import { Separator } from "../components/separator/style";
 import { Button } from "react-bootstrap";
 import { createReservedSchedule, removeReservedSchedule } from "../services/endpoints/reservedSchedule";
 import { ToastContainer, toast } from "react-toastify";
+import { openWhatsApp } from "../util/util";
+import { WhatsApp } from '@mui/icons-material';
 
 export default function Home() {
   const settings = {
@@ -53,6 +55,7 @@ export default function Home() {
   );
   const [available, setAvailable] = React.useState()
   const [code, setCode] = React.useState()
+  const [error, setError] = React.useState()
 
   const handleFilter = (name, index, startDate, endDate) => {
     switch (name) {
@@ -74,7 +77,6 @@ export default function Home() {
         break;
       default:
         if (!startDate || !endDate) {
-          
           toast.error("É necessário selecionar uma data de início e uma data de fim para esse filtro.");
           return;
         }
@@ -131,8 +133,7 @@ export default function Home() {
     }
     try {
       const response = await createReservedSchedule(companyUrl, reservedSchedule);
-      toast.success("Agendamento criado com sucesso:", response.data);
-      setOpen(false);
+      setCode(response.data);
     } catch (error) {
       toast.error("Erro ao criar agendamento:", error);
     }
@@ -150,7 +151,11 @@ export default function Home() {
       toast.success("Agendamento cancelado com sucesso!");
       setOpen(false);
     } catch (error) {
-      toast.error("Erro ao cancelar agendamento:", error);
+      if(error.status === 422){
+        setError(error.response.data);
+      } else{
+        toast.error("Erro ao cancelar agendamento:", error);
+      }
     }
   }
 
@@ -226,116 +231,184 @@ export default function Home() {
           </Container>
         </>
       }
-      {open && available && 
-        <Dialog open={open} onClose={() => setOpen(false)}>
+      <Dialog open={open && available && !code} onClose={() => setOpen(false)}>
+        <Title
+          $fontweight="600"
+          $fontsize="1.25rem"
+          $color="#6A5ACD"
+          $texttransform="uppercase"
+        >
+          Confirme seu agendamento
+        </Title>
+        <Separator $width="100%" $bordercolor="#ccc" $margin="1rem 0 3rem 0" />
+        <form style={{ backgroundColor: "transparent", boxShadow: "none", width: "100%", padding: "0" }}>
+          <label>Data:</label>
+          <input type="text" value={selectedSchedule.data} readOnly />
+          <label>Horário:</label>
+          <input type="text" value={selectedSchedule.horario} readOnly />
+          <label>Digite seu nome:</label>
+          <input 
+            type="text" 
+            value={selectedSchedule.nome} 
+            onChange={(e) => setSelectedSchedule({ ...selectedSchedule, nome: e.target.value })}
+          />
+          <label>Digite seu telefone com DDD:</label>
+          <input 
+            type="text" 
+            value={formataNumeroTelefone(selectedSchedule.telefone || "")} 
+            onChange={(e) => setSelectedSchedule({ ...selectedSchedule, telefone: formataNumeroTelefone(e.target.value) }) }
+          />
+          <Separator $width="100%" $bordercolor="#ccc" />
+          <Container
+              $width="auto"
+              $display="flex"
+              $alignitems="flex-end"
+              $justifycontent="space-between"
+              $margin="0"
+              $backgroundcolor="transparent"
+          >
+            <Button
+              style={{ fontSize: "0.8rem", padding: "0.5rem 1rem", backgroundColor: "transparent", borderColor: "transparent", color: "#6A5ACD" }}
+              onClick={() => setOpen(false)}
+            >
+                Voltar
+            </Button>
+            <Button
+              style={{ fontSize: "0.8rem", padding: "0.5rem 1rem", backgroundColor: "#6A5ACD", borderColor: "#6A5ACD" }}
+              onClick={makeSchedule}
+              disabled={!selectedSchedule.nome || !selectedSchedule.telefone}
+            >
+                Agendar
+            </Button>
+          </Container>
+        </form>
+      </Dialog>
+      <Dialog open={open && available && code} onClose={() => { setOpen(false); setCode(); }}>
+        <Title
+          $fontweight="600"
+          $fontsize="1.25rem"
+          $color="#6A5ACD"
+          $texttransform="uppercase"
+        >
+          Agendamento confirmado!
+        </Title>
+        <Separator $width="100%" $bordercolor="#ccc" $margin="1rem 0 3rem 0" />
+        <form style={{ backgroundColor: "transparent", boxShadow: "none", width: "100%", padding: "0", textAlign: "center" }}>
+          <span>Guarde o código abaixo para desmarcar:</span>
+          <h3 style={{margin: '2rem 0'}}>{code}</h3>
+          <span style={{fontSize: '12px', color: '#535353'}}>*recomendamos tirar print da tela</span>
+          <Container
+              $width="auto"
+              $display="flex"
+              $alignitems="center"
+              $justifycontent="center"
+              $margin="2rem 0 0 0"
+              $backgroundcolor="transparent"
+          >
+              <Button
+                style={{ fontSize: "0.8rem", padding: "0.5rem 1rem", backgroundColor: "transparent", borderColor: "#6A5ACD", color: "#6A5ACD" }}
+                onClick={() => { setOpen(false); setCode();}}
+            >
+                OK
+            </Button>
+          </Container>
+          <ToastContainer position="top-right" autoClose={3000} closeButton={false} />
+        </form>
+      </Dialog>
+      <Dialog open={open && !available && !error} onClose={() => setOpen(false)}>
+        <Title
+          $fontweight="600"
+          $fontsize="1.25rem"
+          $color="#6A5ACD"
+          $texttransform="uppercase"
+        >
+          Cancele seu agendamento
+        </Title>
+        <Separator $width="100%" $bordercolor="#ccc" $margin="1rem 0 3rem 0" />
+        <form style={{ backgroundColor: "transparent", boxShadow: "none", width: "100%", padding: "0" }}>
+          <label>Data:</label>
+          <input type="text" value={selectedSchedule.data} readOnly />
+          <label>Horário:</label>
+          <input type="text" value={selectedSchedule.horario} readOnly />
+          <label>Nome:</label>
+          <input 
+            type="text" 
+            value={selectedSchedule.nome} 
+            onChange={(e) => setSelectedSchedule({ ...selectedSchedule, nome: e.target.value })}
+            readOnly
+          />
+          <label>Digite seu telefone com DDD:</label>
+          <input 
+            type="text" 
+            value={formataNumeroTelefone(selectedSchedule.telefone || "")} 
+            onChange={(e) => setSelectedSchedule({ ...selectedSchedule, telefone: formataNumeroTelefone(e.target.value) }) }
+          />
+          <label>Digite seu código de cancelamento:</label>
+          <input 
+            type="text" 
+            value={code} 
+            onChange={(e) => setCode(e.target.value)}
+          />
+          <Separator $width="100%" $bordercolor="#ccc" />
+          <Container
+              $width="auto"
+              $display="flex"
+              $alignitems="flex-end"
+              $justifycontent="space-between"
+              $margin="0"
+              $backgroundcolor="transparent"
+          >
+            <Button
+              style={{ fontSize: "0.8rem", padding: "0.5rem 1rem", backgroundColor: "transparent", borderColor: "transparent", color: "#6A5ACD" }}
+              onClick={() => setOpen(false)}
+            >
+                Voltar
+            </Button>
+            <Button
+              style={{ fontSize: "0.8rem", padding: "0.5rem 1rem", backgroundColor: "#d80101", borderColor: "#d80101" }}
+              onClick={makeCancelSchedule}
+              disabled={!selectedSchedule.code && !selectedSchedule.telefone}
+            >
+                Cancelar
+            </Button>
+          </Container>
+          <ToastContainer position="top-right" autoClose={3000} closeButton={false} />
+        </form>
+      </Dialog>
+      {companyInfo && 
+        <Dialog open={open && !available && error} onClose={() => {setOpen(false); setError()}}>
           <Title
             $fontweight="600"
             $fontsize="1.25rem"
             $color="#6A5ACD"
             $texttransform="uppercase"
           >
-            Confirme seu agendamento
+            Não foi possível cancelar seu agendamento
           </Title>
           <Separator $width="100%" $bordercolor="#ccc" $margin="1rem 0 3rem 0" />
           <form style={{ backgroundColor: "transparent", boxShadow: "none", width: "100%", padding: "0" }}>
-            <label>Data:</label>
-            <input type="text" value={selectedSchedule.data} readOnly />
-            <label>Horário:</label>
-            <input type="text" value={selectedSchedule.horario} readOnly />
-            <label>Digite seu nome:</label>
-            <input 
-              type="text" 
-              value={selectedSchedule.nome} 
-              onChange={(e) => setSelectedSchedule({ ...selectedSchedule, nome: e.target.value })}
-            />
-            <label>Digite seu telefone com DDD:</label>
-            <input 
-              type="text" 
-              value={formataNumeroTelefone(selectedSchedule.telefone || "")} 
-              onChange={(e) => setSelectedSchedule({ ...selectedSchedule, telefone: formataNumeroTelefone(e.target.value) }) }
-            />
-            <Separator $width="100%" $bordercolor="#ccc" />
+            <span>
+              {error}
+            </span>
             <Container
                 $width="auto"
                 $display="flex"
                 $alignitems="flex-end"
                 $justifycontent="space-between"
-                $margin="0"
+                $margin="2rem 0 0 0"
                 $backgroundcolor="transparent"
             >
               <Button
-                style={{ fontSize: "0.8rem", padding: "0.5rem 1rem", backgroundColor: "transparent", borderColor: "transparent", color: "#6A5ACD" }}
-                onClick={() => setOpen(false)}
+                style={{ fontSize: "0.8rem", padding: "0.5rem 1rem", backgroundColor: "transparent", borderColor: "transparent", color: "#000000" }}
+                onClick={() => {setOpen(false); setError()}}
               >
                   Voltar
               </Button>
               <Button
-                style={{ fontSize: "0.8rem", padding: "0.5rem 1rem", backgroundColor: "#6A5ACD", borderColor: "#6A5ACD" }}
-                onClick={makeSchedule}
-                disabled={!selectedSchedule.nome || !selectedSchedule.telefone}
+                style={{ fontSize: "0.8rem", padding: "0.5rem 1rem", backgroundColor: "#00832D", borderColor: "#00832D", display: "flex", alignItems: "center", gap: ".25rem" }}
+                onClick={() => openWhatsApp(companyInfo.whatsapp)}
               >
-                  Agendar
-              </Button>
-            </Container>
-          </form>
-        </Dialog>
-      }
-      {open && !available && 
-        <Dialog open={open} onClose={() => setOpen(false)}>
-          <Title
-            $fontweight="600"
-            $fontsize="1.25rem"
-            $color="#6A5ACD"
-            $texttransform="uppercase"
-          >
-            Cancele seu agendamento
-          </Title>
-          <Separator $width="100%" $bordercolor="#ccc" $margin="1rem 0 3rem 0" />
-          <form style={{ backgroundColor: "transparent", boxShadow: "none", width: "100%", padding: "0" }}>
-            <label>Data:</label>
-            <input type="text" value={selectedSchedule.data} readOnly />
-            <label>Horário:</label>
-            <input type="text" value={selectedSchedule.horario} readOnly />
-            <label>Nome:</label>
-            <input 
-              type="text" 
-              value={selectedSchedule.nome} 
-              onChange={(e) => setSelectedSchedule({ ...selectedSchedule, nome: e.target.value })}
-              readOnly
-            />
-            <label>Digite seu telefone com DDD:</label>
-            <input 
-              type="text" 
-              value={formataNumeroTelefone(selectedSchedule.telefone || "")} 
-              onChange={(e) => setSelectedSchedule({ ...selectedSchedule, telefone: formataNumeroTelefone(e.target.value) }) }
-            />
-            <label>Digite seu código de cancelamento:</label>
-            <input 
-              type="text" 
-              value={code} 
-              onChange={(e) => setCode(e.target.value)}
-            />
-            <Separator $width="100%" $bordercolor="#ccc" />
-            <Container
-                $width="auto"
-                $display="flex"
-                $alignitems="flex-end"
-                $justifycontent="space-between"
-                $margin="0"
-                $backgroundcolor="transparent"
-            >
-              <Button
-                style={{ fontSize: "0.8rem", padding: "0.5rem 1rem", backgroundColor: "transparent", borderColor: "transparent", color: "#6A5ACD" }}
-                onClick={() => setOpen(false)}
-              >
-                  Voltar
-              </Button>
-              <Button
-                style={{ fontSize: "0.8rem", padding: "0.5rem 1rem", backgroundColor: "#d80101", borderColor: "#d80101" }}
-                onClick={makeCancelSchedule}
-                disabled={!selectedSchedule.code && !selectedSchedule.telefone}
-              >
-                  Cancelar
+                <WhatsApp/> Falar com {companyInfo.name}
               </Button>
             </Container>
             <ToastContainer position="top-right" autoClose={3000} closeButton={false} />
