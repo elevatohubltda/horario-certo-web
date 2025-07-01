@@ -120,7 +120,7 @@ export default function Config() {
     }, [companyUrl, navigate]);
 
     return (
-        <>
+       <>
             <Topbar
                 name={companyInfo.name}
                 imagem={companyInfo.imagem}
@@ -142,13 +142,14 @@ export default function Config() {
                     <Container
                         $width="90%"
                         $padding="0"
+                        $flexdirection={mobile ? "column" : "row"}
                         $backgroundcolor="#fff"
                         $borderradius="1rem"
                     >
-                        {loading && !companyProperties &&
+                        {loading &&
                             <span className="loader"></span>
                         }
-                        {!loading && companyProperties &&
+                        {!loading &&
                             <>
                                 <Title
                                     $padding="1rem"
@@ -204,7 +205,7 @@ export default function Config() {
                                             style={{ border: "1px solid #f3f3f3", marginTop: "1rem" }}
                                         />
                                         <label style={{ fontSize: "0.8rem" }}>Logo da empresa:</label>
-                                        <div style={{ display: 'flex', marginTop: '1rem', gap: '1rem', alignItems: 'center' }}>
+                                        <div style={{ display: 'flex', marginTop: '1rem', gap: '1rem', alignItems: 'center', flexDirection: mobile ? 'column': 'row' }}>
                                             <img src={companyLogo !== '' ? URL.createObjectURL(companyLogo) : (companyInfo.imagem ? companyInfo.imagem : '' ) } alt="Logo da empresa" style={{ maxWidth: '80px', maxHeight: '60px', margin: '0' }} />
                                             { companyLogo !== '' &&
                                                 <XIcon 

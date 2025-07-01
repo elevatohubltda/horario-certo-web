@@ -20,15 +20,15 @@ export default function ChangePassword() {
   const [loading, setLoading] = React.useState(true);
   const [mobile, setMobile] = React.useState();
   const navigate = useNavigate();
-  const [password, setPassword] = React.useState({stepOne: "", stepTwo: ""});
+  const [password, setPassword] = React.useState({ stepOne: "", stepTwo: "" });
 
   const update = async () => {
-    if(password.stepOne === "" || password.stepTwo === "" || (password.stepOne !== password.stepTwo)) {
+    if (password.stepOne === "" || password.stepTwo === "" || (password.stepOne !== password.stepTwo)) {
       toast.error("Preencha todos os campos corretamente!");
       return
     }
     try {
-      const response = await updatePassword({ password : password.stepOne });
+      const response = await updatePassword({ password: password.stepOne });
       if (response.status === 200) {
         toast.success("Senha alterada com sucesso!");
       } else {
@@ -47,20 +47,20 @@ export default function ChangePassword() {
   }
 
   useEffect(() => {
-    if(isAvailableLogin()) {
+    if (isAvailableLogin()) {
       setMobile(isMobile());
       setLoading(false);
-    } else{
-      navigate("/"+companyUrl);
+    } else {
+      navigate("/" + companyUrl);
     }
   }, [companyUrl, navigate]);
 
   return (
     <>
-      <Topbar 
-        name={companyInfo.name} 
+      <Topbar
+        name={companyInfo.name}
         imagem={companyInfo.imagem}
-        whatsapp={companyInfo.whatsapp} 
+        whatsapp={companyInfo.whatsapp}
         instagram={companyInfo.instagram}
         loggedIn={true}
       />
@@ -78,6 +78,7 @@ export default function ChangePassword() {
           <Container
             $width="90%"
             $padding="0"
+            $flexdirection={mobile ? "column" : "row"}
             $backgroundcolor="#fff"
             $borderradius="1rem"
           >
@@ -102,22 +103,22 @@ export default function ChangePassword() {
                 $borderradius="0"
                 $boxshadow="0"
               >
-                <form style={{backgroundColor: "transparent", boxShadow: "none", width: "100%", padding: "0"}}>
-                  <label style={{fontSize: "0.8rem"}}>Nova senha:</label>
-                  <input 
+                <form style={{ backgroundColor: "transparent", boxShadow: "none", width: "100%", padding: "0" }}>
+                  <label style={{ fontSize: "0.8rem" }}>Nova senha:</label>
+                  <input
                     type="text"
                     placeholder='Digite a nova senha'
                     value={password.stepOne}
                     onChange={(e) => handlePassword('stepOne', e.target.value)}
-                    style={{border: "1px solid #f3f3f3", marginTop:"1rem"}}
+                    style={{ border: "1px solid #f3f3f3", marginTop: "1rem" }}
                   />
-                  <label style={{fontSize: "0.8rem"}}>Nova senha novamente:</label>
-                  <input 
+                  <label style={{ fontSize: "0.8rem" }}>Nova senha novamente:</label>
+                  <input
                     type="text"
                     placeholder='Digite a nova senha novamente'
                     value={password.stepTwo}
                     onChange={(e) => handlePassword('stepTwo', e.target.value)}
-                    style={{border: "1px solid #f3f3f3", marginTop:"1rem"}}
+                    style={{ border: "1px solid #f3f3f3", marginTop: "1rem" }}
                   />
                   <Separator $width="100%" $bordercolor="#ccc" />
                   <Container
@@ -128,8 +129,8 @@ export default function ChangePassword() {
                     $margin="0"
                     $backgroundcolor="transparent"
                   >
-                    <Button 
-                      style={{fontSize: "0.8rem", padding: "0.5rem 1rem", backgroundColor: "#00b900", borderColor: "#00b900"}}
+                    <Button
+                      style={{ fontSize: "0.8rem", padding: "0.5rem 1rem", backgroundColor: "#00b900", borderColor: "#00b900" }}
                       onClick={update}>
                       Salvar alterações
                     </Button>

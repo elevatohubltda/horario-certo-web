@@ -182,11 +182,11 @@ export const TopbarStyle = styled.div`
       text-transform: uppercase;
     }
 
-    img{
-      max-width: 40px;
-      border-radius: 50px;
-      -webkit-box-shadow: 2px 2px 5px 0px rgba(0,0,0,0.15);
-      -moz-box-shadow: 2px 2px 5px 0px rgba(0,0,0,0.15);
+    img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
       box-shadow: 2px 2px 5px 0px rgba(0,0,0,0.15);
     }
 

@@ -81,6 +81,19 @@ export default function Dashboard() {
     handleCompanySchedules();
   }, [filter, companyUrl]);
 
+  const handleCompanySchedules = async () => {
+    setLoadingSchedule(true);
+    try { 
+      const response = await getCompanySchedulesAuth(companyUrl, filter.startDate, filter.endDate);
+      await sleep(2000);
+      setHorarios(response.data);
+      setLoadingSchedule(false);
+    } catch (error) {
+      console.error("Erro ao buscar os dados da empresa:", error);
+      setLoadingSchedule(false);
+    }
+  }
+
   useEffect(() => {
     const getCompanyInfo = async () => {
       setLoading(true); 
@@ -161,7 +174,7 @@ export default function Dashboard() {
                             }}
                         />
                     </CustomFilterStyle>
-                    <SortedTable data={horarios} loading={loadingSchedule} isMobile={mobile}/>
+                    <SortedTable data={horarios} loading={loadingSchedule} isMobile={mobile} onChange={handleCompanySchedules}/>
                 </Sidebar>
             </Container>
         </>

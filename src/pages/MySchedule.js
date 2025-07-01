@@ -167,7 +167,7 @@ export default function MySchedule() {
                                             type="date"
                                             value={scheduleData?.date}
                                             onChange={(e) => handleScheduleData('date', e.target.value)}
-                                            style={{ border: "1px solid #f3f3f3", marginTop: "1rem" }}
+                                            style={{ border: "1px solid #f3f3f3", marginTop: "1rem", width: '100%', paddingLeft: '0' }}
                                         />
                                         <label style={{ fontSize: "0.8rem" }}>Horário de abertura:</label>
                                         <input

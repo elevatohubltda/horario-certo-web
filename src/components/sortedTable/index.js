@@ -73,7 +73,7 @@ const PageButton = styled.button`
     }
 `;
 
-const SortedTable = ({ data, loading, isMobile }) => {
+const SortedTable = ({ data, loading, isMobile, onChange }) => {
     const itemsPerPage = 10;
     const companyUrl = Cookies.get("companyUrl");
     const [currentPage, setCurrentPage] = useState(1);
@@ -97,6 +97,7 @@ const SortedTable = ({ data, loading, isMobile }) => {
         const response = await removeReservedScheduleByOwner(companyUrl, selectedSchedule, false)
         if(response.status === 200){
             toast.success(response.data);
+            onChange()
             setShowDialogConfirm(false);
             setSelectedSchedule();
         } else{
@@ -107,6 +108,7 @@ const SortedTable = ({ data, loading, isMobile }) => {
         const response = await removeReservedScheduleByOwner(companyUrl, selectedSchedule, true)
         if(response.status === 200){
             toast.success(response.data);
+            onChange()
             setShowDialogConfirm(false);
             setSelectedSchedule();
         } else{
@@ -208,6 +210,7 @@ const SortedTable = ({ data, loading, isMobile }) => {
         )
         if(response.status === 200){
             toast.success(response.data);
+            onChange()
             setShowDialogEdit(false);
             setSelectedSchedule();
         } else{
@@ -345,6 +348,7 @@ const SortedTable = ({ data, loading, isMobile }) => {
                         </Button>
                         <Button
                             variant="confirm"
+                            type="button"
                             style={{ fontSize: "0.8rem", padding: "0.5rem 1rem" }}
                             onClick={makeEditCall}
                         >

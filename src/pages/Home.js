@@ -135,6 +135,7 @@ export default function Home() {
       const response = await createReservedSchedule(companyUrl, reservedSchedule);
       setCode(response.data);
     } catch (error) {
+      handleCompanySchedules();
       toast.error("Erro ao criar agendamento:", error);
     }
   }
@@ -149,6 +150,7 @@ export default function Home() {
     try {
       await removeReservedSchedule(companyUrl, reservedSchedule);
       toast.success("Agendamento cancelado com sucesso!");
+      handleCompanySchedules();
       setOpen(false);
     } catch (error) {
       if(error.status === 422){
@@ -269,7 +271,7 @@ export default function Home() {
           >
             <Button
               style={{ fontSize: "0.8rem", padding: "0.5rem 1rem", backgroundColor: "transparent", borderColor: "transparent", color: "#6A5ACD" }}
-              onClick={() => setOpen(false)}
+              onClick={() => {setOpen(false); handleCompanySchedules();}}
             >
                 Voltar
             </Button>
@@ -283,7 +285,7 @@ export default function Home() {
           </Container>
         </form>
       </Dialog>
-      <Dialog open={open && available && code} onClose={() => { setOpen(false); setCode(); }}>
+      <Dialog open={open && available && code} onClose={() => { setOpen(false); setCode(); handleCompanySchedules();}}>
         <Title
           $fontweight="600"
           $fontsize="1.25rem"
@@ -307,7 +309,7 @@ export default function Home() {
           >
               <Button
                 style={{ fontSize: "0.8rem", padding: "0.5rem 1rem", backgroundColor: "transparent", borderColor: "#6A5ACD", color: "#6A5ACD" }}
-                onClick={() => { setOpen(false); setCode();}}
+                onClick={() => { setOpen(false); setCode(); handleCompanySchedules();}}
             >
                 OK
             </Button>

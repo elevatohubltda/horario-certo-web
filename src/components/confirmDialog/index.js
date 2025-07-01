@@ -93,9 +93,9 @@ const ConfirmDialog = ({ isOpen, title, message, onConfirm, onCancel, close, con
         <p>{message}</p>
         <ButtonGroup>
           {onCancel && 
-            <Button variant="cancel" onClick={onCancel}>{cancelText}</Button>
+            <Button variant="cancel" type="button" onClick={onCancel}>{cancelText}</Button>
           }
-          <Button variant="confirm" type='submit' onClick={onConfirm}>{confirmText}</Button>
+          <Button variant="confirm" type="button" onClick={onConfirm}>{confirmText}</Button>
         </ButtonGroup>
       </DialogBox>
     </Overlay>
