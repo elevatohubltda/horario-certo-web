@@ -149,7 +149,7 @@ export default function Config() {
                         {loading &&
                             <span className="loader"></span>
                         }
-                        {!loading &&
+                        {!loading && companyProperties &&
                             <>
                                 <Title
                                     $padding="1rem"
