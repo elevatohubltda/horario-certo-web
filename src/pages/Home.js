@@ -371,7 +371,6 @@ export default function Home() {
             value={code} 
             onChange={(e) => setCode(e.target.value)}
           />
-          <span>{error}</span>
           <Separator $width="100%" $bordercolor="#ccc" />
           <Container
               $width="auto"

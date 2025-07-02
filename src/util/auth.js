@@ -9,10 +9,14 @@ export function isAvailableLogin(){
     if(now <= expirationDate) return true;
     Cookies.remove("token");
     Cookies.remove("expirationDate");
+    Cookies.remove("companyInfo");
+    Cookies.remove("companyProperties");
     return false;
 }
 
 export function logout(){
     Cookies.remove("token");
     Cookies.remove("expirationDate");
+    Cookies.remove("companyInfo");
+    Cookies.remove("companyProperties");
 }
