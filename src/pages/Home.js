@@ -20,7 +20,7 @@ import { Separator } from "../components/separator/style";
 import { Button } from "react-bootstrap";
 import { createReservedSchedule, removeReservedSchedule } from "../services/endpoints/reservedSchedule";
 import { ToastContainer, toast } from "react-toastify";
-import { openWhatsApp } from "../util/util";
+import { isMobile, openWhatsApp } from "../util/util";
 import { WhatsApp } from '@mui/icons-material';
 
 export default function Home() {
@@ -40,6 +40,7 @@ export default function Home() {
     endDate: new Date(new Date().setDate(new Date().getDate() + 3)).toISOString().split('T')[0],
   });
   const { companyUrl } = useParams();
+  const [mobile, setMobile] = React.useState();
   const [loading, setLoading] = React.useState(true);
   const [loadingSchedule, setLoadingSchedule] = React.useState(true);
   const [companyInfo, setCompanyInfo] = React.useState();
@@ -121,6 +122,7 @@ export default function Home() {
   const selectSchedule = (data, horario, available, nome) => {
     setAvailable(available);
     setSelectedSchedule({ data, horario, nome});
+    setCode('');
     setOpen(true);
   }
 
@@ -151,14 +153,31 @@ export default function Home() {
       await removeReservedSchedule(companyUrl, reservedSchedule);
       toast.success("Agendamento cancelado com sucesso!");
       handleCompanySchedules();
+      handleRestartProps();
       setOpen(false);
     } catch (error) {
       if(error.status === 422){
+        setError(error.response.data);
+      } else if(error.status === 400){
         setError(error.response.data);
       } else{
         toast.error("Erro ao cancelar agendamento:", error);
       }
     }
+  }
+
+  const handleRestartProps = () => {
+    setSelectedSchedule(
+      {
+        data: "",
+        horario: "",
+        nome: "",
+        telefone: ""
+      }
+    )
+    setAvailable();
+    setCode('')
+    setError();
   }
 
   useEffect(() => {
@@ -167,6 +186,7 @@ export default function Home() {
 
   useEffect(() => {
     getCompanyInfo();
+    setMobile(isMobile());
   }, [companyUrl]);
 
   return (
@@ -233,7 +253,7 @@ export default function Home() {
           </Container>
         </>
       }
-      <Dialog open={open && available && !code} onClose={() => setOpen(false)}>
+      <Dialog open={open && available && !code} onClose={() => {setOpen(false); handleRestartProps()}}>
         <Title
           $fontweight="600"
           $fontsize="1.25rem"
@@ -271,7 +291,7 @@ export default function Home() {
           >
             <Button
               style={{ fontSize: "0.8rem", padding: "0.5rem 1rem", backgroundColor: "transparent", borderColor: "transparent", color: "#6A5ACD" }}
-              onClick={() => {setOpen(false); handleCompanySchedules();}}
+              onClick={() => {setOpen(false); handleCompanySchedules(); handleRestartProps()}}
             >
                 Voltar
             </Button>
@@ -285,7 +305,7 @@ export default function Home() {
           </Container>
         </form>
       </Dialog>
-      <Dialog open={open && available && code} onClose={() => { setOpen(false); setCode(); handleCompanySchedules();}}>
+      <Dialog open={open && available && code} onClose={() => { setOpen(false); handleCompanySchedules(); handleRestartProps()}}>
         <Title
           $fontweight="600"
           $fontsize="1.25rem"
@@ -309,7 +329,7 @@ export default function Home() {
           >
               <Button
                 style={{ fontSize: "0.8rem", padding: "0.5rem 1rem", backgroundColor: "transparent", borderColor: "#6A5ACD", color: "#6A5ACD" }}
-                onClick={() => { setOpen(false); setCode(); handleCompanySchedules();}}
+                onClick={() => { setOpen(false); handleCompanySchedules(); handleRestartProps()}}
             >
                 OK
             </Button>
@@ -317,7 +337,7 @@ export default function Home() {
           <ToastContainer position="top-right" autoClose={3000} closeButton={false} />
         </form>
       </Dialog>
-      <Dialog open={open && !available && !error} onClose={() => setOpen(false)}>
+      <Dialog open={open && !available && !error} onClose={() => {setOpen(false); handleRestartProps()}}>
         <Title
           $fontweight="600"
           $fontsize="1.25rem"
@@ -351,6 +371,7 @@ export default function Home() {
             value={code} 
             onChange={(e) => setCode(e.target.value)}
           />
+          <span>{error}</span>
           <Separator $width="100%" $bordercolor="#ccc" />
           <Container
               $width="auto"
@@ -362,7 +383,7 @@ export default function Home() {
           >
             <Button
               style={{ fontSize: "0.8rem", padding: "0.5rem 1rem", backgroundColor: "transparent", borderColor: "transparent", color: "#6A5ACD" }}
-              onClick={() => setOpen(false)}
+              onClick={() => {setOpen(false); handleRestartProps()}}
             >
                 Voltar
             </Button>
@@ -378,7 +399,7 @@ export default function Home() {
         </form>
       </Dialog>
       {companyInfo && 
-        <Dialog open={open && !available && error} onClose={() => {setOpen(false); setError()}}>
+        <Dialog open={open && !available && error} onClose={() => {setOpen(false); handleRestartProps()}}>
           <Title
             $fontweight="600"
             $fontsize="1.25rem"
@@ -402,7 +423,7 @@ export default function Home() {
             >
               <Button
                 style={{ fontSize: "0.8rem", padding: "0.5rem 1rem", backgroundColor: "transparent", borderColor: "transparent", color: "#000000" }}
-                onClick={() => {setOpen(false); setError()}}
+                onClick={() => {setOpen(false); handleRestartProps()}}
               >
                   Voltar
               </Button>
@@ -413,7 +434,7 @@ export default function Home() {
                 <WhatsApp/> Falar com {companyInfo.name}
               </Button>
             </Container>
-            <ToastContainer position="top-right" autoClose={3000} closeButton={false} />
+            <ToastContainer position={mobile ? "bottom-center": "top-right"} autoClose={3000} closeButton={false} />
           </form>
         </Dialog>
       }

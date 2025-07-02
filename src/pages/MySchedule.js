@@ -14,6 +14,7 @@ import { Button } from "react-bootstrap";
 import { formatSchedulesToISO, maskTime, paraHoraCompleta } from "../util/format";
 import { XIcon } from "lucide-react";
 import { createSchedule } from "../services/endpoints/companySchedule";
+import DatePicker from "../components/datePicker";
 
 export default function MySchedule() {
     const companyUrl = Cookies.get("companyUrl");
@@ -87,7 +88,7 @@ export default function MySchedule() {
     }
 
     const saveSchedule = async () => {
-        const scheduleISOFormat = formatSchedulesToISO({date: scheduleData.date, schedules: schedule});
+        const scheduleISOFormat = formatSchedulesToISO({date: scheduleData.date.toLocaleDateString('pt-BR'), schedules: schedule});
         try {
             const response = await createSchedule(companyUrl, scheduleISOFormat);
             if (response.status === 200) {
@@ -163,11 +164,9 @@ export default function MySchedule() {
                                 >
                                     <form style={{ backgroundColor: "transparent", boxShadow: "none", width: "100%", padding: "0" }}>
                                         <label style={{ fontSize: "0.8rem" }}>Data:</label>
-                                        <input
-                                            type="date"
+                                        <DatePicker
                                             value={scheduleData?.date}
-                                            onChange={(e) => handleScheduleData('date', e.target.value)}
-                                            style={{ border: "1px solid #f3f3f3", marginTop: "1rem", width: '100%', paddingLeft: '0' }}
+                                            onChange={(e) => handleScheduleData('date', e)}
                                         />
                                         <label style={{ fontSize: "0.8rem" }}>Horário de abertura:</label>
                                         <input

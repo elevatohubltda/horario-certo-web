@@ -15,12 +15,14 @@
     "cors": "^2.8.5",
     "date-fns": "^2.30.0",
     "feather-icons": "^4.29.1",
+    "flatpickr": "^4.6.13",
     "js-cookie": "^3.0.5",
     "lucide-react": "^0.514.0",
     "react": "^18.2.0",
     "react-bootstrap": "^2.10.0",
     "react-date-range": "^1.4.0",
     "react-dom": "^18.2.0",
+    "react-flatpickr": "^4.0.10",
     "react-loader-spinner": "^6.1.6",
     "react-modern-calendar-datepicker": "^3.1.6",
     "react-router-dom": "^6.21.1",
@@ -29,7 +31,7 @@
     "react-slick": "^0.30.3",
     "react-toastify": "^11.0.5",
     "slick-carousel": "^1.8.1",
-    "styled-components": "^6.1.2",
+    "styled-components": "^6.1.19",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
