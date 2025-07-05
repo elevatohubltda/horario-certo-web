@@ -13,6 +13,8 @@ import { isAvailableLogin } from "../util/auth";
 import { useNavigate } from "react-router-dom";
 import SortedTable from "../components/sortedTable";
 import { isMobile } from "../util/util";
+import Alert from "../components/alert";
+import { getClientStatus } from "../services/endpoints/payment";
 
 export default function Dashboard() {
   const [filter, setFilter] = React.useState({
@@ -28,6 +30,7 @@ export default function Dashboard() {
   const [horarios, setHorarios] = React.useState([]);
   const navigate = useNavigate();
   const [mobile, setMobile] = React.useState();
+  const [paymentStatus, setPaymentStatus] = React.useState();
 
   const handleFilter = (name, index, startDate, endDate) => {
     switch (name) {
@@ -64,27 +67,10 @@ export default function Dashboard() {
   
   const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-  useEffect(() => {
-    const handleCompanySchedules = async () => {
-      setLoadingSchedule(true);
-      try { 
-        const response = await getCompanySchedulesAuth(companyUrl, filter.startDate, filter.endDate);
-        await sleep(2000);
-        setHorarios(response.data);
-        setLoadingSchedule(false);
-      } catch (error) {
-        console.error("Erro ao buscar os dados da empresa:", error);
-        setLoadingSchedule(false);
-      }
-    }
-
-    handleCompanySchedules();
-  }, [filter, companyUrl]);
-
   const handleCompanySchedules = async () => {
     setLoadingSchedule(true);
     try { 
-      const response = await getCompanySchedulesAuth(companyUrl, filter.startDate, filter.endDate);
+      var response = await getCompanySchedulesAuth(companyUrl, filter.startDate, filter.endDate);
       await sleep(2000);
       setHorarios(response.data);
       setLoadingSchedule(false);
@@ -94,11 +80,20 @@ export default function Dashboard() {
     }
   }
 
-  useEffect(() => {
-    const getCompanyInfo = async () => {
-      setLoading(true); 
+  const getClientStatusInfo = async () => {
+    try {
+      var response = await getClientStatus(companyUrl);
+      console.log(response);
+      setPaymentStatus(response.data);
+      await sleep(2000);
+    } catch (error) {
+      console.error("Erro ao buscar o status de pagamento:", error);
+    }
+  }
+
+  const getCompanyInfo = async () => {
       try {
-        const response = await getCompany(companyUrl);
+        var response = await getCompany(companyUrl);
         await sleep(2000);
         Cookies.set("companyInfo", JSON.stringify(response.data), {
           expires: 1,
@@ -106,17 +101,26 @@ export default function Dashboard() {
           sameSite: "Strict",
         });
         setCompanyInfo(response.data);
-        setLoading(false);
       } catch (error) {
         console.error("Erro ao buscar os dados da empresa:", error);
-        setLoading(false);
       }
-    }
+  }
+
+  useEffect(() => {
+    handleCompanySchedules();
+  }, [filter, companyUrl]);
+
+  useEffect(() => {
     if(isAvailableLogin()) {
+      console.log("Dentro1")
+      setLoading(true);
       if(companyInfo === undefined || companyInfo === null) {
+        console.log("Dentro2")
         getCompanyInfo();
       }
+      getClientStatusInfo();
       setMobile(isMobile()); 
+      setLoading(false);
     } else{
       navigate("/"+companyUrl);
     }
@@ -160,6 +164,12 @@ export default function Dashboard() {
                       <span className="loader"></span>
                     </Container>
                   }
+                    {paymentStatus && paymentStatus != '' && 
+                      <Alert
+                        badge={paymentStatus.badge}
+                        message={paymentStatus.message}
+                      />
+                    }
                     <CustomFilterStyle $width="100%" $padding="1rem 0 0 0">
                         <button className={filter.indexActive === 0 ? 'active filter-button' : 'filter-button'} onClick={() => handleFilter("3 dias", 0)}>
                             3 dias
