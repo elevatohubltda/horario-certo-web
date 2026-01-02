@@ -13,6 +13,7 @@ import { Container } from '../components/container/style';
 import logo from '../assets/logo.png';
 import { isMobile } from '../util/util';
 import { formataNumeroTelefone } from '../util/format';
+import { expiresAt } from '../util/date';
 
 function Register() {
     const navigate = useNavigate();
@@ -38,7 +39,6 @@ function Register() {
         user: ''
     });
 
-    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
     const handleError = (error) => toast.error(error);
     const handleUserData = (parameter, value) => {
         setUserData(prev => ({ ...prev, [parameter]: value }));
@@ -81,14 +81,13 @@ function Register() {
                     const loginRes = await login({username: userData.username, password: userData.password.stepOne});
                     if (loginRes.status === 200) {
                         Cookies.set("token", loginRes.data.token, {
-                            expires: 1, secure: true, sameSite: "Strict"
+                            expires: expiresAt, secure: true, sameSite: "Strict"
                         });
                         setToken(loginRes.data.token);
                         const companyRes = await createCompany(companyData);
                         if (companyRes.status === 200) {
                             toast.success("Empresa criada com sucesso!");
                             setLoading(false);
-                            await sleep(2000);
                             navigate('/login');
                         } else {
                             setLoading(false);

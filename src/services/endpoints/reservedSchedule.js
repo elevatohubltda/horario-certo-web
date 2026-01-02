@@ -14,6 +14,20 @@ export const createReservedSchedule = (companyUrl, schedule) => {
     );
 };
 
+export const createReservedScheduleByOwner = (companyUrl, schedule) => {
+  const params = new URLSearchParams({ companyUrl }).toString();
+  return api.post(
+    `/reserved-schedule?${params}`, 
+    schedule, 
+        { 
+            withAuth: true,
+            headers: {
+            "Content-Type": "application/json",
+            },
+        }   
+    );
+};
+
 export const updateSchedule = (companyUrl, schedule) => {
   const params = new URLSearchParams({ companyUrl }).toString();
   return api.put(

@@ -29,3 +29,18 @@ export const getMonth = [
     'Novembro',
     'Dezembro'
 ];
+
+function getNowInBrazilDate(){
+  const nowInBrazilString = new Date().toLocaleString("sv-SE", {
+    timeZone: "America/Sao_Paulo",
+    hour12: false
+  });
+
+  // sv-SE → YYYY-MM-DD HH:mm:ss
+  return new Date(nowInBrazilString.replace(" ", "T"));
+}
+
+//3 horas de expiração
+export const expiresAt = new Date(
+  getNowInBrazilDate().getTime() + 3 * 60 * 60 * 1000
+);

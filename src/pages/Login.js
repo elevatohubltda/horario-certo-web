@@ -10,6 +10,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Cookies from "js-cookie";
 import { isAvailableLogin } from '../util/auth';
 import { Container } from '../components/container/style';
+import { expiresAt } from '../util/date';
 
 function Login() {
   const navigate = useNavigate();
@@ -35,17 +36,17 @@ function Login() {
       .then(res => {
         if (res.status === 200) {
           Cookies.set("token", res.data.token, {
-            expires: 1,
+            expires: expiresAt,
             secure: true,
             sameSite: "Strict",
           });
           Cookies.set("expirationDate", res.data.expirationDate, {
-            expires: 1,
+            expires: expiresAt,
             secure: true,
             sameSite: "Strict",
           });
           Cookies.set("companyUrl", res.data.companyUrl, {
-            expires: 1,
+            expires: expiresAt,
             secure: true,
             sameSite: "Strict",
           });

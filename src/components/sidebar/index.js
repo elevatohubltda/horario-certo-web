@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"
 import styled from "styled-components"
-import { Home, Settings, PanelLeftClose, PanelLeftOpen, DollarSignIcon, KeyRound, CalendarDays } from "lucide-react"
+import { Home, Settings, PanelLeftClose, PanelLeftOpen, KeyRound, CalendarDays } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { isMobile } from "../../util/util"
 
@@ -78,12 +78,12 @@ const Sidebar = ({ children }) => {
   const navigate = useNavigate();
 
   const menuItems = [
-    { icon: <Home size={currentPage === 'dashboard' ? 18 : 14} />, label: "Dashboard", url: "/dashboard" },
-    //{ icon: <User size={currentPage === 'clientes' ? 18 : 14} />, label: "Clientes", url: "/clientes" },
-    { icon: <CalendarDays size={currentPage === 'meus-agendamentos' ? 18 : 14} />, label: "Criar agendamentos", url: "/criar-agendamentos" },
-    { icon: <DollarSignIcon size={currentPage === 'plano' ? 18 : 14} />, label: "Meu plano", url: "/plano" },
-    { icon: <Settings size={currentPage === 'configuracoes' ? 18 : 14} />, label: "Configurações", url: "/configuracoes" },
-    { icon: <KeyRound size={currentPage === 'alterar-senha' ? 18 : 14} />, label: "Alterar senha", url: "/alterar-senha" },
+    { icon: <Home size={currentPage === 'dashboard' ? 16 : 14} />, label: "Dashboard", url: "/dashboard" },
+    //{ icon: <User size={currentPage === 'clientes' ? 16 : 14} />, label: "Clientes", url: "/clientes" },
+    { icon: <CalendarDays size={currentPage === 'meus-agendamentos' ? 16 : 14} />, label: "Criar agendamentos", url: "/criar-agendamentos" },
+    //{ icon: <DollarSignIcon size={currentPage === 'plano' ? 16 : 14} />, label: "Meu plano", url: "/plano" },
+    { icon: <Settings size={currentPage === 'configuracoes' ? 16 : 14} />, label: "Configurações", url: "/configuracoes" },
+    { icon: <KeyRound size={currentPage === 'alterar-senha' ? 16 : 14} />, label: "Alterar senha", url: "/alterar-senha" },
   ]
 
   useEffect(() => {
@@ -91,7 +91,6 @@ const Sidebar = ({ children }) => {
   },  []);
 
   if (mobile) return <>{children}</>;
-
   return (
     <Layout>
       <SidebarContainer $isOpen={isOpen}>
@@ -99,12 +98,13 @@ const Sidebar = ({ children }) => {
         <MenuList>
           {menuItems.map((item, index) => (
             <MenuItem 
-            key={index} 
-            $isOpen={isOpen} 
-            $isActive={currentPage === item.label.toLowerCase()}
-            onClick={() => navigate(item.url)}>
+              key={index} 
+              $isOpen={isOpen} 
+              $isActive={currentPage === item.url.toLowerCase().replace('/', '')}
+              onClick={() => navigate(item.url)}
+            >
               {item.icon}
-              <Label $isVisible={isOpen} $isActive={currentPage === item.label.toLowerCase()}>{item.label}</Label>
+              <Label $isVisible={isOpen} $isActive={currentPage === item.url.toLowerCase().replace('/', '')}>{item.label}</Label>
             </MenuItem>
           ))}
         </MenuList>

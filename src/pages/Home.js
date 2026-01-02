@@ -22,6 +22,7 @@ import { createReservedSchedule, removeReservedSchedule } from "../services/endp
 import { ToastContainer, toast } from "react-toastify";
 import { isMobile, openWhatsApp } from "../util/util";
 import { WhatsApp } from '@mui/icons-material';
+import FilterDropdown from "../components/filterDropdown";
 
 export default function Home() {
   const settings = {
@@ -57,6 +58,9 @@ export default function Home() {
   const [available, setAvailable] = React.useState()
   const [code, setCode] = React.useState()
   const [error, setError] = React.useState()
+  const filters = [
+    { label: "Disponível", value: "available", color: "#4caf50" }
+  ];
 
   const handleFilter = (name, index, startDate, endDate) => {
     switch (name) {
@@ -95,7 +99,6 @@ export default function Home() {
     setLoading(true);
     try {
       const response = await getCompany(companyUrl);
-      await sleep(2000);
       setCompanyInfo(response.data);
       setLoading(false);
     } catch (error) {
@@ -104,13 +107,10 @@ export default function Home() {
     }
   }
 
-  const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
   const handleCompanySchedules = async () => {
     setLoadingSchedule(true);
     try { 
       const response = await getCompanySchedules(companyUrl, filter.startDate, filter.endDate);
-      await sleep(2000);
       setHorarios(transformarHorariosPorData(response.data));
       setLoadingSchedule(false);
     } catch (error) {
@@ -180,13 +180,64 @@ export default function Home() {
     setError();
   }
 
+  const itsAvailableNow = (date, time) => {
+    const now = new Date().toLocaleString('sv-SE', 
+      {
+        timeZone: 'America/Sao_Paulo',
+        hour12: false
+      }
+    ).replace(' ', 'T');
+
+    const [day, month, year] = date.split("/");
+    const [hour, minute] = time.split(":");
+
+    const isoLike = `${year}-${month}-${day}T${hour}:${minute}:00`;
+    return isoLike <= now;
+  }
+
+  const itsAvailableDayByArray = (value) => {
+    const filtered = value.horarios.filter(iteminside =>
+      iteminside.available === true &&
+      !itsAvailableNow(value.data, iteminside.horario)
+    );
+
+    return filtered.length > 0;
+  }
+
+  const filterSchedulesByDropdown = (value) => {
+    switch (value) {
+      case "available": {
+        const filtered = horarios
+          .map(item => {
+            const horariosFiltrados = item.horarios.filter(iteminside =>
+              iteminside.available === true &&
+              !itsAvailableNow(item.data, iteminside.horario)
+            );
+
+            return {
+              ...item,
+              horarios: horariosFiltrados
+            };
+          })
+          .filter(item => item.horarios.length > 0);
+
+        setHorarios(filtered);
+        break;
+      }
+      default:
+        break;
+    }
+  };
+
   useEffect(() => {
     handleCompanySchedules();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
 
   useEffect(() => {
     getCompanyInfo();
     setMobile(isMobile());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companyUrl]);
 
   return (
@@ -200,6 +251,12 @@ export default function Home() {
             instagram={companyInfo.instagram}
           />
           <CustomFilterStyle $width="80%">
+            <FilterDropdown
+              filters={filters}
+              onChange={(value) => {
+                filterSchedulesByDropdown(value);
+              }}
+            />
             <button className={filter.indexActive === 0 ? 'active filter-button' : 'filter-button'} onClick={() => handleFilter("3 dias", 0)}>
               3 dias
             </button>
@@ -221,21 +278,36 @@ export default function Home() {
           >
             <Slider {...settings}>
               {!loadingSchedule && horarios.length > 0 && horarios.map((item, index) => (
-                <div key={index} className="slide">
-                  <h3>{item.data}</h3>
-                  <span>{"("+getWeekDay(item.data)+")"}</span>
-                  <div className="horarios-container">
-                    {item.horarios.map((iteminside, i) => (
-                      <button 
-                        key={i}
-                        className={iteminside.available === false ? 'horario-btn horario-btn-unavailable' : 'horario-btn'}
-                        onClick={() => selectSchedule(item.data, iteminside.horario, iteminside.available, iteminside.name)}
-                      >
-                        {iteminside.horario}
-                      </button>
-                    ))}
+                itsAvailableDayByArray(item) && (
+                  <div key={index} className="slide">
+                    <h3>{item.data}</h3>
+                    <span>{"("+getWeekDay(item.data)+")"}</span>
+                    <div className="horarios-container">
+                      {item.horarios.map((iteminside, i) =>
+                        !itsAvailableNow(item.data, iteminside.horario) ? (
+                          <button
+                            key={i}
+                            className={
+                              iteminside.available === false
+                                ? 'horario-btn horario-btn-unavailable'
+                                : 'horario-btn'
+                            }
+                            onClick={() =>
+                              selectSchedule(
+                                item.data,
+                                iteminside.horario,
+                                iteminside.available,
+                                iteminside.name
+                              )
+                            }
+                          >
+                            {iteminside.horario}
+                          </button>
+                        ) : null
+                      )}
+                    </div>
                   </div>
-                </div>
+                )
               ))}
               {!loadingSchedule && horarios.length === 0 && 
                 <div className="slide no-schedules">
@@ -253,6 +325,7 @@ export default function Home() {
           </Container>
         </>
       }
+      {/* PREENCHIMENTO DADOS DO AGENDAMENTO */}
       <Dialog open={open && available && !code} onClose={() => {setOpen(false); handleRestartProps()}}>
         <Title
           $fontweight="600"
@@ -305,6 +378,7 @@ export default function Home() {
           </Container>
         </form>
       </Dialog>
+      {/* CONFIRMAÇÃO AGENDAMENTO + CODIGO CANCELAMENTO */}
       <Dialog open={open && available && code} onClose={() => { setOpen(false); handleCompanySchedules(); handleRestartProps()}}>
         <Title
           $fontweight="600"
@@ -337,6 +411,7 @@ export default function Home() {
           <ToastContainer position="top-right" autoClose={3000} closeButton={false} />
         </form>
       </Dialog>
+      {/* PREENCHIMENTO DADOS CANCELAMENTO DO AGENDAMENTO */}
       <Dialog open={open && !available && !error} onClose={() => {setOpen(false); handleRestartProps()}}>
         <Title
           $fontweight="600"
@@ -397,6 +472,7 @@ export default function Home() {
           <ToastContainer position="top-right" autoClose={3000} closeButton={false} />
         </form>
       </Dialog>
+      {/* CANCELAMENTO NÃO POSSÍVEL */}
       {companyInfo && 
         <Dialog open={open && !available && error} onClose={() => {setOpen(false); handleRestartProps()}}>
           <Title
@@ -437,6 +513,7 @@ export default function Home() {
           </form>
         </Dialog>
       }
+      {/* LOADING */}
       {loading && companyInfo === undefined &&
         <Container 
           $width="100%" 

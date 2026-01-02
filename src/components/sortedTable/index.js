@@ -1,17 +1,18 @@
 import React, { useMemo, useState } from 'react';
-import { ClipboardPenLineIcon, CircleXIcon, PhoneIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { ClipboardPenLineIcon, CircleXIcon, PhoneIcon, ChevronLeftIcon, ChevronRightIcon, ClockPlusIcon } from "lucide-react";
 import styled from 'styled-components';
 import { openWhatsApp } from '../../util/util';
 import { ThreeDots } from "react-loader-spinner";
-import { removeReservedScheduleByOwner, updateSchedule } from '../../services/endpoints/reservedSchedule';
+import { createReservedScheduleByOwner, removeReservedScheduleByOwner, updateSchedule } from '../../services/endpoints/reservedSchedule';
 import Cookies from "js-cookie";
 import ConfirmDialog from '../confirmDialog';
 import { toast, ToastContainer } from 'react-toastify';
-import { maskTime, paraHoraSemSegundos } from '../../util/format';
+import { formataNumeroTelefone, maskTime, paraHoraSemSegundos } from '../../util/format';
 import Dialog from '../dialog';
 import { Title } from '../title';
 import { Separator } from '../separator/style';
 import { Container } from '../container/style';
+import { PaginationControl } from '../paginationControl';
 
 const ActionButton = styled.div`
     display: flex;  
@@ -79,8 +80,11 @@ const SortedTable = ({ data, loading, isMobile, onChange }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [showDialogConfirm, setShowDialogConfirm] = useState(false);
     const [showDialogEdit, setShowDialogEdit] = useState(false);
+    const [showNewScheduleDialog, setShowNewScheduleDialog] = useState(false);
     const [confirmMessage, setConfirmMessage] = useState();
-    const [selectedSchedule, setSelectedSchedule] = useState()
+    const [selectedSchedule, setSelectedSchedule] = useState();
+    const [name, setName] = useState("");
+    const [phone, setPhone] = useState("");
 
     const sortedData = useMemo(
         () => [...data].sort((a, b) => new Date(a.schedule) - new Date(b.schedule)),
@@ -129,6 +133,11 @@ const SortedTable = ({ data, loading, isMobile, onChange }) => {
         setSelectedSchedule({date: datePart, schedule_old: paraHoraSemSegundos(timePart), schedule_new: paraHoraSemSegundos(timePart)})
         setShowDialogEdit(true);
     }
+    const handleOpenNewSchedule = (item) => {
+        const [datePart, timePart] = item.schedule.split("T")
+        setSelectedSchedule({date: datePart, schedule_old: paraHoraSemSegundos(timePart), schedule_new: paraHoraSemSegundos(timePart)})
+        setShowNewScheduleDialog(true);
+    }
 
     const handleSelectedSchedule = (parameter, value) => {
         setSelectedSchedule((prev) => ({
@@ -140,41 +149,41 @@ const SortedTable = ({ data, loading, isMobile, onChange }) => {
     const handleContact = (telephone) => openWhatsApp(telephone);
     
     const getStatusCell = (item) => {
-        const today = new Date();
-        const itemDateObj = new Date(item.schedule);
+        const now = new Date()
+            .toLocaleString('sv-SE', {
+                timeZone: 'America/Sao_Paulo',
+                hour12: false
+            }).replace(' ', 'T');
 
-        today.setHours(0, 0, 0, 0);
-        itemDateObj.setHours(0, 0, 0, 0);
-
-        const diffTime = today - itemDateObj;
-        const diffDays = diffTime / (1000 * 60 * 60 * 24);
-
-        if (diffDays > 0) {
+        if (now > item.schedule) {
             return (
-            <td style={{ color: item.available ? 'gray' : 'blue' }}>
+            <td style={{ color: item.available ? 'gray' : 'blue', border: 'none' }}>
                 {item.available ? 'Expirado' : 'Concluído'}
             </td>
             );
         } else {
             return (
-            <td style={{ color: item.available ? 'green' : 'red' }}>
+            <td style={{ color: item.available ? 'green' : 'red', border: 'none' }}>
                 {item.available ? 'Disponível' : 'Agendado'}
             </td>
             );
         }
     };
 
-    const getActionButtons = (item, handleOpenEditConfirm, handleOpenDialogConfirm, handleContact) => {
-        const today = new Date();
-        const itemDateObj = new Date(item.schedule);
-
-        today.setHours(0, 0, 0, 0);
-        itemDateObj.setHours(0, 0, 0, 0);
+    const getActionButtons = (item, handleOpenNewSchedule, handleOpenEditConfirm, handleOpenDialogConfirm, handleContact) => {
+        const now = new Date()
+            .toLocaleString('sv-SE', {
+                timeZone: 'America/Sao_Paulo',
+                hour12: false
+            }).replace(' ', 'T');
 
         const buttons = [];
 
-        if (item.available && itemDateObj >= today) {
+        if (item.available && item.schedule >= now) {
             buttons.push(
+            <Button variant="icon" key="new-schedule" onClick={() => handleOpenNewSchedule(item)}>
+                <ClockPlusIcon size={16} color="green" />
+            </Button>,
             <Button variant="icon" key="edit" onClick={() => handleOpenEditConfirm(item)}>
                 <ClipboardPenLineIcon size={16} color="blue" />
             </Button>,
@@ -184,7 +193,7 @@ const SortedTable = ({ data, loading, isMobile, onChange }) => {
             );
         }
 
-        if (!item.available && itemDateObj <= today) {
+        if (!item.available && item.schedule >= now) {
             buttons.push(
             <Button variant="icon" key="phone" onClick={() => handleContact(item.telephone)}>
                 <PhoneIcon size={16} color="green" />
@@ -196,8 +205,8 @@ const SortedTable = ({ data, loading, isMobile, onChange }) => {
         }
 
         return buttons.length > 0 ? (
-            <td><ActionButton>{buttons}</ActionButton></td>
-        ) : <td>-</td>;
+            <td style={{ border: 'none' }}><ActionButton>{buttons}</ActionButton></td>
+        ) : <td style={{ border: 'none' }}>-</td>;
     };
 
     const makeEditCall = async () => {
@@ -206,6 +215,25 @@ const SortedTable = ({ data, loading, isMobile, onChange }) => {
             {   
                 new: selectedSchedule.date+"T"+selectedSchedule.schedule_new+":00", 
                 old: selectedSchedule.date+"T"+selectedSchedule.schedule_old+":00"
+            }
+        )
+        if(response.status === 200){
+            toast.success(response.data);
+            onChange()
+            setShowDialogEdit(false);
+            setSelectedSchedule();
+        } else{
+            toast.error("Erro ao editar");
+        }
+    }
+
+    const makeNewScheduleCall = async () => {
+        const response = await createReservedScheduleByOwner(
+            companyUrl, 
+            {   
+                schedule: selectedSchedule.date+"T"+selectedSchedule.schedule_new+":00", 
+                name: name,
+                telephone: phone
             }
         )
         if(response.status === 200){
@@ -237,40 +265,41 @@ const SortedTable = ({ data, loading, isMobile, onChange }) => {
 
     return (
         <>
-            <div style={{ overflowX: 'auto', width: '100%'}}>
+            <div style={{ overflowX: 'auto', width: '100%', marginTop: '20px'}}>
                 <table
                     border="1"
                     cellPadding="8"
                     cellSpacing="0"
                     style={{
-                    borderCollapse: 'collapse',
+                    borderCollapse: 'separate',
                     width: '100%',
-                    marginTop: '20px',
-                    border: 'none'
+                    backgroundColor: 'white',
+                    borderRadius: '8px',
+                    border: 'none',
                     }}
                 >
-                    <thead style={{ backgroundColor: '#6a5acd0a', textAlign: 'center' }}>
+                    <thead style={{ backgroundColor: '#e9e9e9ff', textAlign: 'center' }}>
                     <tr>
-                        <th>Data</th>
-                        <th>Horário</th>
-                        <th>Nome</th>
-                        <th>Status</th>
-                        <th>Ações</th>
+                        <th style={{ border: 'none' }}>Data</th>
+                        <th style={{ border: 'none' }}>Horário</th>
+                        <th style={{ border: 'none' }}>Nome</th>
+                        <th style={{ border: 'none' }}>Status</th>
+                        <th style={{ border: 'none' }}>Ações</th>
                     </tr>
                     </thead>
-                    <tbody style={{ fontSize: '14px', color: '#333' }}>
+                    <tbody style={{ fontSize: '14px', color: '#333', border: 'none' }}>
                     {currentData.map((item, index) => {
                         const dateObj = new Date(item.schedule);
                         const date = dateObj.toLocaleDateString();
                         const time = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
                         return (
-                        <tr key={index} style={{ textAlign: 'center' }}>
-                            <td>{date}</td>
-                            <td>{time}</td>
-                            <td>{item.name ?? '-'}</td>
+                        <tr key={index} style={{ textAlign: 'center', border: 'none' }}>
+                            <td style={{ border: 'none' }}>{date}</td>
+                            <td style={{ border: 'none' }}>{time}</td>
+                            <td style={{ border: 'none' }}>{item.name ?? '-'}</td>
                             {getStatusCell(item)}
-                            {getActionButtons(item, handleOpenEditConfirm, handleOpenDialogConfirm, handleContact)}
+                            {getActionButtons(item, handleOpenNewSchedule, handleOpenEditConfirm, handleOpenDialogConfirm, handleContact)}
                         </tr>
                         );
                     })}
@@ -278,29 +307,11 @@ const SortedTable = ({ data, loading, isMobile, onChange }) => {
                 </table>
             </div>
 
-            <Pagination>
-                <PageButton
-                onClick={() => setCurrentPage(p => p - 1)}
-                disabled={currentPage === 1}
-                >
-                <ChevronLeftIcon size={16} />
-                </PageButton>
-                {[...Array(totalPages)].map((_, i) => (
-                <PageButton
-                    key={i}
-                    onClick={() => setCurrentPage(i + 1)}
-                    active={currentPage === i + 1}
-                >
-                    {i + 1}
-                </PageButton>
-                ))}
-                <PageButton
-                onClick={() => setCurrentPage(p => p + 1)}
-                disabled={currentPage === totalPages}
-                >
-                <ChevronRightIcon size={16} />
-                </PageButton>
-            </Pagination>
+            <PaginationControl
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+            />
             <ConfirmDialog
                 isOpen={showDialogConfirm}
                 title="Confirmação"
@@ -351,6 +362,64 @@ const SortedTable = ({ data, loading, isMobile, onChange }) => {
                             type="button"
                             style={{ fontSize: "0.8rem", padding: "0.5rem 1rem" }}
                             onClick={makeEditCall}
+                        >
+                            Salvar
+                        </Button>
+                        </Container>
+                    </form>
+                </Dialog>
+            }
+            {showNewScheduleDialog && 
+                <Dialog open={showNewScheduleDialog} onClose={() => setShowNewScheduleDialog(false)}>
+                    <Title
+                        $fontweight="600"
+                        $fontsize="1.25rem"
+                        $color="#6A5ACD"
+                        $texttransform="uppercase"
+                    >
+                        Agendamento manual
+                    </Title>
+                    <Separator $width="100%" $bordercolor="#ccc" $margin="1rem 0 3rem 0" />
+                    <form style={{ backgroundColor: "transparent", boxShadow: "none", width: "100%", padding: "0" }}>
+                        <label>Horário:</label>
+                        <input 
+                            type="text" 
+                            value={selectedSchedule.schedule_new}
+                            onChange={(e) => handleSelectedSchedule('schedule_new',maskTime(e.target.value))}
+                        />
+                        <label>Digite o nome:</label>
+                        <input 
+                            type="text" 
+                            value={selectedSchedule.nome} 
+                            onChange={(e) => setName(e.target.value)}
+                        />
+                        <label>Digite o telefone com DDD:</label>
+                        <input 
+                            type="text" 
+                            value={phone} 
+                            onChange={(e) => setPhone(formataNumeroTelefone(e.target.value) ) }
+                        />
+                        <Separator $width="100%" $bordercolor="#ccc" />
+                        <Container
+                            $width="auto"
+                            $display="flex"
+                            $alignitems="flex-end"
+                            $justifycontent="space-between"
+                            $margin="0"
+                            $backgroundcolor="transparent"
+                        >
+                        <Button
+                            style={{ fontSize: "0.8rem", padding: "0.5rem 1rem", backgroundColor: "transparent", borderColor: "transparent", color: "#6A5ACD" }}
+                            onClick={() => setShowNewScheduleDialog(false)}
+                            type="button"
+                        >
+                            Voltar
+                        </Button>
+                        <Button
+                            variant="confirm"
+                            type="button"
+                            style={{ fontSize: "0.8rem", padding: "0.5rem 1rem" }}
+                            onClick={makeNewScheduleCall}
                         >
                             Salvar
                         </Button>

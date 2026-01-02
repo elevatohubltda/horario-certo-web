@@ -15,6 +15,8 @@ import SortedTable from "../components/sortedTable";
 import { isMobile } from "../util/util";
 import Alert from "../components/alert";
 import { getClientStatus } from "../services/endpoints/payment";
+import { expiresAt } from "../util/date";
+import FilterDropdown from "../components/filterDropdown";
 
 export default function Dashboard() {
   const [filter, setFilter] = React.useState({
@@ -31,6 +33,61 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [mobile, setMobile] = React.useState();
   const [paymentStatus, setPaymentStatus] = React.useState();
+  const filters = [
+    { label: "Expirado", value: "expired", color: "#9e9e9e" },
+    { label: "Disponível", value: "available", color: "#4caf50" },
+    { label: "Agendado", value: "scheduled", color: "#f44336" },
+    { label: "Concluído", value: "done", color: "#2196f3" }
+  ];
+  const [filtered, setFiltered] = React.useState();
+
+  const filterSchedulesByDropdown = (value) => {
+    const now = new Date()
+      .toLocaleString("sv-SE", {
+        timeZone: "America/Sao_Paulo",
+        hour12: false
+      }).replace(" ", "T");
+
+    switch (value) {
+      case "available": {
+        const filtered = horarios.filter(item =>
+          item.available === true &&
+          item.schedule > now
+        );
+        setFiltered(filtered);
+        break;
+      }
+
+      case "expired": {
+        const filtered = horarios.filter(item =>
+          item.schedule <= now && item.available === true
+        );
+        setFiltered(filtered);
+        break;
+      }
+
+      case "scheduled": {
+        const filtered = horarios.filter(item =>
+          item.available === false &&
+          item.schedule > now
+        );
+        setFiltered(filtered);
+        break;
+      }
+
+      case "done": {
+        const filtered = horarios.filter(item =>
+          item.available === false &&
+          item.schedule <= now
+        );
+        setFiltered(filtered);
+        break;
+      }
+
+      default:
+        break;
+    }
+  };
 
   const handleFilter = (name, index, startDate, endDate) => {
     switch (name) {
@@ -64,14 +121,11 @@ export default function Dashboard() {
         break;
     }
   };
-  
-  const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
   const handleCompanySchedules = async () => {
     setLoadingSchedule(true);
     try { 
       var response = await getCompanySchedulesAuth(companyUrl, filter.startDate, filter.endDate);
-      await sleep(2000);
       setHorarios(response.data);
       setLoadingSchedule(false);
     } catch (error) {
@@ -83,9 +137,7 @@ export default function Dashboard() {
   const getClientStatusInfo = async () => {
     try {
       var response = await getClientStatus(companyUrl);
-      console.log(response);
       setPaymentStatus(response.data);
-      await sleep(2000);
     } catch (error) {
       console.error("Erro ao buscar o status de pagamento:", error);
     }
@@ -94,9 +146,8 @@ export default function Dashboard() {
   const getCompanyInfo = async () => {
       try {
         var response = await getCompany(companyUrl);
-        await sleep(2000);
         Cookies.set("companyInfo", JSON.stringify(response.data), {
-          expires: 1,
+          expires: expiresAt,
           secure: true,
           sameSite: "Strict",
         });
@@ -108,14 +159,13 @@ export default function Dashboard() {
 
   useEffect(() => {
     handleCompanySchedules();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter, companyUrl]);
 
   useEffect(() => {
     if(isAvailableLogin()) {
-      console.log("Dentro1")
       setLoading(true);
       if(companyInfo === undefined || companyInfo === null) {
-        console.log("Dentro2")
         getCompanyInfo();
       }
       getClientStatusInfo();
@@ -124,6 +174,7 @@ export default function Dashboard() {
     } else{
       navigate("/"+companyUrl);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companyUrl, navigate]);
 
   return (
@@ -164,27 +215,33 @@ export default function Dashboard() {
                       <span className="loader"></span>
                     </Container>
                   }
-                    {paymentStatus && paymentStatus != '' && 
+                    {paymentStatus && paymentStatus !== '' && 
                       <Alert
                         badge={paymentStatus.badge}
                         message={paymentStatus.message}
                       />
                     }
                     <CustomFilterStyle $width="100%" $padding="1rem 0 0 0">
-                        <button className={filter.indexActive === 0 ? 'active filter-button' : 'filter-button'} onClick={() => handleFilter("3 dias", 0)}>
-                            3 dias
-                        </button>
-                        <button className={filter.indexActive === 1 ? 'active filter-button' : 'filter-button'} onClick={() => handleFilter("7 dias", 1)}>
-                            7 dias
-                        </button>
-                        <DateRangeSelector
-                            isActive={filter.indexActive === 2}
-                            onChangeRange={({ startDate, endDate }) => {
-                                handleFilter("personalizado", 2, startDate, endDate);
-                            }}
-                        />
+                      <FilterDropdown
+                        filters={filters}
+                        onChange={(value) => {
+                          filterSchedulesByDropdown(value);
+                        }}
+                      />
+                      <button className={filter.indexActive === 0 ? 'active filter-button' : 'filter-button'} onClick={() => handleFilter("3 dias", 0)}>
+                          3 dias
+                      </button>
+                      <button className={filter.indexActive === 1 ? 'active filter-button' : 'filter-button'} onClick={() => handleFilter("7 dias", 1)}>
+                          7 dias
+                      </button>
+                      <DateRangeSelector
+                          isActive={filter.indexActive === 2}
+                          onChangeRange={({ startDate, endDate }) => {
+                              handleFilter("personalizado", 2, startDate, endDate);
+                          }}
+                      />
                     </CustomFilterStyle>
-                    <SortedTable data={horarios} loading={loadingSchedule} isMobile={mobile} onChange={handleCompanySchedules}/>
+                    <SortedTable data={filtered ? filtered : horarios} loading={loadingSchedule} isMobile={mobile} onChange={handleCompanySchedules}/>
                 </Sidebar>
             </Container>
         </>

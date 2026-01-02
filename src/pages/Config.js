@@ -16,25 +16,25 @@ import { formataNumeroTelefone, paraHoraCompleta, paraHoraSemSegundos } from "..
 import { validarHoraCompleta } from "../util/validate";
 import { uploadLogo } from "../services/endpoints/upload";
 import { XIcon } from "lucide-react"
+import { expiresAt } from "../util/date";
 
 export default function Config() {
     const companyUrl = Cookies.get("companyUrl");
     const [companyInfo, setCompanyInfo] = React.useState(JSON.parse(Cookies.get("companyInfo")));
-    const [companyProperties, setCompanyProperties] = React.useState(Cookies.get("companyProperties") ? JSON.parse(Cookies.get("companyProperties")) : undefined);
+    const [companyProperties, setCompanyProperties] = React.useState();
     const [loading, setLoading] = React.useState(true);
     const [mobile, setMobile] = React.useState();
     const navigate = useNavigate();
     const [companyLogo, setCompanyLogo] = React.useState('');
 
-    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
     const getCompanyProps = async () => {
         try {
             const response = await getCompanyProperties(companyUrl);
             if (response.status === 200) {
-                await sleep(2000);
                 setCompanyProperties(response.data);
-                Cookies.set("companyProperties", JSON.stringify(response.data));
+                Cookies.set("companyProperties", JSON.stringify(response.data), {
+                    expires: expiresAt
+                });
             } else {
                 console.error("Erro ao obter as propriedades da empresa:", response.statusText);
             }
@@ -51,7 +51,9 @@ export default function Config() {
         try {
             const response = await updateCompanyProperties(companyUrl, companyProperties);
             if (response.status === 200) {
-                Cookies.set("companyProperties", JSON.stringify(companyProperties));
+                Cookies.set("companyProperties", JSON.stringify(companyProperties), {
+                    expires: expiresAt
+                });
                 toast.success("Configurações atualizadas com sucesso!");
             } else {
                 toast.error(response.data);
@@ -74,7 +76,9 @@ export default function Config() {
         try {
             const response = await updateCompany(companyInfo, companyUrl);
             if (response.status === 200) {
-                Cookies.set("companyInfo", JSON.stringify(companyInfo));
+                Cookies.set("companyInfo", JSON.stringify(companyInfo), {
+                    expires: expiresAt
+                });
                 toast.success("Informações da empresa atualizadas com sucesso!");
             } else {
                 toast.error(response.data);
@@ -85,8 +89,9 @@ export default function Config() {
         try {
             const response = await getCompany(companyUrl);
             if (response.status === 200) {
-                await sleep(2000);
-                Cookies.set("companyInfo", JSON.stringify(response.data));
+                Cookies.set("companyInfo", JSON.stringify(response.data), {
+                    expires: expiresAt
+                });
             }
         } catch (error) {
             toast.error(error);
@@ -108,15 +113,15 @@ export default function Config() {
     }
 
     useEffect(() => {
+        setLoading(true);
         if (isAvailableLogin()) {
-            if (companyProperties === undefined) {
-                getCompanyProps();
-            }
+            getCompanyProps();
             setMobile(isMobile());
             setLoading(false);
         } else {
             navigate("/" + companyUrl);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [companyUrl, navigate]);
 
     return (
@@ -139,122 +144,133 @@ export default function Config() {
                 $boxshadow="0"
             >
                 <Sidebar>
-                    <Container
-                        $width="90%"
-                        $padding="0"
-                        $flexdirection={mobile ? "column" : "row"}
-                        $backgroundcolor="#fff"
-                        $borderradius="1rem"
-                    >
-                        {loading &&
-                            <span className="loader"></span>
-                        }
-                        {!loading && companyProperties &&
-                            <>
-                                <Title
-                                    $padding="1rem"
-                                    $fontweight="600"
-                                    $fontsize="1.25rem"
-                                    $color="#6A5ACD"
-                                    $texttransform="uppercase"
-                                >
-                                    Configurações
-                                </Title>
-                                <Separator $width="calc(100% - 2rem)" $bordercolor="#ccc" $margin="0 1rem 2rem 1rem" />
-                                <Container
-                                    $width="auto"
-                                    $display="flex"
-                                    $flexdirection="column"
-                                    $padding="1rem"
-                                    $margin="0"
-                                    $backgroundcolor="transparent"
-                                    $borderradius="0"
-                                    $boxshadow="0"
-                                >
-                                    <form style={{ backgroundColor: "transparent", boxShadow: "none", width: "100%", padding: "0" }}>
-                                        <label style={{ fontSize: "0.8rem" }}>Tempo anterior ao horário para cliente poder cancelar:</label>
-                                        <input
-                                            type="text"
-                                            placeholder='Digite o tempo no formato HH:mm'
-                                            value={paraHoraSemSegundos(companyProperties.cancelTime)}
-                                            onChange={(e) => handleCompanyProperties('cancelTime', paraHoraCompleta(e.target.value))}
-                                            style={{ border: "1px solid #f3f3f3", marginTop: "1rem" }}
-                                        />
-                                        <label style={{ fontSize: "0.8rem" }}>Nome da empresa:</label>
-                                        <input
-                                            type="text"
-                                            placeholder='Digite o nome da empresa'
-                                            value={companyInfo.name}
-                                            onChange={(e) => handleCompanyInfo('name', e.target.value)}
-                                            style={{ border: "1px solid #f3f3f3", marginTop: "1rem" }}
-                                        />
-                                        <label style={{ fontSize: "0.8rem" }}>Whatsapp:</label>
-                                        <input
-                                            type="text"
-                                            placeholder='Digite o whatsapp da empresa com DDD'
-                                            value={formataNumeroTelefone(companyInfo.whatsapp)}
-                                            onChange={(e) => handleCompanyInfo('whatsapp', formataNumeroTelefone(e.target.value))}
-                                            style={{ border: "1px solid #f3f3f3", marginTop: "1rem" }}
-                                        />
-                                        <label style={{ fontSize: "0.8rem" }}>Instagram:</label>
-                                        <input
-                                            type="text"
-                                            placeholder='Digite o instagram da empresa'
-                                            value={companyInfo.instagram}
-                                            onChange={(e) => handleCompanyInfo('instagram', e.target.value)}
-                                            style={{ border: "1px solid #f3f3f3", marginTop: "1rem" }}
-                                        />
-                                        <label style={{ fontSize: "0.8rem" }}>Logo da empresa:</label>
-                                        <div style={{ display: 'flex', marginTop: '1rem', gap: '1rem', alignItems: 'center', flexDirection: mobile ? 'column': 'row' }}>
-                                            <img src={companyLogo !== '' ? URL.createObjectURL(companyLogo) : (companyInfo.imagem ? companyInfo.imagem : '' ) } alt="Logo da empresa" style={{ maxWidth: '80px', maxHeight: '60px', margin: '0' }} />
-                                            { companyLogo !== '' &&
-                                                <XIcon 
-                                                    size={16} 
-                                                    style={{marginLeft: '-25px', marginTop: '-60px', background: '#d5d5d5', borderRadius: '10px'}}
-                                                    onClick={() => setCompanyLogo('')}
-                                                />
-                                            }
-                                            <div style={{ display: 'flex', justifyContent: 'center', flexDirection: 'column' }}>
-                                                <input
-                                                    type="file"
-                                                    style={{ border: 'none', boxShadow: 'none', fontSize:'12px', margin: '0', height: 'max-content', padding:'0', color: '#666' }}
-                                                    name={companyLogo !== '' ? companyLogo.name : 'logo'}
-                                                    onChange={(event) => {
-                                                        const file = event.target.files[0];
-                                                        const maxSizeInBytes = 2 * 1024 * 1024;
-                                                        if (file && file.size > maxSizeInBytes) {
-                                                            alert("O arquivo selecionado é maior que 2MB. Por favor, escolha um arquivo menor.");
-                                                            event.target.value = ''; // limpa o input
-                                                            return;
-                                                        }
-                                                        setCompanyLogo(file);
-                                                    }}
-                                                />
-                                                <span style={{ fontSize: '10px', color: '#666' }}>
-                                                    Tamanho máximo: 2MB. Formatos aceitos: PNG, JPG, JPEG.
-                                                </span>
-                                            </div>
+                    {!loading && companyProperties &&
+                        <Container
+                            $width="90%"
+                            $padding="0"
+                            $flexdirection={mobile ? "column" : "row"}
+                            $backgroundcolor="#fff"
+                            $borderradius="1rem"
+                        >
+                            <Title
+                                $padding="1rem"
+                                $fontweight="600"
+                                $fontsize="1.25rem"
+                                $color="#6A5ACD"
+                                $texttransform="uppercase"
+                            >
+                                Configurações
+                            </Title>
+                            <Separator $width="calc(100% - 2rem)" $bordercolor="#ccc" $margin="0 1rem 2rem 1rem" />
+                            <Container
+                                $width="auto"
+                                $display="flex"
+                                $flexdirection="column"
+                                $padding="1rem"
+                                $margin="0"
+                                $backgroundcolor="transparent"
+                                $borderradius="0"
+                                $boxshadow="0"
+                            >
+                                <form style={{ backgroundColor: "transparent", boxShadow: "none", width: "100%", padding: "0" }}>
+                                    <label style={{ fontSize: "0.8rem" }}>Tempo anterior ao horário para cliente poder cancelar:</label>
+                                    <input
+                                        type="text"
+                                        placeholder='Digite o tempo no formato HH:mm'
+                                        value={paraHoraSemSegundos(companyProperties.cancelTime)}
+                                        onChange={(e) => handleCompanyProperties('cancelTime', paraHoraCompleta(e.target.value))}
+                                        style={{ border: "1px solid #f3f3f3", marginTop: "1rem" }}
+                                    />
+                                    <label style={{ fontSize: "0.8rem" }}>Nome da empresa:</label>
+                                    <input
+                                        type="text"
+                                        placeholder='Digite o nome da empresa'
+                                        value={companyInfo.name}
+                                        onChange={(e) => handleCompanyInfo('name', e.target.value)}
+                                        style={{ border: "1px solid #f3f3f3", marginTop: "1rem" }}
+                                    />
+                                    <label style={{ fontSize: "0.8rem" }}>Whatsapp:</label>
+                                    <input
+                                        type="text"
+                                        placeholder='Digite o whatsapp da empresa com DDD'
+                                        value={formataNumeroTelefone(companyInfo.whatsapp)}
+                                        onChange={(e) => handleCompanyInfo('whatsapp', formataNumeroTelefone(e.target.value))}
+                                        style={{ border: "1px solid #f3f3f3", marginTop: "1rem" }}
+                                    />
+                                    <label style={{ fontSize: "0.8rem" }}>Instagram:</label>
+                                    <input
+                                        type="text"
+                                        placeholder='Digite o instagram da empresa'
+                                        value={companyInfo.instagram}
+                                        onChange={(e) => handleCompanyInfo('instagram', e.target.value)}
+                                        style={{ border: "1px solid #f3f3f3", marginTop: "1rem" }}
+                                    />
+                                    <label style={{ fontSize: "0.8rem" }}>Logo da empresa:</label>
+                                    <div style={{ display: 'flex', marginTop: '1rem', gap: '1rem', alignItems: 'center', flexDirection: mobile ? 'column': 'row' }}>
+                                        <img src={companyLogo !== '' ? URL.createObjectURL(companyLogo) : (companyInfo.imagem ? companyInfo.imagem : '' ) } alt="Logo da empresa" style={{ maxWidth: '80px', maxHeight: '60px', margin: '0' }} />
+                                        { companyLogo !== '' &&
+                                            <XIcon 
+                                                size={16} 
+                                                style={{marginLeft: '-25px', marginTop: '-60px', background: '#d5d5d5', borderRadius: '10px'}}
+                                                onClick={() => setCompanyLogo('')}
+                                            />
+                                        }
+                                        <div style={{ display: 'flex', justifyContent: 'center', flexDirection: 'column' }}>
+                                            <input
+                                                type="file"
+                                                style={{ border: 'none', boxShadow: 'none', fontSize:'12px', margin: '0', height: 'max-content', padding:'0', color: '#666' }}
+                                                name={companyLogo !== '' ? companyLogo.name : 'logo'}
+                                                onChange={(event) => {
+                                                    const file = event.target.files[0];
+                                                    const maxSizeInBytes = 2 * 1024 * 1024;
+                                                    if (file && file.size > maxSizeInBytes) {
+                                                        alert("O arquivo selecionado é maior que 2MB. Por favor, escolha um arquivo menor.");
+                                                        event.target.value = ''; // limpa o input
+                                                        return;
+                                                    }
+                                                    setCompanyLogo(file);
+                                                }}
+                                            />
+                                            <span style={{ fontSize: '10px', color: '#666' }}>
+                                                Tamanho máximo: 2MB. Formatos aceitos: PNG, JPG, JPEG.
+                                            </span>
                                         </div>
-                                        <Separator $width="100%" $bordercolor="#ccc" />
-                                        <Container
-                                            $width="auto"
-                                            $display="flex"
-                                            $alignitems="flex-end"
-                                            $justifycontent="flex-end"
-                                            $margin="0"
-                                            $backgroundcolor="transparent"
-                                        >
-                                            <Button
-                                                style={{ fontSize: "0.8rem", padding: "0.5rem 1rem", backgroundColor: "#00b900", borderColor: "#00b900" }}
-                                                onClick={updateCompanyProps}>
-                                                Salvar alterações
-                                            </Button>
-                                        </Container>
-                                    </form>
-                                </Container>
-                            </>
-                        }
-                    </Container>
+                                    </div>
+                                    <Separator $width="100%" $bordercolor="#ccc" />
+                                    <Container
+                                        $width="auto"
+                                        $display="flex"
+                                        $alignitems="flex-end"
+                                        $justifycontent="flex-end"
+                                        $margin="0"
+                                        $backgroundcolor="transparent"
+                                    >
+                                        <Button
+                                            style={{ fontSize: "0.8rem", padding: "0.5rem 1rem", backgroundColor: "#00b900", borderColor: "#00b900" }}
+                                            onClick={updateCompanyProps}>
+                                            Salvar alterações
+                                        </Button>
+                                    </Container>
+                                </form>
+                            </Container>
+                        </Container> 
+                    }
+                    {loading &&
+                        <Container 
+                            $width="100%" 
+                            $height="90vh" 
+                            $margin="0" 
+                            $padding="0" 
+                            $backgroundcolor="none"
+                            $borderradius="0" 
+                            $border="none"
+                            $display="flex" 
+                            $justifycontent="center" 
+                            $alignitems="center"
+                        >
+                            <span className="loader"></span>
+                        </Container>
+                    }
                     <ToastContainer position="top-right" autoClose={3000} closeButton={false} />
                 </Sidebar>
             </Container>
