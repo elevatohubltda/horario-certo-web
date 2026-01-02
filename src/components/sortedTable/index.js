@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { ClipboardPenLineIcon, CircleXIcon, PhoneIcon, ChevronLeftIcon, ChevronRightIcon, ClockPlusIcon } from "lucide-react";
+import { ClipboardPenLineIcon, CircleXIcon, PhoneIcon, ClockPlusIcon } from "lucide-react";
 import styled from 'styled-components';
 import { openWhatsApp } from '../../util/util';
 import { ThreeDots } from "react-loader-spinner";
@@ -53,25 +53,6 @@ const Button = styled.button`
         )
     )
 }
-`;
-
-const Pagination = styled.div`
-    display: flex;
-    justify-content: center;
-    margin-top: 16px;
-    gap: 8px;
-`;
-
-const PageButton = styled.button`
-    padding: 6px 12px;
-    border: 1px solid #ccc;
-    background-color: ${({ active }) => (active ? '#6a5acd0a' : 'white')};
-    cursor: pointer;
-
-    &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
 `;
 
 const SortedTable = ({ data, loading, isMobile, onChange }) => {
