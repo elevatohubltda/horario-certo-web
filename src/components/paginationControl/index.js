@@ -1,48 +1,28 @@
 import styled from "styled-components";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 
-/* ===================== helpers ===================== */
-
 const getVisiblePages = (currentPage, totalPages) => {
-  const maxVisible = 8;
+  const maxVisible = 5;
 
   if (totalPages <= maxVisible) {
     return Array.from({ length: totalPages }, (_, i) => i + 1);
   }
 
-  const startPages = [1, 2, 3, 4];
-  const endPages = [
-    totalPages - 3,
-    totalPages - 2,
-    totalPages - 1,
-    totalPages
-  ];
-
-  // início
-  if (currentPage <= 4) {
-    return [...startPages, "ellipsis", ...endPages];
+  if (currentPage <= 3) {
+    return [1, 2, 3, "ellipsis", totalPages];
   }
 
-  // final
-  if (currentPage >= totalPages - 3) {
-    return [...startPages, "ellipsis", ...endPages];
+  if (currentPage >= totalPages - 2) {
+    return [1, "ellipsis", totalPages - 2, totalPages - 1, totalPages];
   }
-
-  // meio
   return [
     1,
-    2,
     "ellipsis",
-    currentPage - 1,
     currentPage,
-    currentPage + 1,
     "ellipsis",
-    totalPages - 1,
     totalPages
   ];
 };
-
-/* ===================== componente ===================== */
 
 export function PaginationControl({
   currentPage,
@@ -87,8 +67,6 @@ export function PaginationControl({
     </Pagination>
   );
 }
-
-/* ===================== styles ===================== */
 
 const Pagination = styled.div`
   display: flex;
