@@ -71,20 +71,47 @@ export function PaginationControl({
 const Pagination = styled.div`
   display: flex;
   justify-content: center;
-  margin-top: 16px;
+  margin-top: 24px;
   gap: 8px;
 `;
 
 const PageButton = styled.button`
-  padding: 6px 12px;
-  border: 1px solid #ccc;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 6px;
+  border: 1px solid var(--color-olive);
+
   background-color: ${({ active }) =>
-    active ? "#6a5acd0a" : "white"};
+    active ? "var(--color-sage)" : "transparent"};
+
+  color: ${({ active }) =>
+    active ? "#fff" : "var(--color-dark)"};
+
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: ${({ active }) => (active ? "600" : "400")};
+
+  transition: background-color 0.2s ease, color 0.2s ease,
+    border-color 0.2s ease;
+
+  svg {
+    color: inherit;
+  }
+
+  &:hover:not(:disabled) {
+    background-color: ${({ active }) =>
+      active ? "var(--color-sage)" : "rgba(142, 152, 142, 0.2)"};
+    border-color: var(--color-sage);
+  }
 
   &:disabled {
-    opacity: 0.5;
+    opacity: 0.4;
     cursor: not-allowed;
   }
 `;

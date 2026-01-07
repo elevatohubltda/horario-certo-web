@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import styled from "styled-components";
 import "../styles/index.css";
 import Topbar from "../components/topbar";
 import { Container } from "../components/container/style";
@@ -11,357 +12,387 @@ import { Title } from "../components/title";
 import { Separator } from "../components/separator/style";
 import { ToastContainer, toast } from "react-toastify";
 import { Button } from "react-bootstrap";
-import { formatSchedulesToISO, maskTime, paraHoraCompleta } from "../util/format";
+import {
+  formatSchedulesToISO,
+  maskTime,
+  paraHoraCompleta
+} from "../util/format";
 import { XIcon } from "lucide-react";
 import { createSchedule } from "../services/endpoints/companySchedule";
 import DatePicker from "../components/datePicker";
+import { getNowInBrazilDate } from "../util/date";
+
+/* =======================
+   Styled Components
+======================= */
+
+const Form = styled.form`
+  width: calc(100% - 2rem);
+  background: transparent;
+  box-shadow: none;
+  padding: 1rem;
+`;
+
+const Label = styled.label`
+  font-size: 0.8rem;
+  color: var(--color-earth);
+`;
+
+const Input = styled.input`
+  margin-top: 1rem;
+  padding: 0.5rem;
+  border-top: 1px solid var(--color-sage);
+  background-color: #fff;
+  color: var(--color-dark);
+  font-size: 0.85rem;
+
+  &:focus {
+    outline: none;
+    border-color: var(--color-dark);
+  }
+`;
+
+const ButtonsGroup = styled.div`
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 1rem 0 0.5rem 0;
+`;
+
+const Badge = styled.div`
+  display: flex;
+  align-items: center;
+  border-radius: 0.5rem;
+  color: var(--color-dark);
+  font-size: 0.75rem;
+`;
+
+const BadgeContent = styled.div`
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--color-sage);
+  border-radius: 0.5rem;
+  padding: 0.2rem 0.5rem;
+  color: var(--color-dark);
+  font-size: 0.75rem;
+`;
+
+const RemoveIcon = styled(XIcon)`
+  background: #d9534f;
+  color: #fff;
+  border-radius: 50%;
+  cursor: pointer;
+  margin-top: -1.2rem;
+  margin-left: -0.6rem
+`;
+
+const Actions = styled(Container)`
+  justify-content: flex-end;
+  align-items: flex-end;
+  background: transparent;
+  margin: 0;
+  width: 100%;
+`;
+
+/* =======================
+   Component
+======================= */
 
 export default function MySchedule() {
-    const companyUrl = Cookies.get("companyUrl");
-    const companyInfo = JSON.parse(Cookies.get("companyInfo"));
-    const [loading, setLoading] = React.useState(true);
-    const [mobile, setMobile] = React.useState();
-    const navigate = useNavigate();
-    const [scheduleData, setScheduleData] = React.useState(
-        {
-            date: new Date().toISOString().split('T')[0],
-            openTime: "",
-            closeTime: "",
-            durationTime: "",
-            interval: []
-        }
-    );
-    const [interval, setInterval] = React.useState({});
-    const [schedule, setSchedule] = React.useState([]);
+  const companyUrl = Cookies.get("companyUrl");
+  const companyInfo = JSON.parse(Cookies.get("companyInfo"));
+  const [loading, setLoading] = React.useState(true);
+  const [mobile, setMobile] = React.useState();
+  const navigate = useNavigate();
 
-    const insertInterval = () => {
-        if (!interval?.start || !interval?.end) {
-            toast.error("Por favor, preencha os horários de abertura e fechamento antes de inserir um intervalo.");
-            return;
-        }
-        setScheduleData((prev) => ({
-            ...prev,
-            interval: [
-                ...prev.interval, 
-                interval
-            ]
-        }));
-        setInterval({
-            start: "",
-            end: ""
-        });
+  const [scheduleData, setScheduleData] = React.useState({
+    date: getNowInBrazilDate(),
+    openTime: "",
+    closeTime: "",
+    durationTime: "",
+    interval: []
+  });
+
+  const [interval, setInterval] = React.useState({});
+  const [schedule, setSchedule] = React.useState([]);
+
+  const insertInterval = () => {
+    if (!interval?.start || !interval?.end) {
+      toast.error("Preencha os horários do intervalo.");
+      return;
     }
 
-    function removeInterval(interval) {
-        setScheduleData(prevData => ({
-            ...prevData,
-            interval: prevData.interval.filter(item => item !== interval)
-        }));
+    setScheduleData(prev => ({
+      ...prev,
+      interval: [...prev.interval, interval]
+    }));
+
+    setInterval({ start: "", end: "" });
+  };
+
+  const removeInterval = intervalItem => {
+    setScheduleData(prev => ({
+      ...prev,
+      interval: prev.interval.filter(item => item !== intervalItem)
+    }));
+  };
+
+  const generateSchedule = () => {
+    const timeSlots = generateTimeSlots({
+      openTime: scheduleData.openTime,
+      closeTime: scheduleData.closeTime,
+      durationTime: scheduleData.durationTime,
+      interval: scheduleData.interval
+    });
+    setSchedule(timeSlots);
+  };
+
+  const removeSchedule = item => {
+    setSchedule(prev => prev.filter(scheduleItem => scheduleItem !== item));
+  };
+
+  const saveSchedule = async () => {
+    const scheduleISO = formatSchedulesToISO({
+      date: scheduleData.date.toLocaleDateString("pt-BR"),
+      schedules: schedule
+    });
+
+    try {
+      const response = await createSchedule(companyUrl, scheduleISO);
+      if (response.status === 200) {
+        toast.success("Horários salvos com sucesso!");
+      }
+    } catch (error) {
+      console.error(error);
     }
+  };
 
-    const handleScheduleData = (parameter, value) => {
-        setScheduleData((prev) => ({
-            ...prev,
-            [parameter]: value
-        }));
+  useEffect(() => {
+    if (isAvailableLogin()) {
+      setMobile(isMobile());
+      setLoading(false);
+    } else {
+      navigate("/" + companyUrl);
     }
+  }, [companyUrl, navigate]);
 
-    const handleInterval = (parameter, value) => {
-        setInterval((prev) => ({
-            ...prev,
-            [parameter]: value
-        }));
-    }
+  return (
+    <>
+      <Topbar {...companyInfo} loggedIn />
 
-    const generateSchedule= () => {
-        const timeSlots = generateTimeSlots({
-            openTime: scheduleData?.openTime,
-            closeTime: scheduleData?.closeTime,
-            durationTime: scheduleData?.durationTime,
-            interval: scheduleData?.interval
-        })
-        setSchedule(timeSlots);
-    }
+      <Container
+        $width={!mobile ? "100%" : "90%"}
+        $display="flex"
+        $flexdirection="column"
+        $padding={!mobile ? "0" : "1rem"}
+        $margin="0"
+        $backgroundcolor="transparent"
+      >
+        <Sidebar>
+          <Container
+            $width="90%"
+            $backgroundcolor="var(--color-background)"
+            $borderradius="0 1rem 2rem 1rem"
+            $padding="0"
+            $display="flex"
+            $flexdirection="column"
+          >
+            {loading && <span className="loader" />}
 
-    const removeSchedule = (item) => {
-        setSchedule((prev) => prev.filter((scheduleItem) => scheduleItem !== item));
-    }
+            {!loading && (
+              <>
+                <Title
+                  $padding="1rem"
+                  $fontweight="600"
+                  $fontsize="1.25rem"
+                  $color="var(--color-dark)"
+                >
+                  Criar agendamentos
+                </Title>
 
-    const saveSchedule = async () => {
-        const scheduleISOFormat = formatSchedulesToISO({date: scheduleData.date.toLocaleDateString('pt-BR'), schedules: schedule});
-        try {
-            const response = await createSchedule(companyUrl, scheduleISOFormat);
-            if (response.status === 200) {
-                toast.success("Horários salvos com sucesso!");
-            } else {
-                console.error("Erro ao salvar os horários da empresa:", response.statusText);
-            }
-        } catch (error) {
-            console.error("Erro ao salvar os horários da empresa:", error);
-        }
-    }
+                <Separator
+                  $width="calc(100% - 2rem)"
+                  $bordercolor="var(--color-dark)"
+                  $margin="0 1rem 1rem 1rem"
+                />
 
-    useEffect(() => {
-        if (isAvailableLogin()) {
-            setMobile(isMobile());
-            setLoading(false);
-        } else {
-            navigate("/" + companyUrl);
-        }
-    }, [companyUrl, navigate]);
+                <Form>
+                  <Label>Data:</Label>
+                  <DatePicker
+                    value={scheduleData.date}
+                    onChange={e =>
+                      setScheduleData(prev => ({ ...prev, date: e }))
+                    }
+                  />
 
-    return (
-        <>
-            <Topbar
-                name={companyInfo.name}
-                imagem={companyInfo.imagem}
-                whatsapp={companyInfo.whatsapp}
-                instagram={companyInfo.instagram}
-                loggedIn={true}
-            />
-            <Container
-                $width={!mobile ? "100%" : "90%"}
-                $display="flex"
-                $flexdirection="column"
-                $padding={!mobile ? "0" : "1rem"}
-                $margin="0"
-                $backgroundcolor="transparent"
-                $borderradius="0"
-                $boxshadow="0"
-            >
-                <Sidebar>
-                    <Container
-                        $width="90%"
-                        $padding="0"
-                        $flexdirection={mobile ? "column" : "row"}
-                        $backgroundcolor="#fff"
-                        $borderradius="1rem"
+                  <Label>Horário de abertura:</Label>
+                  <Input
+                    value={maskTime(scheduleData.openTime)}
+                    onChange={e =>
+                      setScheduleData(prev => ({
+                        ...prev,
+                        openTime: paraHoraCompleta(e.target.value)
+                      }))
+                    }
+                  />
+
+                  <Label>Horário de fechamento:</Label>
+                  <Input
+                    value={maskTime(scheduleData.closeTime)}
+                    onChange={e =>
+                      setScheduleData(prev => ({
+                        ...prev,
+                        closeTime: e.target.value
+                      }))
+                    }
+                  />
+
+                  <Label>Duração (minutos):</Label>
+                  <Input
+                    value={scheduleData.durationTime}
+                    onChange={e =>
+                      setScheduleData(prev => ({
+                        ...prev,
+                        durationTime: e.target.value
+                      }))
+                    }
+                  />
+
+                  <Label>Intervalo início:</Label>
+                  <Input
+                    value={maskTime(interval.start || "")}
+                    onChange={e =>
+                      setInterval(prev => ({
+                        ...prev,
+                        start: e.target.value
+                      }))
+                    }
+                  />
+
+                  <Label>Intervalo fim:</Label>
+                  <Input
+                    value={maskTime(interval.end || "")}
+                    onChange={e =>
+                      setInterval(prev => ({
+                        ...prev,
+                        end: e.target.value
+                      }))
+                    }
+                  />
+
+                  <ButtonsGroup>
+                    <Button
+                      style={{
+                        backgroundColor: "var(--color-olive)",
+                        borderColor: "var(--color-brown)",
+                      }}
+                      onClick={insertInterval}
                     >
-                        {loading &&
-                            <span className="loader"></span>
-                        }
-                        {!loading &&
-                            <>
-                                <Title
-                                    $padding="1rem"
-                                    $fontweight="600"
-                                    $fontsize="1.25rem"
-                                    $color="#6A5ACD"
-                                    $texttransform="uppercase"
-                                >
-                                    Criar agendamentos
-                                </Title>
-                                <Separator $width="calc(100% - 2rem)" $bordercolor="#ccc" $margin="0 1rem 2rem 1rem" />
-                                <Container
-                                    $width="auto"
-                                    $display="flex"
-                                    $flexdirection="column"
-                                    $padding="1rem"
-                                    $margin="0"
-                                    $backgroundcolor="transparent"
-                                    $borderradius="0"
-                                    $boxshadow="0"
-                                >
-                                    <form style={{ backgroundColor: "transparent", boxShadow: "none", width: "100%", padding: "0" }}>
-                                        <label style={{ fontSize: "0.8rem" }}>Data:</label>
-                                        <DatePicker
-                                            value={scheduleData?.date}
-                                            onChange={(e) => handleScheduleData('date', e)}
-                                        />
-                                        <label style={{ fontSize: "0.8rem" }}>Horário de abertura:</label>
-                                        <input
-                                            type="text"
-                                            placeholder='Digite o horário no formato HH:mm'
-                                            maxLength={5}
-                                            value={maskTime(scheduleData?.openTime || '')}
-                                            onChange={(e) => handleScheduleData('openTime', paraHoraCompleta(e.target.value))}
-                                            style={{ border: "1px solid #f3f3f3", marginTop: "1rem" }}
-                                        />
-                                        <label style={{ fontSize: "0.8rem" }}>Horário de fechamento:</label>
-                                        <input
-                                            type="text"
-                                            placeholder='Digite o horário no formato HH:mm'
-                                            maxLength={5}
-                                            value={maskTime(scheduleData?.closeTime || '')}
-                                            onChange={(e) => handleScheduleData('closeTime', e.target.value)}
-                                            style={{ border: "1px solid #f3f3f3", marginTop: "1rem" }}
-                                        />
-                                        <label style={{ fontSize: "0.8rem" }}>Tempo de duração do horário em minutos:</label>
-                                        <input
-                                            type="text"
-                                            placeholder='Digite o tempo em minutos'
-                                            value={scheduleData?.durationTime || ''}
-                                            onChange={(e) => handleScheduleData('durationTime', e.target.value)}
-                                            style={{ border: "1px solid #f3f3f3", marginTop: "1rem" }}
-                                        />
-                                        <label style={{ fontSize: "0.8rem" }}>Horário início do intervalo:</label>
-                                        <input
-                                            type="text"
-                                            placeholder='Digite o horário no formato HH:mm'
-                                            maxLength={5}
-                                            value={maskTime(interval.start || '')}
-                                            onChange={(e) => handleInterval('start', e.target.value)}
-                                            style={{ border: "1px solid #f3f3f3", marginTop: "1rem" }}
-                                        />
-                                        <label style={{ fontSize: "0.8rem" }}>Horário fim do intervalo:</label>
-                                        <input
-                                            type="text"
-                                            placeholder='Digite o horário no formato HH:mm'
-                                            maxLength={5}
-                                            value={maskTime(interval.end || '')}
-                                            onChange={(e) => handleInterval('end', e.target.value)}
-                                            style={{ border: "1px solid #f3f3f3", marginTop: "1rem" }}
-                                        />
-                                        <div style={{ 
-                                            display: "flex", 
-                                            margin: "1rem 0 .5rem 0", 
-                                            gap: "1rem",
-                                            flexWrap: "wrap",
-                                            alignItems: "center",
-                                            justifyContent: "center"
-                                        }}>
-                                            <Button
-                                                style={{ 
-                                                    width: "max-content", 
-                                                    fontSize: "0.8rem", 
-                                                    padding: "0.5rem 1rem", 
-                                                    backgroundColor: "#959595", 
-                                                    borderColor: "#959595", 
-                                                    color: "#fff" 
-                                                }}
-                                                onClick={insertInterval}
-                                            >
-                                                Inserir intervalo
-                                            </Button>
-                                            <Button
-                                                style={{ 
-                                                    width: "max-content", 
-                                                    fontSize: "0.8rem", 
-                                                    padding: "0.5rem 1rem", 
-                                                    backgroundColor: "#959595", 
-                                                    borderColor: "#959595", 
-                                                    color: "#fff" 
-                                                }}
-                                                onClick={() => setScheduleData((prev) => ({ ...prev, interval: [] }))}
-                                            >
-                                                Limpar intervalo(s)
-                                            </Button>
-                                            <Button
-                                                style={{ 
-                                                    width: "max-content", 
-                                                    fontSize: "0.8rem", 
-                                                    padding: "0.5rem 1rem", 
-                                                    backgroundColor: "#959595", 
-                                                    borderColor: "#959595", 
-                                                    color: "#fff" 
-                                                }}
-                                                onClick={() => generateSchedule()}
-                                            >
-                                                Gerar horários
-                                            </Button>
-                                            <Button
-                                                style={{ 
-                                                    width: "max-content", 
-                                                    fontSize: "0.8rem", 
-                                                    padding: "0.5rem 1rem", 
-                                                    backgroundColor: "#959595", 
-                                                    borderColor: "#959595", 
-                                                    color: "#fff" 
-                                                }}
-                                                onClick={() => setSchedule([])}
-                                            >
-                                                Limpar horários
-                                            </Button>
-                                        </div>
-                                        {
-                                            scheduleData.interval.length > 0 &&
-                                            <>
-                                                <Separator $width="100%" $bordercolor="#ccc" />
-                                                <label style={{ fontSize: "0.8rem" }}>Meus intervalos:</label>
-                                                <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap"}}>
-                                                    {scheduleData.interval.map((item, index) => (
-                                                        <div key={index} style={{ marginTop: "1rem", display: "flex", alignItems: "center"}}>
-                                                            <span
-                                                                style={{ 
-                                                                    justifyContent: "center", 
-                                                                    width: "max-content", 
-                                                                    display: "flex", 
-                                                                    alignItems: "center",
-                                                                    border: "1px solid #6A5ACD",
-                                                                    borderRadius: "0.5rem",
-                                                                    padding: "0 0.5rem",
-                                                                }}
-                                                            >
-                                                                {item.start} - {item.end}
-                                                            </span>
-                                                            <XIcon
-                                                                size={12} 
-                                                                style={{background: '#f10f0f', borderRadius: '10px', color: '#fff', marginLeft: "-0.5rem", marginTop: "-1.2rem", cursor: 'pointer'}}
-                                                                onClick={() => removeInterval(item)}
-                                                            />
-                                                        </div>
-                                                    ))
-                                                    }
-                                                </div>
-                                            </>
-                                        }
-                                        {
-                                            schedule.length > 0 && 
-                                            <>
-                                                <label style={{ fontSize: "0.8rem", marginTop: "1.5rem" }}>Horários gerados:</label>
-                                                <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginTop: "1rem" }}>
-                                                    {schedule.map((item, index) => (
-                                                        <div key={index} style={{ 
-                                                            justifyContent: "center", 
-                                                            width: "max-content", 
-                                                            display: "flex", 
-                                                            alignItems: "center",
-                                                            border: "1px solid #6A5ACD",
-                                                            borderRadius: "0.5rem",
-                                                            paddingLeft: "0.5rem",
-                                                        }}>
-                                                            {item}
-                                                            <XIcon
-                                                                size={12} 
-                                                                style={{
-                                                                    background: '#f10f0f', 
-                                                                    borderRadius: '10px', 
-                                                                    marginTop: "-20px",
-                                                                    marginRight: "-5px",
-                                                                    color: '#fff',
-                                                                    cursor: 'pointer'
-                                                                }}
-                                                                onClick={() => removeSchedule(item)}
-                                                            />
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </>
-                                        }
-                                        <Separator $width="100%" $bordercolor="#ccc" />
-                                        <Container
-                                            $width="auto"
-                                            $display="flex"
-                                            $alignitems="flex-end"
-                                            $justifycontent="flex-end"
-                                            $margin="0"
-                                            $backgroundcolor="transparent"
-                                        >
-                                            <Button
-                                                style={{ fontSize: "0.8rem", padding: "0.5rem 1rem", backgroundColor: "#00b900", borderColor: "#00b900" }}
-                                                onClick={saveSchedule}
-                                            >
-                                                Salvar
-                                            </Button>
-                                        </Container>
-                                    </form>
-                                </Container>
-                            </>
-                        }
-                    </Container>
-                    <ToastContainer position="top-right" autoClose={3000} closeButton={false} />
-                </Sidebar>
-            </Container>
-        </>
-    );
+                      Inserir intervalo
+                    </Button>
+
+                    <Button
+                      style={{
+                        backgroundColor: "var(--color-olive)",
+                        borderColor: "var(--color-brown)",
+                      }}
+                      onClick={() =>
+                        setScheduleData(prev => ({ ...prev, interval: [] }))
+                      }
+                    >
+                      Limpar intervalos
+                    </Button>
+
+                    <Button
+                      style={{
+                        backgroundColor: "var(--color-olive)",
+                        borderColor: "var(--color-brown)",
+                      }}
+                      onClick={generateSchedule}
+                    >
+                      Gerar horários
+                    </Button>
+
+                    <Button
+                      style={{
+                        backgroundColor: "var(--color-olive)",
+                        borderColor: "var(--color-brown)",
+                      }}
+                      onClick={() => setSchedule([])}
+                    >
+                      Limpar horários
+                    </Button>
+                  </ButtonsGroup>
+
+                  {scheduleData.interval.length > 0 && (
+                    <>
+                      <Separator
+                        $width="100%"
+                        $bordercolor="var(--color-dark)"
+                      />
+                      <Label>Meus intervalos:</Label>
+                      <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                        {scheduleData.interval.map((item, index) => (
+                          <Badge key={index}>
+                            <BadgeContent>
+                                {item.start} - {item.end}
+                            </BadgeContent>
+                            <RemoveIcon
+                              size={12}
+                              onClick={() => removeInterval(item)}
+                            />
+                          </Badge>
+                        ))}
+                      </div>
+                    </>
+                  )}
+
+                  {schedule.length > 0 && (
+                    <>
+                      <Label style={{ marginTop: "1rem" }}>
+                        Horários gerados:
+                      </Label>
+                      <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                        {schedule.map((item, index) => (
+                          <Badge key={index}>
+                            <BadgeContent>
+                                {item}
+                            </BadgeContent>
+                            <RemoveIcon
+                              size={12}
+                              onClick={() => removeSchedule(item)}
+                            />
+                          </Badge>
+                        ))}
+                      </div>
+                    </>
+                  )}
+
+                  <Separator
+                    $width="100%"
+                    $bordercolor="var(--color-dark)"
+                  />
+
+                  <Actions>
+                    <Button
+                      style={{
+                        backgroundColor: "var(--color-sage)",
+                        borderColor: "var(--color-sage)"
+                      }}
+                      onClick={saveSchedule}
+                    >
+                      Salvar
+                    </Button>
+                  </Actions>
+                </Form>
+              </>
+            )}
+          </Container>
+
+          <ToastContainer position="top-right" autoClose={3000} />
+        </Sidebar>
+      </Container>
+    </>
+  );
 }

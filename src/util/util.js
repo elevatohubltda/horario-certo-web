@@ -3,7 +3,8 @@ export function isMobile() {
 }
 
 export const openWhatsApp = (whatsapp) => {
-    const url = "https://wa.me/55"+ whatsapp;
+    const cleanWhatsapp = whatsapp.replace(/\D/g, '');
+    const url = "https://wa.me/55"+ cleanWhatsapp;
     window.open(url, "_blank"); // Abre o link em uma nova aba
 };
 

@@ -1,0 +1,18 @@
+<svg width="360" height="120" viewBox="0 0 360 120" xmlns="http://www.w3.org/2000/svg">
+
+  <text x="20" y="55"
+        font-size="42"
+        font-family="Arial, Helvetica, sans-serif"
+        fill="#1E2C28"
+        font-weight="600">
+    Horário
+  </text>
+
+  <text x="20" y="100"
+        font-size="42"
+        font-family="Arial, Helvetica, sans-serif"
+        fill="#6D5C43"
+        font-weight="600">
+    Certo
+  </text>
+</svg>

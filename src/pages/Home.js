@@ -17,12 +17,13 @@ import DateRangeSelector from "../components/dateRangeSelector";
 import Dialog from "../components/dialog";
 import { Title } from "../components/title";
 import { Separator } from "../components/separator/style";
-import { Button } from "react-bootstrap";
 import { createReservedSchedule, removeReservedSchedule } from "../services/endpoints/reservedSchedule";
 import { ToastContainer, toast } from "react-toastify";
 import { isMobile, openWhatsApp } from "../util/util";
 import { WhatsApp } from '@mui/icons-material';
 import FilterDropdown from "../components/filterDropdown";
+import styled from "styled-components";
+import { Button } from "../components/button";
 
 export default function Home() {
   const settings = {
@@ -46,6 +47,7 @@ export default function Home() {
   const [loadingSchedule, setLoadingSchedule] = React.useState(true);
   const [companyInfo, setCompanyInfo] = React.useState();
   const [horarios, setHorarios] = React.useState([]);
+  const [filtered, setFiltered] = React.useState([]);
   const [open, setOpen] = React.useState(false);
   const [selectedSchedule, setSelectedSchedule] = React.useState(
     {
@@ -59,6 +61,7 @@ export default function Home() {
   const [code, setCode] = React.useState()
   const [error, setError] = React.useState()
   const filters = [
+    { label: "Remover filtro", value: "", color: "" },
     { label: "Disponível", value: "available", color: "#4caf50" }
   ];
 
@@ -221,10 +224,11 @@ export default function Home() {
           })
           .filter(item => item.horarios.length > 0);
 
-        setHorarios(filtered);
+        setFiltered(filtered);
         break;
       }
       default:
+        setFiltered(horarios);
         break;
     }
   };
@@ -243,7 +247,7 @@ export default function Home() {
   return (
     <>
       {companyInfo && 
-        <>
+        <div style={{backgroundColor: 'var(--color-background)', height: '100dvh'}}>
           <Topbar 
             name={companyInfo.name} 
             imagem={companyInfo.imagem}
@@ -277,7 +281,8 @@ export default function Home() {
             $borderradius="1rem"
           >
             <Slider {...settings}>
-              {!loadingSchedule && horarios.length > 0 && horarios.map((item, index) => (
+              {!loadingSchedule && horarios.length > 0 && filtered.length > 0 ? 
+              filtered.map((item, index) => (
                 itsAvailableDayByArray(item) && (
                   <div key={index} className="slide">
                     <h3>{item.data}</h3>
@@ -308,7 +313,40 @@ export default function Home() {
                     </div>
                   </div>
                 )
-              ))}
+              )) : 
+              horarios.map((item, index) => (
+                itsAvailableDayByArray(item) && (
+                  <div key={index} className="slide">
+                    <h3>{item.data}</h3>
+                    <span>{"("+getWeekDay(item.data)+")"}</span>
+                    <div className="horarios-container">
+                      {item.horarios.map((iteminside, i) =>
+                        !itsAvailableNow(item.data, iteminside.horario) ? (
+                          <button
+                            key={i}
+                            className={
+                              iteminside.available === false
+                                ? 'horario-btn horario-btn-unavailable'
+                                : 'horario-btn'
+                            }
+                            onClick={() =>
+                              selectSchedule(
+                                item.data,
+                                iteminside.horario,
+                                iteminside.available,
+                                iteminside.name
+                              )
+                            }
+                          >
+                            {iteminside.horario}
+                          </button>
+                        ) : null
+                      )}
+                    </div>
+                  </div>
+                )
+              ))
+            }
               {!loadingSchedule && horarios.length === 0 && 
                 <div className="slide no-schedules">
                   <h3>Nenhum horário disponível</h3>
@@ -323,37 +361,40 @@ export default function Home() {
               }
             </Slider>
           </Container>
-        </>
+        </div>
       }
       {/* PREENCHIMENTO DADOS DO AGENDAMENTO */}
       <Dialog open={open && available && !code} onClose={() => {setOpen(false); handleRestartProps()}}>
         <Title
           $fontweight="600"
-          $fontsize="1.25rem"
-          $color="#6A5ACD"
+          $fontsize="1.1rem"
+          $color="var(--color-brown)"
           $texttransform="uppercase"
         >
           Confirme seu agendamento
         </Title>
-        <Separator $width="100%" $bordercolor="#ccc" $margin="1rem 0 3rem 0" />
+        <Separator 
+          $width="100%"
+          $bordercolor="var(--color-olive)"
+          $margin="0.75rem 0 2rem 0" 
+        />
         <form style={{ backgroundColor: "transparent", boxShadow: "none", width: "100%", padding: "0" }}>
-          <label>Data:</label>
-          <input type="text" value={selectedSchedule.data} readOnly />
-          <label>Horário:</label>
-          <input type="text" value={selectedSchedule.horario} readOnly />
-          <label>Digite seu nome:</label>
-          <input 
+          <Label>Data:</Label>
+          <DialogInput value={selectedSchedule.data} readOnly />
+          <Label>Horário:</Label>
+          <DialogInput value={selectedSchedule.horario} readOnly />
+          <Label>Digite seu nome:</Label>
+          <DialogInput 
             type="text" 
             value={selectedSchedule.nome} 
             onChange={(e) => setSelectedSchedule({ ...selectedSchedule, nome: e.target.value })}
           />
-          <label>Digite seu telefone com DDD:</label>
-          <input 
+          <Label>Digite seu telefone com DDD:</Label>
+          <DialogInput 
             type="text" 
             value={formataNumeroTelefone(selectedSchedule.telefone || "")} 
             onChange={(e) => setSelectedSchedule({ ...selectedSchedule, telefone: formataNumeroTelefone(e.target.value) }) }
           />
-          <Separator $width="100%" $bordercolor="#ccc" />
           <Container
               $width="auto"
               $display="flex"
@@ -363,13 +404,13 @@ export default function Home() {
               $backgroundcolor="transparent"
           >
             <Button
-              style={{ fontSize: "0.8rem", padding: "0.5rem 1rem", backgroundColor: "transparent", borderColor: "transparent", color: "#6A5ACD" }}
+              variant="link"
               onClick={() => {setOpen(false); handleCompanySchedules(); handleRestartProps()}}
             >
                 Voltar
             </Button>
             <Button
-              style={{ fontSize: "0.8rem", padding: "0.5rem 1rem", backgroundColor: "#6A5ACD", borderColor: "#6A5ACD" }}
+              variant="confirm"
               onClick={makeSchedule}
               disabled={!selectedSchedule.nome || !selectedSchedule.telefone}
             >
@@ -533,3 +574,28 @@ export default function Home() {
     </>
   );
 }
+
+export const DialogInput = styled.input`
+  width: 100%;
+  padding: 8px 4px;
+  margin-bottom: 1.25rem;
+
+  background-color: transparent;
+  border: none;
+  border-bottom: 1px solid var(--color-olive);
+
+  font-size: 14px;
+  color: var(--color-dark);
+
+  &:focus {
+    outline: none;
+    border-bottom-color: var(--color-sage);
+  }
+`;
+
+export const Label = styled.label`
+  font-size: 12px;
+  color: var(--color-olive);
+  margin-bottom: 4px;
+  display: block;
+`;

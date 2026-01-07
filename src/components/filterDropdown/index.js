@@ -15,7 +15,7 @@ export default function FilterDropdown({ filters, onChange }) {
   return (
     <Container>
       <Trigger onClick={() => setOpen(!open)}>
-        {selected ? (
+        {selected && selected.value ? (
           <>
             <Dot color={selected.color} />
             {selected.label}
@@ -30,15 +30,17 @@ export default function FilterDropdown({ filters, onChange }) {
 
       {open && (
         <Menu>
-          {filters.map(filter => (
-            <Option
-              key={filter.value}
-              onClick={() => handleSelect(filter)}
-            >
-              <Dot color={filter.color} />
-              {filter.label}
-            </Option>
-          ))}
+          {filters.map(filter =>
+            filter.value !== selected?.value && (
+              <Option
+                key={filter.value}
+                onClick={() => handleSelect(filter)}
+              >
+                <Dot color={filter.color} />
+                {filter.label}
+              </Option>
+            )
+          )}
         </Menu>
       )}
     </Container>

@@ -50,7 +50,7 @@ export function formataNumeroTelefone(value) {
   let formatted = '';
 
   if (cleaned.length <= 2) {
-    formatted = `(${cleaned}`;
+    formatted = `${cleaned}`;
   } else if (cleaned.length <= 3) {
     formatted = `(${cleaned.slice(0, 2)}) ${cleaned.slice(2)}`;
   } else if (cleaned.length <= 7) {

@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Separator } from '../separator/style';
+import { Button } from '../button';
 
 // Overlay escuro atrás do modal
 const Overlay = styled.div`
@@ -55,24 +56,6 @@ const ButtonGroup = styled.div`
   gap: 12px;
 `;
 
-const Button = styled.button`
-  padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-
-  ${({ variant }) =>
-    variant === 'confirm'
-      ? `
-    background-color: #6A5ACD;
-    color: white;
-  `
-      : `
-    background-color: #ccc;
-    color: #333;
-  `}
-`;
-
 const ConfirmDialog = ({ isOpen, title, message, onConfirm, onCancel, close, confirmText, cancelText }) => {
   if (!isOpen) return null;
 
@@ -92,7 +75,7 @@ const ConfirmDialog = ({ isOpen, title, message, onConfirm, onCancel, close, con
         <Separator $width="100%" $bordercolor="#ccc" $margin="1rem 0 1rem 0" />
         <p>{message}</p>
         <ButtonGroup>
-          {onCancel && 
+          {onCancel && cancelText &&
             <Button variant="cancel" type="button" onClick={onCancel}>{cancelText}</Button>
           }
           <Button variant="confirm" type="button" onClick={onConfirm}>{confirmText}</Button>

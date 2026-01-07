@@ -10,214 +10,261 @@ import Stepper from '../components/stepper';
 import { Button } from '../components/button';
 import { Separator } from '../components/separator/style';
 import { Container } from '../components/container/style';
-import logo from '../assets/logo.png';
 import { isMobile } from '../util/util';
 import { formataNumeroTelefone } from '../util/format';
 import { expiresAt } from '../util/date';
+import { ReactComponent as Logo } from '../assets/horario-certo-logo.svg';
+import styled from 'styled-components';
+
+const Form = styled.form`
+    width: ${({ $width }) => $width};
+    margin: 1rem auto;
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 2px 8px rgba(142, 152, 142, 0.1);
+`;
+
+const Label = styled.label`
+  font-size: 0.8rem;
+  color: var(--color-earth);
+  margin-top: 1rem;
+  display: block;
+`;
+
+const Input = styled.input`
+  margin-top: 0.5rem;
+  padding: 0.6rem;
+  border-radius: 6px;
+  border: 1px solid #f3f3f3;
+  border-top: 1px solid var(--color-sage);
+  font-size: 0.9rem;
+  color: var(--color-dark);
+  background: #fff;
+
+  &:focus {
+    outline: none;
+    border-color: var(--color-sage);
+    box-shadow: 0 0 0 2px rgba(142, 152, 142, 0.2);
+  }
+`;
+
+const Hint = styled.span`
+  font-size: 12px;
+  color: var(--color-olive);
+  margin-top: 0.25rem;
+  display: block;
+`;
+
+const Actions = styled.div`
+  display: flex;
+  justify-content: ${({ $step }) => ($step > 0 ? "space-between" : "flex-end")};
+`;
 
 function Register() {
     const navigate = useNavigate();
     const steps = ['Empresa', 'Acesso'];
-    const [mobile, setMobile] = React.useState()
-    const [loading, setLoading] = React.useState(false);
+    const [mobile, setMobile] = useState();
+    const [loading, setLoading] = useState(false);
     const [step, setStep] = useState(0);
-    const [token, setToken] = useState();
+
     const [userData, setUserData] = useState({
         username: '',
-        password: {
-            stepOne: '',
-            stepTwo: ''
-        }
+        password: { stepOne: '', stepTwo: '' }
     });
+
     const [companyData, setCompanyData] = useState({
         name: '',
         url: '',
-        imagem: '',
         whatsapp: '',
-        telephone: '',
-        instagram: '',
-        user: ''
+        instagram: ''
     });
 
     const handleError = (error) => toast.error(error);
-    const handleUserData = (parameter, value) => {
-        setUserData(prev => ({ ...prev, [parameter]: value }));
-    };
-    const handleCompanyData = (parameter, value) => {
-        setCompanyData(prev => ({ ...prev, [parameter]: value }));
-    };
+
     const handleNext = () => {
         if (step === 0) {
-            if (companyData.name === "" || companyData.url === "") {
+            if (!companyData.name || !companyData.url) {
                 handleError("Preencha os dados da empresa!");
                 return;
             }
-            setStep(step + 1);
+            setStep(1);
         } else {
             handleRegister();
         }
     };
-    const handleBack = () => setStep(step - 1);
+
+    const handleBack = () => { 
+        if(step > 0){
+            setStep(step - 1);
+        } else {
+            navigate('/login');
+        }
+    };
 
     const handleRegister = async () => {
         setLoading(true);
+
         if (
-            userData.username === "" ||
-            userData.password.stepOne === "" ||
-            userData.password.stepTwo === "" ||
+            !userData.username ||
+            !userData.password.stepOne ||
             userData.password.stepOne !== userData.password.stepTwo
         ) {
-            handleError("Preencha os campos usuário/senha corretamente!");
+            setLoading(false);
+            handleError("Preencha usuário e senha corretamente!");
             return;
         }
 
-        setCompanyData(prev => ({ ...prev, user: userData.username }));
-        handleCompanyData('whatsapp', companyData.whatsapp.replace(/\D/g, ''))
+        try {
+            const res = await registerUser({
+                username: userData.username,
+                password: userData.password.stepOne
+            });
 
-        if (token === undefined) {
-            try {
-                const res = await registerUser({username: userData.username, password: userData.password.stepOne});
-                if (res.status === 200) {
-                    const loginRes = await login({username: userData.username, password: userData.password.stepOne});
-                    if (loginRes.status === 200) {
-                        Cookies.set("token", loginRes.data.token, {
-                            expires: expiresAt, secure: true, sameSite: "Strict"
-                        });
-                        setToken(loginRes.data.token);
-                        const companyRes = await createCompany(companyData);
-                        if (companyRes.status === 200) {
-                            toast.success("Empresa criada com sucesso!");
-                            setLoading(false);
-                            navigate('/login');
-                        } else {
-                            setLoading(false);
-                            handleError(companyRes.data);
-                        }
-                    } else {
-                        setLoading(false);
-                        handleError(loginRes.data);
-                    }
-                } else {
-                    setLoading(false);
-                    handleError(res.data);
-                }
-            } catch (err) {
-                setLoading(false);
-                handleError(err.response?.data || err.message);
-            }
-        } else {
-            const companyRes = await createCompany(companyData);
-            if (companyRes.status === 200) {
-                setLoading(false);
+            if (res.status === 200) {
+                const loginRes = await login({
+                    username: userData.username,
+                    password: userData.password.stepOne
+                });
+
+                Cookies.set("token", loginRes.data.token, {
+                    expires: expiresAt,
+                    secure: true,
+                    sameSite: "Strict"
+                });
+
+                await createCompany({
+                    ...companyData,
+                    user: userData.username,
+                    whatsapp: companyData.whatsapp.replace(/\D/g, '')
+                });
+
                 toast.success("Empresa criada com sucesso!");
-            } else {
-                setLoading(false);
-                handleError(companyRes.data);
+                navigate('/login');
             }
+        } catch (err) {
+            handleError(err.response?.data || err.message);
+        } finally {
+            setLoading(false);
         }
     };
 
     useEffect(() => {
         setMobile(isMobile());
-    },[])
+    }, []);
 
     return (
         <Container
-            $margin={mobile ? ".25rem 0 1rem 0" :".25rem auto 1rem auto"}
+            $backgroundcolor="var(--color-background)"
+            $margin="0"
             $display="flex"
             $justifycontent="center"
             $alignitems="center"
-            $width={mobile ? "100%" : "40%"}
-            $height="100%"
+            $width="100%"
+            $height={mobile ? 'fit-content' : '100dvh'}
         >
-            <form style={{ 
-                width: '80%',
-                margin: '1rem auto' }}>
-                <img src={logo} alt="Logo" style={{ margin: '1rem 10%', minWidth: '200px' }} />
-                <Separator $width="100%" $bordercolor="#ccc" $margin="1rem 0 0 0" />
+            <Form $width={mobile ? '' : '500px'}>
+                <Logo />
+
+                <Separator $width="100%" $bordercolor="var(--color-dark)" $margin="1rem 0" />
+
                 <Stepper steps={steps} currentStep={step} />
+
                 {step === 0 && (
                     <>
-                        <label>*Nome da empresa:</label>
-                        <input
-                            type="text"
-                            placeholder='Digite o nome da empresa'
+                        <Label>Nome da empresa</Label>
+                        <Input
                             value={companyData.name}
-                            onChange={(e) => handleCompanyData('name', e.target.value)}
+                            onChange={(e) =>
+                                setCompanyData(prev => ({ ...prev, name: e.target.value }))
+                            }
                         />
-                        <label>*Whatsapp da empresa:</label>
-                        <input
-                            type="text"
-                            placeholder='Digite o whatsapp da empresa'
+
+                        <Label>Whatsapp</Label>
+                        <Input
                             value={formataNumeroTelefone(companyData.whatsapp)}
-                            onChange={(e) => handleCompanyData('whatsapp', formataNumeroTelefone(e.target.value))}
+                            onChange={(e) =>
+                                setCompanyData(prev => ({ ...prev, whatsapp: e.target.value }))
+                            }
                         />
-                        <label>Instagram da empresa:</label>
-                        <input
-                            type="text"
-                            placeholder='Digite o instagram da empresa'
+
+                        <Label>Instagram</Label>
+                        <Input
                             value={companyData.instagram}
-                            onChange={(e) => handleCompanyData('instagram', e.target.value)}
+                            onChange={(e) =>
+                                setCompanyData(prev => ({ ...prev, instagram: e.target.value }))
+                            }
                         />
-                        <label>*Link para os clientes acessarem a empresa:</label>
-                        <input
-                            type="text"
-                            placeholder='Digite o link de acesso a empresa'
+
+                        <Label>Link da empresa</Label>
+                        <Input
                             value={companyData.url}
-                            onChange={(e) => handleCompanyData('url', e.target.value)}
+                            onChange={(e) =>
+                                setCompanyData(prev => ({ ...prev, url: e.target.value }))
+                            }
                         />
-                        <p style={{ margin: '0 0 1rem 0'}}>
-                            Seus clientes acessarão com o link: 
-                        </p>
-                        
-                        <span style={{fontSize: '12px', color: "#757575", overflow: 'auto'}}>horariocerto.elevatohub.com.br/{companyData.url}</span>
+
+                        <Hint>
+                            horariocerto.elevatohub.com.br/{companyData.url}
+                        </Hint>
                     </>
                 )}
 
                 {step === 1 && (
                     <>
-                        <label>*Digite seu usuário para acesso:</label>
-                        <input
-                            type="text"
-                            placeholder='Digite seu usuário'
+                        <Label>Usuário</Label>
+                        <Input
                             value={userData.username}
-                            onChange={(e) => handleUserData('username', e.target.value)}
+                            onChange={(e) =>
+                                setUserData(prev => ({ ...prev, username: e.target.value }))
+                            }
                         />
-                        <label>*Digite sua senha de acesso:</label>
-                        <input
+
+                        <Label>Senha</Label>
+                        <Input
                             type="password"
-                            placeholder='Digite sua senha'
                             value={userData.password.stepOne}
-                            onChange={(e) => handleUserData('password', { ...userData.password, stepOne: e.target.value })}
+                            onChange={(e) =>
+                                setUserData(prev => ({
+                                    ...prev,
+                                    password: { ...prev.password, stepOne: e.target.value }
+                                }))
+                            }
                         />
-                        <label>*Digite novamente sua senha de acesso:</label>
-                        <input
+
+                        <Label>Confirmar senha</Label>
+                        <Input
                             type="password"
-                            placeholder='Confirme sua senha'
                             value={userData.password.stepTwo}
-                            onChange={(e) => handleUserData('password', { ...userData.password, stepTwo: e.target.value })}
+                            onChange={(e) =>
+                                setUserData(prev => ({
+                                    ...prev,
+                                    password: { ...prev.password, stepTwo: e.target.value }
+                                }))
+                            }
                         />
                     </>
                 )}
 
-                <Separator $width="100%" $bordercolor="#ccc" $margin="2rem 0" />
+                <Separator $width="100%" $bordercolor="var(--color-dark)" $margin="1rem 0" />
 
-                <div style={{ display: 'flex', justifyContent: loading? 'flex-end' : step > 0 ? "space-between": "flex-end" }}>
-                    {!loading && step > 0 && (
-                        <Button type="button" variant="link" onClick={handleBack}>Voltar</Button>
+                <Actions $step={step}>
+                    {!loading && (
+                        <Button variant="link" onClick={handleBack}>
+                            Voltar
+                        </Button>
                     )}
-                    <Button type="button" variant="confirm" onClick={handleNext}>
-                        {loading ? '' : step === 0 ? 'Avançar' : 'Cadastrar'}
-                        {loading && 
-                            <span className="loader" style={{width: '1.5rem', height: '1.5rem',  borderWidth: "3px"}}></span>
-                        }
-                    </Button>
-                </div>
 
-            </form>
-            {mobile !== undefined &&
-                <ToastContainer position={mobile ? "bottom-center" : "top-right"} autoClose={3000} style={{margin: 'auto 5% 1rem 5%', width: '90%'}} />
-            }
+                    <Button variant="confirm" onClick={handleNext}>
+                        {loading ? "Processando..." : step === 0 ? "Avançar" : "Cadastrar"}
+                    </Button>
+                </Actions>
+            </Form>
+
+            <ToastContainer
+                position={mobile ? "bottom-center" : "top-right"}
+                autoClose={3000}
+            />
         </Container>
     );
 }

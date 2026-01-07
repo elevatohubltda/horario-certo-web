@@ -34,6 +34,7 @@ export default function Dashboard() {
   const [mobile, setMobile] = React.useState();
   const [paymentStatus, setPaymentStatus] = React.useState();
   const filters = [
+    { label: "Sem filtro", value: "", color: "" },
     { label: "Expirado", value: "expired", color: "#9e9e9e" },
     { label: "Disponível", value: "available", color: "#4caf50" },
     { label: "Agendado", value: "scheduled", color: "#f44336" },
@@ -85,6 +86,7 @@ export default function Dashboard() {
       }
 
       default:
+        setFiltered(horarios);
         break;
     }
   };

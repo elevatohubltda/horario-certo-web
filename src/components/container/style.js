@@ -17,7 +17,7 @@ export const Container = styled.div`
   .loader {
     width: 48px;
     height: 48px;
-    border: 5px solid #6A5ACD;
+    border: 5px solid var(--color-sage);
     border-bottom-color: transparent;
     border-radius: 50%;
     display: inline-block;

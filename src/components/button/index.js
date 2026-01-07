@@ -9,7 +9,7 @@ export const Button = styled.button`
     ${({ variant }) =>
         variant === 'confirm'
         ? `
-        background-color: #6A5ACD;
+        background-color: var(--color-sage);
         color: white;
     `
         : (

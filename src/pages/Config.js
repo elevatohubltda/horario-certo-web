@@ -1,8 +1,13 @@
 import React, { useEffect } from "react";
+import styled from "styled-components";
 import "../styles/index.css";
 import Topbar from "../components/topbar";
 import { Container } from "../components/container/style";
-import { getCompany, getCompanyProperties, updateCompany, updateCompanyProperties } from "../services/endpoints/company";
+import {
+  getCompanyProperties,
+  updateCompany,
+  updateCompanyProperties
+} from "../services/endpoints/company";
 import Cookies from "js-cookie";
 import Sidebar from "../components/sidebar";
 import { isAvailableLogin } from "../util/auth";
@@ -12,268 +17,342 @@ import { Title } from "../components/title";
 import { Separator } from "../components/separator/style";
 import { ToastContainer, toast } from "react-toastify";
 import { Button } from "react-bootstrap";
-import { formataNumeroTelefone, paraHoraCompleta, paraHoraSemSegundos } from "../util/format";
+import {
+  formataNumeroTelefone,
+  paraHoraCompleta,
+  paraHoraSemSegundos
+} from "../util/format";
 import { validarHoraCompleta } from "../util/validate";
 import { uploadLogo } from "../services/endpoints/upload";
-import { XIcon } from "lucide-react"
+import { XIcon } from "lucide-react";
 import { expiresAt } from "../util/date";
 
+/* =======================
+   Styled Components
+======================= */
+
+const Form = styled.form`
+  width: calc(100%-2rem);
+  background: transparent;
+  box-shadow: none;
+  padding: 1rem;
+`;
+
+const Label = styled.label`
+  font-size: 0.8rem;
+  color: var(--color-earth);
+`;
+
+const Input = styled.input`
+  margin-top: 1rem;
+  padding: 0.5rem;
+  border-top: 1px solid var(--color-sage);
+  background-color: #fff;
+  color: var(--color-dark);
+  font-size: 0.85rem;
+
+  &:focus {
+    outline: none;
+    border-color: var(--color-sage);
+  }
+
+`;
+
+const UploadWrapper = styled.div`
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  align-items: center;
+  flex-direction: ${({ $mobile }) => ($mobile ? "column" : "row")};
+  width: 100%;
+`;
+
+const LogoPreview = styled.img`
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  box-shadow: rgba(0, 0, 0, 0.15) 2px 2px 5px 0px;
+`;
+
+const RemoveLogo = styled(XIcon)`
+  margin-top: 18px;
+  margin-left: 8px;
+  border: 1px solid #ff8555;
+  border-radius: 12px;
+  color: #ff8555;
+  cursor: pointer;
+
+    &:hover {
+        background-color: #ff8555;
+        color: #fff;
+    }
+`;
+
+const UploadInfo = styled.span`
+  font-size: 10px;
+  color: var(--color-muted);
+`;
+
+const Actions = styled(Container)`
+  justify-content: flex-end;
+  align-items: flex-end;
+  background: transparent;
+  margin: 0;
+  width: 100%
+`;
+
+/* =======================
+   Component
+======================= */
+
 export default function Config() {
-    const companyUrl = Cookies.get("companyUrl");
-    const [companyInfo, setCompanyInfo] = React.useState(JSON.parse(Cookies.get("companyInfo")));
-    const [companyProperties, setCompanyProperties] = React.useState();
-    const [loading, setLoading] = React.useState(true);
-    const [mobile, setMobile] = React.useState();
-    const navigate = useNavigate();
-    const [companyLogo, setCompanyLogo] = React.useState('');
+  const companyUrl = Cookies.get("companyUrl");
+  const [companyInfo, setCompanyInfo] = React.useState(
+    JSON.parse(Cookies.get("companyInfo"))
+  );
+  const [companyProperties, setCompanyProperties] = React.useState();
+  const [loading, setLoading] = React.useState(true);
+  const [mobile, setMobile] = React.useState();
+  const navigate = useNavigate();
+  const [companyLogo, setCompanyLogo] = React.useState("");
 
-    const getCompanyProps = async () => {
-        try {
-            const response = await getCompanyProperties(companyUrl);
-            if (response.status === 200) {
-                setCompanyProperties(response.data);
-                Cookies.set("companyProperties", JSON.stringify(response.data), {
-                    expires: expiresAt
-                });
-            } else {
-                console.error("Erro ao obter as propriedades da empresa:", response.statusText);
-            }
-        } catch (error) {
-            console.error("Erro ao obter as propriedades da empresa:", error);
-        }
+  const getCompanyProps = async () => {
+    try {
+      const response = await getCompanyProperties(companyUrl);
+      if (response.status === 200) {
+        setCompanyProperties(response.data);
+        Cookies.set("companyProperties", JSON.stringify(response.data), {
+          expires: expiresAt
+        });
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateCompanyProps = async () => {
+    if (!validarHoraCompleta(companyProperties.cancelTime) && companyLogo === "") {
+      toast.error("O tempo para cancelamento deve estar no formato HH:mm");
+      return;
     }
 
-    const updateCompanyProps = async () => {
-        if (!validarHoraCompleta(companyProperties.cancelTime) && companyLogo === '') {
-            toast.error("O tempo para cancelamento deve estar no formato HH:mm");
-            return;
-        }
-        try {
-            const response = await updateCompanyProperties(companyUrl, companyProperties);
-            if (response.status === 200) {
-                Cookies.set("companyProperties", JSON.stringify(companyProperties), {
-                    expires: expiresAt
-                });
-                toast.success("Configurações atualizadas com sucesso!");
-            } else {
-                toast.error(response.data);
-            }
-        } catch (error) {
-            toast.error(error);
-        }
-        if(companyLogo !== ''){
-            try {
-                const response = await uploadLogo(companyUrl, companyLogo);
-                if (response.status === 200) {
-                    toast.success("Logo salva com sucesso!");
-                } else {
-                    toast.error(response.data);
-                }
-            } catch (error) {
-                toast.error(error);
-            }
-        }
-        try {
-            const response = await updateCompany(companyInfo, companyUrl);
-            if (response.status === 200) {
-                Cookies.set("companyInfo", JSON.stringify(companyInfo), {
-                    expires: expiresAt
-                });
-                toast.success("Informações da empresa atualizadas com sucesso!");
-            } else {
-                toast.error(response.data);
-            }
-        } catch (error) {
-            toast.error(error);
-        }
-        try {
-            const response = await getCompany(companyUrl);
-            if (response.status === 200) {
-                Cookies.set("companyInfo", JSON.stringify(response.data), {
-                    expires: expiresAt
-                });
-            }
-        } catch (error) {
-            toast.error(error);
-        }
+    try {
+      const response = await updateCompanyProperties(
+        companyUrl,
+        companyProperties
+      );
+      if (response.status === 200) {
+        Cookies.set("companyProperties", JSON.stringify(companyProperties), {
+          expires: expiresAt
+        });
+        toast.success("Configurações atualizadas com sucesso!");
+      }
+    } catch (error) {
+      toast.error(error);
     }
 
-    const handleCompanyProperties = (parameter, value) => {
-        setCompanyProperties((prev) => ({
-            ...prev,
-            [parameter]: value
-        }));
-    }
-
-    const handleCompanyInfo = (parameter, value) => {
-        setCompanyInfo((prev) => ({
-            ...prev,
-            [parameter]: value
-        }));
-    }
-
-    useEffect(() => {
-        setLoading(true);
-        if (isAvailableLogin()) {
-            getCompanyProps();
-            setMobile(isMobile());
-            setLoading(false);
-        } else {
-            navigate("/" + companyUrl);
+    if (companyLogo !== "") {
+      try {
+        const response = await uploadLogo(companyUrl, companyLogo);
+        if (response.status === 200) {
+          toast.success("Logo salva com sucesso!");
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [companyUrl, navigate]);
+      } catch (error) {
+        toast.error(error);
+      }
+    }
 
-    return (
-       <>
-            <Topbar
-                name={companyInfo.name}
-                imagem={companyInfo.imagem}
-                whatsapp={companyInfo.whatsapp}
-                instagram={companyInfo.instagram}
-                loggedIn={true}
-            />
+    try {
+      const response = await updateCompany(companyInfo, companyUrl);
+      if (response.status === 200) {
+        Cookies.set("companyInfo", JSON.stringify(companyInfo), {
+          expires: expiresAt
+        });
+      }
+    } catch (error) {
+      toast.error(error);
+    }
+  };
+
+  const handleCompanyProperties = (parameter, value) => {
+    setCompanyProperties(prev => ({
+      ...prev,
+      [parameter]: value
+    }));
+  };
+
+  const handleCompanyInfo = (parameter, value) => {
+    setCompanyInfo(prev => ({
+      ...prev,
+      [parameter]: value
+    }));
+  };
+
+  useEffect(() => {
+    if (isAvailableLogin()) {
+      getCompanyProps();
+      setMobile(isMobile());
+    } else {
+      navigate("/" + companyUrl);
+    }
+    // eslint-disable-next-line
+  }, [companyUrl]);
+
+  return (
+    <>
+        <Topbar {...companyInfo} loggedIn />
+
+        <Container 
+            $width={!mobile ? "100%" : "90%"}
+            $display="flex"
+            $flexdirection="column"
+            $padding={!mobile ? "0" : "1rem"}
+            $margin="0"
+            $backgroundcolor="transparent"
+            $borderradius="0"
+            $boxshadow="0"
+        >
+        <Sidebar>
+          {!loading && companyProperties && (
             <Container
-                $width={!mobile ? "100%" : "90%"}
-                $display="flex"
-                $flexdirection="column"
-                $padding={!mobile ? "0" : "1rem"}
-                $margin="0"
-                $backgroundcolor="transparent"
-                $borderradius="0"
-                $boxshadow="0"
+              $width="90%"
+              $backgroundcolor="var(--color-background)"
+              $borderradius="0 1rem 2rem 1rem"
+              $padding="0"
+              $display="flex"
+              $flexdirection="column"
             >
-                <Sidebar>
-                    {!loading && companyProperties &&
-                        <Container
-                            $width="90%"
-                            $padding="0"
-                            $flexdirection={mobile ? "column" : "row"}
-                            $backgroundcolor="#fff"
-                            $borderradius="1rem"
-                        >
-                            <Title
-                                $padding="1rem"
-                                $fontweight="600"
-                                $fontsize="1.25rem"
-                                $color="#6A5ACD"
-                                $texttransform="uppercase"
-                            >
-                                Configurações
-                            </Title>
-                            <Separator $width="calc(100% - 2rem)" $bordercolor="#ccc" $margin="0 1rem 2rem 1rem" />
-                            <Container
-                                $width="auto"
-                                $display="flex"
-                                $flexdirection="column"
-                                $padding="1rem"
-                                $margin="0"
-                                $backgroundcolor="transparent"
-                                $borderradius="0"
-                                $boxshadow="0"
-                            >
-                                <form style={{ backgroundColor: "transparent", boxShadow: "none", width: "100%", padding: "0" }}>
-                                    <label style={{ fontSize: "0.8rem" }}>Tempo anterior ao horário para cliente poder cancelar:</label>
-                                    <input
-                                        type="text"
-                                        placeholder='Digite o tempo no formato HH:mm'
-                                        value={paraHoraSemSegundos(companyProperties.cancelTime)}
-                                        onChange={(e) => handleCompanyProperties('cancelTime', paraHoraCompleta(e.target.value))}
-                                        style={{ border: "1px solid #f3f3f3", marginTop: "1rem" }}
-                                    />
-                                    <label style={{ fontSize: "0.8rem" }}>Nome da empresa:</label>
-                                    <input
-                                        type="text"
-                                        placeholder='Digite o nome da empresa'
-                                        value={companyInfo.name}
-                                        onChange={(e) => handleCompanyInfo('name', e.target.value)}
-                                        style={{ border: "1px solid #f3f3f3", marginTop: "1rem" }}
-                                    />
-                                    <label style={{ fontSize: "0.8rem" }}>Whatsapp:</label>
-                                    <input
-                                        type="text"
-                                        placeholder='Digite o whatsapp da empresa com DDD'
-                                        value={formataNumeroTelefone(companyInfo.whatsapp)}
-                                        onChange={(e) => handleCompanyInfo('whatsapp', formataNumeroTelefone(e.target.value))}
-                                        style={{ border: "1px solid #f3f3f3", marginTop: "1rem" }}
-                                    />
-                                    <label style={{ fontSize: "0.8rem" }}>Instagram:</label>
-                                    <input
-                                        type="text"
-                                        placeholder='Digite o instagram da empresa'
-                                        value={companyInfo.instagram}
-                                        onChange={(e) => handleCompanyInfo('instagram', e.target.value)}
-                                        style={{ border: "1px solid #f3f3f3", marginTop: "1rem" }}
-                                    />
-                                    <label style={{ fontSize: "0.8rem" }}>Logo da empresa:</label>
-                                    <div style={{ display: 'flex', marginTop: '1rem', gap: '1rem', alignItems: 'center', flexDirection: mobile ? 'column': 'row' }}>
-                                        <img src={companyLogo !== '' ? URL.createObjectURL(companyLogo) : (companyInfo.imagem ? companyInfo.imagem : '' ) } alt="Logo da empresa" style={{ maxWidth: '80px', maxHeight: '60px', margin: '0' }} />
-                                        { companyLogo !== '' &&
-                                            <XIcon 
-                                                size={16} 
-                                                style={{marginLeft: '-25px', marginTop: '-60px', background: '#d5d5d5', borderRadius: '10px'}}
-                                                onClick={() => setCompanyLogo('')}
-                                            />
-                                        }
-                                        <div style={{ display: 'flex', justifyContent: 'center', flexDirection: 'column' }}>
-                                            <input
-                                                type="file"
-                                                style={{ border: 'none', boxShadow: 'none', fontSize:'12px', margin: '0', height: 'max-content', padding:'0', color: '#666' }}
-                                                name={companyLogo !== '' ? companyLogo.name : 'logo'}
-                                                onChange={(event) => {
-                                                    const file = event.target.files[0];
-                                                    const maxSizeInBytes = 2 * 1024 * 1024;
-                                                    if (file && file.size > maxSizeInBytes) {
-                                                        alert("O arquivo selecionado é maior que 2MB. Por favor, escolha um arquivo menor.");
-                                                        event.target.value = ''; // limpa o input
-                                                        return;
-                                                    }
-                                                    setCompanyLogo(file);
-                                                }}
-                                            />
-                                            <span style={{ fontSize: '10px', color: '#666' }}>
-                                                Tamanho máximo: 2MB. Formatos aceitos: PNG, JPG, JPEG.
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <Separator $width="100%" $bordercolor="#ccc" />
-                                    <Container
-                                        $width="auto"
-                                        $display="flex"
-                                        $alignitems="flex-end"
-                                        $justifycontent="flex-end"
-                                        $margin="0"
-                                        $backgroundcolor="transparent"
-                                    >
-                                        <Button
-                                            style={{ fontSize: "0.8rem", padding: "0.5rem 1rem", backgroundColor: "#00b900", borderColor: "#00b900" }}
-                                            onClick={updateCompanyProps}>
-                                            Salvar alterações
-                                        </Button>
-                                    </Container>
-                                </form>
-                            </Container>
-                        </Container> 
+              <Title
+                $padding="1rem"
+                $margin="0"
+                $fontweight="600"
+                $fontsize="1.25rem"
+                $color="var(--color-dark)"
+              >
+                Configurações
+              </Title>
+
+              <Separator
+                $width="calc(100% - 2rem)"
+                $bordercolor="var(--color-dark)"
+                $margin="0 1rem 1rem 1rem"
+              />
+                <Form>
+                  <Label>Tempo para cancelamento:</Label>
+                  <Input
+                    value={paraHoraSemSegundos(companyProperties.cancelTime)}
+                    onChange={e =>
+                      handleCompanyProperties(
+                        "cancelTime",
+                        paraHoraCompleta(e.target.value)
+                      )
                     }
-                    {loading &&
-                        <Container 
-                            $width="100%" 
-                            $height="90vh" 
-                            $margin="0" 
-                            $padding="0" 
-                            $backgroundcolor="none"
-                            $borderradius="0" 
-                            $border="none"
-                            $display="flex" 
-                            $justifycontent="center" 
-                            $alignitems="center"
-                        >
-                            <span className="loader"></span>
-                        </Container>
+                  />
+
+                  <Label>Nome da empresa:</Label>
+                  <Input
+                    value={companyInfo.name}
+                    onChange={e =>
+                      handleCompanyInfo("name", e.target.value)
                     }
-                    <ToastContainer position="top-right" autoClose={3000} closeButton={false} />
-                </Sidebar>
+                  />
+
+                  <Label>Whatsapp:</Label>
+                  <Input
+                    value={formataNumeroTelefone(companyInfo.whatsapp)}
+                    onChange={e =>
+                      handleCompanyInfo(
+                        "whatsapp",
+                        formataNumeroTelefone(e.target.value)
+                      )
+                    }
+                  />
+
+                  <Label>Instagram:</Label>
+                  <Input
+                    value={companyInfo.instagram}
+                    onChange={e =>
+                      handleCompanyInfo("instagram", e.target.value)
+                    }
+                  />
+
+                  <Label>Logo da empresa:</Label>
+                  <UploadWrapper $mobile={mobile}>
+                    <div>
+                        <LogoPreview
+                            src={
+                                (companyLogo && companyLogo !== "") 
+                                ? URL.createObjectURL(companyLogo)
+                                : companyInfo.imagem
+                            }
+                        />
+                        {companyLogo && (
+                        <RemoveLogo onClick={() => setCompanyLogo("")} />
+                        )}
+                    </div>
+                    <div style={{display: 'flex', flexDirection: 'column'}}>
+                      <input
+                        type="file"
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          boxShadow: 'none',
+                          padding: '0',
+                          margin: '0',
+                          height: 'max-content',
+                          fontSize: '0.8rem'
+                        }}
+                        value={companyLogo ? undefined : ""}
+                        onChange={e => setCompanyLogo(e.target.files[0])}
+                      />
+                      <UploadInfo>
+                        Máx 2MB • PNG, JPG, JPEG
+                      </UploadInfo>
+                    </div>
+                  </UploadWrapper>
+
+                  <Separator
+                    $width="100%"
+                    $bordercolor="var(--color-dark)"
+                    $margin="1rem 0 1rem 0"
+                  />
+
+                  <Actions>
+                    <Button
+                      style={{
+                        backgroundColor: "var(--color-sage)",
+                        borderColor: "var(--color-sage)"
+                      }}
+                      onClick={updateCompanyProps}
+                    >
+                      Salvar alterações
+                    </Button>
+                  </Actions>
+                </Form>
             </Container>
-        </>
-    );
+          )}
+
+          {loading &&
+            <Container 
+                $width="100%" 
+                $height="90vh" 
+                $margin="0" 
+                $padding="0" 
+                $backgroundcolor="none"
+                $borderradius="0" 
+                $border="none"
+                $display="flex" 
+                $justifycontent="center" 
+                $alignitems="center"
+            >
+                <span className="loader"></span>
+            </Container>
+          }
+          <ToastContainer position="top-right" autoClose={3000} />
+        </Sidebar>
+      </Container>
+    </>
+  );
 }

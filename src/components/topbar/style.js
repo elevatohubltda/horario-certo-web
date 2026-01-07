@@ -17,8 +17,10 @@ export const TopbarStyle = styled.div`
     margin-left: 20px;
   }
   
-  svg{
-    color: #6a5acd;
+  svg.logo {
+    width: max-content;
+    height: 80px;
+    margin-left: 20px;
   }
 
   p{
@@ -50,8 +52,8 @@ export const TopbarStyle = styled.div`
     }
 
     .be-a-partner{
-      border: 1px solid #6A5ACD;
-      color: #6A5ACD;
+      border: 1px solid var(--color-sage);
+      color: var(--color-sage);
     }
     .be-a-partner:hover{
       background-color: #8f85cc;
@@ -59,33 +61,33 @@ export const TopbarStyle = styled.div`
     }
 
     .my-area{
-      background-color: #6A5ACD;
-      border: 1px solid #6A5ACD;
+      background-color: var(--color-sage);
+      border: 1px solid var(--color-sage);
       color: #fff;
     }
 
     .my-area:hover{
       background-color: #8f85cc;
-      border: 1px solid #6A5ACD;
+      border: 1px solid var(--color-sage);
       color: #fff;
     }
 
     .user-button{
-      border: 1px solid #6A5ACD;
+      border: 1px solid var(--color-sage);
       padding: .25rem .5rem;
       transition: .5s;
 
       svg{
-        color: #6A5ACD;
+        color: var(--color-sage);
         height: 1.25rem;
         transition: .5s;
       }
     }
 
     .user-button:hover{
-      border: 1px solid #6A5ACD;
+      border: 1px solid var(--color-sage);
       padding: .25rem .5rem;
-      background-color: #6A5ACD;
+      background-color: var(--color-sage);
 
       svg{
         color: #ffffff;
@@ -95,23 +97,24 @@ export const TopbarStyle = styled.div`
 
     .menu-button{
       padding: .25rem .5rem;
-      transition: .3s;
+      transition: .2s;
+      border: 1px solid var(--color-sage);
 
       svg{
-        color: darkgray;
+        color: var(--color-sage);
         height: 2rem;
         transition: .3s;
       }
     }
 
     .menu-button:hover{
-      border: 1px solid darkgray;
+      border: 1px solid var(--color-sage);
       padding: .25rem .5rem;
-      background-color: gray;
+      background-color: var(--color-sage);
 
       svg{
-        color: #ffffff;
         height: 1.25rem;
+        color: #fff;
       }
     }
   }

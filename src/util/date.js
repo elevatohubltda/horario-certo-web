@@ -30,7 +30,7 @@ export const getMonth = [
     'Dezembro'
 ];
 
-function getNowInBrazilDate(){
+export function getNowInBrazilDate(){
   const nowInBrazilString = new Date().toLocaleString("sv-SE", {
     timeZone: "America/Sao_Paulo",
     hour12: false

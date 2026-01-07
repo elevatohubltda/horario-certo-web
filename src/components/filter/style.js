@@ -20,8 +20,8 @@ export const CustomFilterStyle = styled.div`
     height: 2.5rem;
     cursor: pointer;
     transition: .3s;
-    border: 1px solid #6A5ACD;
-    color: #6A5ACD;
+    border: 1px solid var(--color-sage);
+    color: var(--color-sage);
     font-weight: 500;
   }
   .filter-button:hover{
@@ -30,8 +30,8 @@ export const CustomFilterStyle = styled.div`
     color: #fff;
   }
   .filter-button.active{
-    background-color: #6A5ACD;
-    border: 1px solid #6A5ACD;
+    background-color: var(--color-sage);
+    border: 1px solid var(--color-sage);
     color: #fff;
   }
 `;

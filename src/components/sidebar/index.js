@@ -7,62 +7,74 @@ import { isMobile } from "../../util/util"
 const SidebarContainer = styled.div`
   width: ${(props) => (props.$isOpen ? "200px" : "50px")};
   height: calc(100vh - 60px);
-  background-color: #6a5acd0a;
-  color: #6A5ACD;
+  background-color: var(--color-background);
+  color: var(--color-dark);
   transition: width 0.3s ease;
   font-size: 12px;
   display: flex;
   flex-direction: column;
-  box-shadow: 0px +6px 6px 0px rgba(0, 0, 0, 0.1);
-`
+  border-right: 1px solid var(--color-olive);
+`;
 
 const ToggleButton = styled.button`
   background: none;
   border: none;
-  color: #6A5ACD;
-  padding: 1rem;
+  color: var(--color-sage);
+  padding: 12px 16px;
   display: flex;
   align-items: center;
+  gap: 8px;
   cursor: pointer;
-`
+
+  &:hover {
+    color: var(--color-dark);
+  }
+`;
 
 const Label = styled.span`
   margin-left: 12px;
   display: ${(props) => (props.$isVisible ? "inline" : "none")};
-  border-bottom: ${(props) => (props.$isActive ? "solid" : "none")};
-  border-bottom-width: ${(props) => (props.$isActive ? "1px" : "0")};
-`
+  font-weight: ${(props) => (props.$isActive ? "600" : "400")};
+`;
 
 const MenuList = styled.ul`
   list-style: none;
   padding: 0;
-  margin: 1rem 0;
-  margin-top: 0;
+  margin: 0;
   flex: 1;
-`
+`;
 
 const MenuItem = styled.li`
   display: flex;
   align-items: center;
   padding: 12px 16px;
   cursor: pointer;
-  transition: 0.3s;
-  width: ${(props) => (props.$isOpen ? "calc(200px - 32px)" : "calc(50px - 32px)")};
+  transition: background-color 0.2s ease, color 0.2s ease;
+  width: ${(props) => (props.$isOpen ? "calc(200px - 34px)" : "calc(50px - 34px)")};
   font-size: ${(props) => (props.$isActive ? "14px" : "12px")};
-  color: ${(props) => (props.$isActive ? "#8f85cc" : "#6A5ACD")};
+  color: ${(props) =>
+    props.$isActive ? "var(--color-dark)" : "var(--color-sage)"};
+  background-color: ${(props) =>
+    props.$isActive ? "rgba(142, 152, 142, 0.15)" : "transparent"};
+  border-left: ${(props) =>
+    props.$isActive ? "3px solid var(--color-sage)" : "3px solid transparent"};
+
+  svg {
+    color: inherit;
+  }
 
   &:hover {
-    background-color: #6A5ACD;
-    color: white;
+    background-color: rgba(142, 152, 142, 0.2);
+    color: var(--color-dark);
   }
-`
+`;
 
 const Content = styled.div`
   flex: 1;
   padding: 2rem;
   padding-top: 0;
   overflow-y: auto;
-`
+`;
 
 const Layout = styled.div`
   display: flex;

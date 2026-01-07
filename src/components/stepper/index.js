@@ -5,7 +5,7 @@ const StepperContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 2rem 0;
+  margin: 1rem 0;
 `;
 
 const StepItem = styled.div`
@@ -17,8 +17,8 @@ const StepCircle = styled.div`
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  border: 2px solid ${props => props.completed || props.active ? '#6A5ACD' : '#ccc'};
-  background-color: ${props => props.completed ? '#6A5ACD' : props.active ? '#6A5ACD' : '#fff'};
+  border: 2px solid ${props => props.completed || props.active ? 'var(--color-sage)' : '#ccc'};
+  background-color: ${props => props.completed ? 'var(--color-sage)' : props.active ? 'var(--color-sage)' : '#fff'};
   color: #fff;
   display: flex;
   align-items: center;

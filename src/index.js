@@ -10,6 +10,7 @@ import Config from './pages/Config';
 import ChangePassword from './pages/ChangePassword';
 import Register from './pages/Register';
 import MySchedule from './pages/MySchedule';
+import './global.css';
 
 const router = createBrowserRouter(
   [

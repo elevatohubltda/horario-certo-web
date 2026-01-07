@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ReactComponent as UserLogo } from '../../assets/icons/user.svg';
 import { ReactComponent as MenuLogo } from '../../assets/icons/menu.svg';
+import { ReactComponent as Logo } from '../../assets/horario-certo-logo-horizontal.svg';
 import { TopbarStyle } from './style';
-import logo from '../../assets/logo.png'
 import { Instagram, WhatsApp } from '@mui/icons-material';
 import businessLogo from '../../assets/images/corporate-building.png';
 import { isAvailableLogin, logout } from '../../util/auth';
@@ -80,9 +80,9 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
             <div className="dropdown-item">
               <button onClick={() => handleNavigate('/login')}>Acessar</button>
             </div>
-            <div className="dropdown-item">
+            {/* <div className="dropdown-item">
               <button>Seja Parceiro</button>
-            </div>
+            </div> */}
           </div>
         )}
       </div>
@@ -136,11 +136,11 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
         <>
           {showEstablishment && renderEstablishment()}
 
-          {isAuth && <img src={logo} alt="Logo" />}
+          {isAuth && <Logo className='logo' />}
 
           {!mobile && !isAuth && (
             <div className="menu">
-              <button className="be-a-partner">Seja Parceiro</button>
+              {/* <button className="be-a-partner">Seja Parceiro</button> */}
               <button className="my-area" onClick={() => handleNavigate('/login')}>
                 Entrar
               </button>
