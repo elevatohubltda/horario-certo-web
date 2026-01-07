@@ -2,10 +2,10 @@ import { format } from 'date-fns';
 import Cookies from "js-cookie";
 
 export function isAvailableLogin(){
-    const now = format(new Date(), 'HH:mm:ss dd/MM/yyyy');
+    const now = format(new Date(), 'yyyy-MM-ddTHH:mm:ss');
     const token = Cookies.get("token");
     if(!token) return false;
-    const expirationDate = Cookies.get("expirationDate");
+    const expirationDate = format(new Date(Cookies.get("expirationDate")), 'yyyy-MM-ddTHH:mm:ss');
     if(now <= expirationDate) return true;
     Cookies.remove("token");
     Cookies.remove("expirationDate");

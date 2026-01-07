@@ -35,8 +35,6 @@ export function getNowInBrazilDate(){
     timeZone: "America/Sao_Paulo",
     hour12: false
   });
-
-  // sv-SE → YYYY-MM-DD HH:mm:ss
   return new Date(nowInBrazilString.replace(" ", "T"));
 }
 

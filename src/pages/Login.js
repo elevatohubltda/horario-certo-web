@@ -68,18 +68,22 @@ function Login() {
     }
     login(userData)
       .then(res => {
+        var token = res.data.token;
+        var expirationDate = res.data.expirationDate;
+        var companyUrl = res.data.companyUrl;
+
         if (res.status === 200) {
-          Cookies.set("token", res.data.token, {
+          Cookies.set("token", token, {
             expires: expiresAt,
             secure: true,
             sameSite: "Strict",
           });
-          Cookies.set("expirationDate", res.data.expirationDate, {
+          Cookies.set("expirationDate", expirationDate, {
             expires: expiresAt,
             secure: true,
             sameSite: "Strict",
           });
-          Cookies.set("companyUrl", res.data.companyUrl, {
+          Cookies.set("companyUrl", companyUrl, {
             expires: expiresAt,
             secure: true,
             sameSite: "Strict",
@@ -91,7 +95,6 @@ function Login() {
         handleError(err.response.data);
       });
   }
-
   useEffect(() => {
     if(isAvailableLogin()) {
       navigate('/');
