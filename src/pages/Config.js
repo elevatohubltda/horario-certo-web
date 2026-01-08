@@ -156,10 +156,10 @@ export default function Config() {
       }
       if (companyLogo !== "") {
         const companyLogoResponse = await uploadLogo(companyUrl, companyLogo);
-      }
-      if (companyLogoResponse.status !== 200) {
+        if (companyLogoResponse.status !== 200) {
         toast.error("Erro ao atualizar a logo da empresa");
         return;
+      }
       }
       const responseCompany = await updateCompany(
         companyInfo,
