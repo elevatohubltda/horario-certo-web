@@ -27,7 +27,7 @@ export const Button = styled.button`
                 :
                `
             background-color: #ccc;
-            color: #333;
+            color: #fff;
         ` 
         )
     )

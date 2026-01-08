@@ -250,12 +250,12 @@ function Register() {
 
                 <Actions $step={step}>
                     {!loading && (
-                        <Button variant="link" onClick={handleBack}>
+                        <Button type="button" variant="link" onClick={handleBack}>
                             Voltar
                         </Button>
                     )}
 
-                    <Button variant="confirm" onClick={handleNext}>
+                    <Button type="button" variant="confirm" onClick={handleNext}>
                         {loading ? "Processando..." : step === 0 ? "Avançar" : "Cadastrar"}
                     </Button>
                 </Actions>

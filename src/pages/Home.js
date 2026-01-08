@@ -53,8 +53,8 @@ export default function Home() {
     {
       data: "",
       horario: "",
-      nome: "",
-      telefone: ""
+      nome: undefined,
+      telefone: undefined
     }
   );
   const [available, setAvailable] = React.useState()
@@ -130,6 +130,13 @@ export default function Home() {
   }
 
   const makeSchedule = async () => {
+    if(selectedSchedule.telefone.replace(/\D/g, '').length < 11){
+      toast.error("Telefone inválido!");
+      handleCompanySchedules(); 
+      handleRestartProps();
+      setOpen(false);
+      return;
+    }
     const scheduleISOFormat = formatSchedulesToISO({date: selectedSchedule.data, schedules: [selectedSchedule.horario]});
     const reservedSchedule = {
       name: selectedSchedule.nome,
@@ -138,6 +145,7 @@ export default function Home() {
     }
     try {
       const response = await createReservedSchedule(companyUrl, reservedSchedule);
+      console.log(response);
       setCode(response.data);
     } catch (error) {
       handleCompanySchedules();
@@ -146,6 +154,13 @@ export default function Home() {
   }
 
   const makeCancelSchedule = async () => {
+    if(selectedSchedule.telefone.replace(/\D/g, '').length < 11 || code.length === 0){
+      toast.error("Telefone/código de cancelamento devem ser preenchidos corretamente!");
+      handleCompanySchedules(); 
+      handleRestartProps();
+      setOpen(false);
+      return;
+    }
     const scheduleISOFormat = formatSchedulesToISO({date: selectedSchedule.data, schedules: [selectedSchedule.horario]});
     const reservedSchedule = {
       telephone: selectedSchedule.telefone.replace(/\D/g, ''),
@@ -405,14 +420,15 @@ export default function Home() {
           >
             <Button
               variant="link"
+              type="button"
               onClick={() => {setOpen(false); handleCompanySchedules(); handleRestartProps()}}
             >
                 Voltar
             </Button>
             <Button
-              variant="confirm"
+              type="button"
+              variant={!selectedSchedule.nome || !selectedSchedule.telefone ? "disabled" : "confirm"}
               onClick={makeSchedule}
-              disabled={!selectedSchedule.nome || !selectedSchedule.telefone}
             >
                 Agendar
             </Button>
@@ -423,8 +439,8 @@ export default function Home() {
       <Dialog open={open && available && code} onClose={() => { setOpen(false); handleCompanySchedules(); handleRestartProps()}}>
         <Title
           $fontweight="600"
-          $fontsize="1.25rem"
-          $color="#6A5ACD"
+          $fontsize="1.1rem"
+          $color="var(--color-brown)"
           $texttransform="uppercase"
         >
           Agendamento confirmado!
@@ -443,7 +459,8 @@ export default function Home() {
               $backgroundcolor="transparent"
           >
               <Button
-                style={{ fontSize: "0.8rem", padding: "0.5rem 1rem", backgroundColor: "transparent", borderColor: "#6A5ACD", color: "#6A5ACD" }}
+                variant="confirm"
+                type="button"
                 onClick={() => { setOpen(false); handleCompanySchedules(); handleRestartProps()}}
             >
                 OK
@@ -456,33 +473,33 @@ export default function Home() {
       <Dialog open={open && !available && !error} onClose={() => {setOpen(false); handleRestartProps()}}>
         <Title
           $fontweight="600"
-          $fontsize="1.25rem"
-          $color="#6A5ACD"
+          $fontsize="1.1rem"
+          $color="var(--color-brown)"
           $texttransform="uppercase"
         >
           Cancele seu agendamento
         </Title>
-        <Separator $width="100%" $bordercolor="#ccc" $margin="1rem 0 3rem 0" />
+        <Separator $width="100%" $bordercolor="var(--color-dark)" $margin="1rem 0 3rem 0" />
         <form style={{ backgroundColor: "transparent", boxShadow: "none", width: "100%", padding: "0" }}>
-          <label>Data:</label>
-          <input type="text" value={selectedSchedule.data} readOnly />
-          <label>Horário:</label>
-          <input type="text" value={selectedSchedule.horario} readOnly />
-          <label>Nome:</label>
-          <input 
+          <Label>Data:</Label>
+          <DialogInput type="text" value={selectedSchedule.data} readOnly />
+          <Label>Horário:</Label>
+          <DialogInput type="text" value={selectedSchedule.horario} readOnly />
+          <Label>Nome:</Label>
+          <DialogInput 
             type="text" 
             value={selectedSchedule.nome} 
             onChange={(e) => setSelectedSchedule({ ...selectedSchedule, nome: e.target.value })}
             readOnly
           />
-          <label>Digite seu telefone com DDD:</label>
-          <input 
+          <Label>Digite seu telefone com DDD:</Label>
+          <DialogInput 
             type="text" 
             value={formataNumeroTelefone(selectedSchedule.telefone || "")} 
             onChange={(e) => setSelectedSchedule({ ...selectedSchedule, telefone: formataNumeroTelefone(e.target.value) }) }
           />
-          <label>Digite seu código de cancelamento:</label>
-          <input 
+          <Label>Digite seu código de cancelamento:</Label>
+          <DialogInput 
             type="text" 
             value={code} 
             onChange={(e) => setCode(e.target.value)}
@@ -497,15 +514,16 @@ export default function Home() {
               $backgroundcolor="transparent"
           >
             <Button
-              style={{ fontSize: "0.8rem", padding: "0.5rem 1rem", backgroundColor: "transparent", borderColor: "transparent", color: "#6A5ACD" }}
+              variant="link"
+              type="button"
               onClick={() => {setOpen(false); handleRestartProps()}}
             >
                 Voltar
             </Button>
             <Button
-              style={{ fontSize: "0.8rem", padding: "0.5rem 1rem", backgroundColor: "#d80101", borderColor: "#d80101" }}
+              type="button"
+              variant={!code || !selectedSchedule.telefone ? "disabled" : "confirm"}
               onClick={makeCancelSchedule}
-              disabled={!selectedSchedule.code && !selectedSchedule.telefone}
             >
                 Cancelar
             </Button>
@@ -518,8 +536,8 @@ export default function Home() {
         <Dialog open={open && !available && error} onClose={() => {setOpen(false); handleRestartProps()}}>
           <Title
             $fontweight="600"
-            $fontsize="1.25rem"
-            $color="#6A5ACD"
+            $fontsize="1.1rem"
+            $color="var(--color-brown)"
             $texttransform="uppercase"
           >
             Não foi possível cancelar seu agendamento

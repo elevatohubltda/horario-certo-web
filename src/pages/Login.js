@@ -137,7 +137,7 @@ function Login() {
           >
             <span>Não tem uma conta ainda? </span>
           </Title>
-          <Button variant="link" onClick={() => navigate('/registro')}>cadastre aqui</Button>
+          <Button type="button" variant="link" onClick={() => navigate('/registro')}>cadastre aqui</Button>
         </Form>
       <ToastContainer position="top-right" autoClose={3000} />
     </Container>

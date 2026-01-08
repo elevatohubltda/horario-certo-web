@@ -310,8 +310,8 @@ const SortedTable = ({ data, loading, isMobile, onChange }) => {
                             $justifycontent="space-between"
                             $backgroundcolor="transparent"
                         >
-                            <Button variant="link" onClick={() => setShowDialogEdit(false)}>Voltar</Button>
-                            <Button variant="confirm" onClick={saveEdit}>Salvar</Button>
+                            <Button type="button" variant="link" onClick={() => setShowDialogEdit(false)}>Voltar</Button>
+                            <Button type="button" variant="confirm" onClick={saveEdit}>Salvar</Button>
                         </Container>
                         </Dialog>
                     )}
@@ -364,10 +364,10 @@ const SortedTable = ({ data, loading, isMobile, onChange }) => {
                             $justifycontent="space-between"
                             $backgroundcolor="transparent"
                         >
-                            <Button variant="link" onClick={() => setShowNewScheduleDialog(false)}>
+                            <Button type="button" variant="link" onClick={() => setShowNewScheduleDialog(false)}>
                             Voltar
                             </Button>
-                            <Button variant="confirm" onClick={saveNewSchedule}>Salvar</Button>
+                            <Button type="button" variant="confirm" onClick={saveNewSchedule}>Salvar</Button>
                         </Container>
                         </Dialog>
                     )}
