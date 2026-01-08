@@ -95,6 +95,7 @@ export default function Dashboard() {
   const handleFilter = (name, index, startDate, endDate) => {
     switch (name) {
       case "3 dias":
+        filterSchedulesByDropdown('');
         setFilter({
           name: name,
           indexActive: index,
@@ -103,6 +104,7 @@ export default function Dashboard() {
         });
         break;
       case "7 dias":
+        filterSchedulesByDropdown('');
         setFilter({
           name: name,
           indexActive: index,
@@ -115,6 +117,7 @@ export default function Dashboard() {
           console.error("startDate e endDate são obrigatórios para esse filtro.");
           return;
         }
+        filterSchedulesByDropdown('');
         setFilter({
           name: name,
           indexActive: index,
