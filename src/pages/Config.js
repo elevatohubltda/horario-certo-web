@@ -136,32 +136,35 @@ export default function Config() {
     if (!validarHoraCompleta(companyProperties.cancelTime) && companyLogo === "") {
       toast.error("O tempo para cancelamento deve estar no formato HH:mm");
       return;
+    } else if(companyLogo !== "" && companyLogo.size > 2 * 1024 * 1024) {
+      toast.error("O tamanho da logo não pode exceder 2MB");
+      return;
     }
-
     try {
-      const response = await updateCompanyProperties(
+      const responseCompanyProperties = await updateCompanyProperties(
         companyUrl,
         companyProperties
       );
-      if (response.status === 200) {
+      if (responseCompanyProperties.status === 200) {
         Cookies.set("companyProperties", JSON.stringify(companyProperties), {
           expires: expiresAt
         });
-        toast.success("Configurações atualizadas com sucesso!");
       }
+      if (companyLogo !== "") {
+        await uploadLogo(companyUrl, companyLogo);
+      }
+      const responseCompany = await updateCompany(
+        companyInfo,
+        companyUrl
+      );
+      if (responseCompany.status === 200) {
+        Cookies.set("companyInfo", JSON.stringify(companyInfo), {
+          expires: expiresAt
+        });
+      }
+      toast.success("Configurações atualizadas com sucesso!");
     } catch (error) {
       toast.error(error);
-    }
-
-    if (companyLogo !== "") {
-      try {
-        const response = await uploadLogo(companyUrl, companyLogo);
-        if (response.status === 200) {
-          toast.success("Logo salva com sucesso!");
-        }
-      } catch (error) {
-        toast.error(error);
-      }
     }
 
     try {
@@ -321,6 +324,7 @@ export default function Config() {
 
                   <Actions>
                     <Button
+                      type="button"
                       style={{
                         backgroundColor: "var(--color-sage)",
                         borderColor: "var(--color-sage)"

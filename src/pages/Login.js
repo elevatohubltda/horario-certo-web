@@ -102,7 +102,7 @@ function Login() {
     if(isAvailableLogin()) {
       navigate('/');
     }
-  });
+  }, [navigate, mobile]);
 
   return (
     <Container 
