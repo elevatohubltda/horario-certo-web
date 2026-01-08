@@ -145,7 +145,6 @@ export default function Home() {
     }
     try {
       const response = await createReservedSchedule(companyUrl, reservedSchedule);
-      console.log(response);
       setCode(response.data);
     } catch (error) {
       handleCompanySchedules();
