@@ -1,16 +1,20 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { FunnelIcon } from "lucide-react"
 
-export default function FilterDropdown({ filters, onChange }) {
+export default function FilterDropdown({ filters, activeFilter, onChange }) {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState(null);
 
   function handleSelect(filter) {
     setSelected(filter);
     setOpen(false);
-    onChange?.(filter.value);
+    onChange(filter.value);
   }
+
+  useEffect(() => {
+    setSelected(activeFilter);
+  }, [activeFilter]);
 
   return (
     <Container>
@@ -31,7 +35,7 @@ export default function FilterDropdown({ filters, onChange }) {
       {open && (
         <Menu>
           {filters.map(filter =>
-            filter.value !== selected?.value && (
+            filter.value !== selected?.value  && (
               <Option
                 key={filter.value}
                 onClick={() => handleSelect(filter)}

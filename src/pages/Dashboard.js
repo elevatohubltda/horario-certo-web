@@ -40,7 +40,7 @@ export default function Dashboard() {
   const [horarios, setHorarios] = React.useState([]);
   const [mobile, setMobile] = React.useState();
   const [paymentStatus, setPaymentStatus] = React.useState();
-  
+  const [activeFilter, setActiveFilter] = React.useState(filters[0]);
   const [filtered, setFiltered] = React.useState();
 
   const filterSchedulesByDropdown = (value) => {
@@ -49,13 +49,16 @@ export default function Dashboard() {
         timeZone: "America/Sao_Paulo",
         hour12: false
       }).replace(" ", "T");
-
+    if(value === ''){
+      setActiveFilter(filters[0]);
+    }
     switch (value) {
       case "available": {
         const filtered = horarios.filter(item =>
           item.available === true &&
           item.schedule > now
         );
+        setActiveFilter(value);
         setFiltered(filtered);
         break;
       }
@@ -231,6 +234,7 @@ export default function Dashboard() {
                     <CustomFilterStyle $width="100%" $padding="1rem 0 0 0">
                       <FilterDropdown
                         filters={filters}
+                        activeFilter={activeFilter}
                         onChange={(value) => {
                           filterSchedulesByDropdown(value);
                         }}
