@@ -71,7 +71,7 @@ function Login() {
     login(userData)
       .then(res => {
         var token = res.data.token;
-        var expirationDate = res.data.expirationDate;
+        var expirationDate = res.data.expirationDate.replace(" ", "T");
         var companyUrl = res.data.companyUrl;
 
         if (res.status === 200) {
