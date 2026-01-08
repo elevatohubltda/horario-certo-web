@@ -161,7 +161,7 @@ function Register() {
             $justifycontent="center"
             $alignitems="center"
             $width="100%"
-            $height={mobile ? 'fit-content' : '100dvh'}
+            $height={mobile ? (window.screen.height > 860 ? '100dvh' : 'fit-content') : '100dvh'}
         >
             <Form $width={mobile ? '80%' : '500px'}>
                 <Logo />
@@ -172,7 +172,7 @@ function Register() {
 
                 {step === 0 && (
                     <>
-                        <Label>Nome da empresa</Label>
+                        <Label>NOME DA EMPRESA</Label>
                         <Input
                             value={companyData.name}
                             onChange={(e) =>
@@ -180,7 +180,7 @@ function Register() {
                             }
                         />
 
-                        <Label>Whatsapp</Label>
+                        <Label>WHATSAPP</Label>
                         <Input
                             value={formataNumeroTelefone(companyData.whatsapp)}
                             onChange={(e) =>
@@ -188,7 +188,7 @@ function Register() {
                             }
                         />
 
-                        <Label>Instagram</Label>
+                        <Label>INSTAGRAM</Label>
                         <Input
                             value={companyData.instagram}
                             onChange={(e) =>
@@ -196,7 +196,7 @@ function Register() {
                             }
                         />
 
-                        <Label>Link da empresa</Label>
+                        <Label>LINK DA EMPRESA</Label>
                         <Input
                             value={companyData.url}
                             onChange={(e) =>
@@ -212,7 +212,7 @@ function Register() {
 
                 {step === 1 && (
                     <>
-                        <Label>Usuário</Label>
+                        <Label>USUÁRIO</Label>
                         <Input
                             value={userData.username}
                             onChange={(e) =>
@@ -220,7 +220,7 @@ function Register() {
                             }
                         />
 
-                        <Label>Senha</Label>
+                        <Label>SENHA</Label>
                         <Input
                             type="password"
                             value={userData.password.stepOne}
@@ -232,7 +232,7 @@ function Register() {
                             }
                         />
 
-                        <Label>Confirmar senha</Label>
+                        <Label>CONFIRMAR SENHA</Label>
                         <Input
                             type="password"
                             value={userData.password.stepTwo}
