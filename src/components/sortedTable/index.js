@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   ClipboardPenLineIcon,
   CircleXIcon,
@@ -160,6 +160,10 @@ const SortedTable = ({ data, loading, isMobile, onChange }) => {
             return "gray";
         }
     }
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [data]);
 
     if (loading) {
         return (

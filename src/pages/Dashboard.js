@@ -19,6 +19,16 @@ import { expiresAt } from "../util/date";
 import FilterDropdown from "../components/filterDropdown";
 
 export default function Dashboard() {
+  const navigate = useNavigate();
+  const companyUrl = Cookies.get("companyUrl");
+  const [companyInfo, setCompanyInfo] = React.useState(Cookies.get("companyInfo") ? JSON.parse(Cookies.get("companyInfo")) : undefined);
+  const filters = [
+    { label: "Sem filtro", value: "", color: "" },
+    { label: "Expirado", value: "expired", color: "#9e9e9e" },
+    { label: "Disponível", value: "available", color: "#4caf50" },
+    { label: "Agendado", value: "scheduled", color: "#f44336" },
+    { label: "Concluído", value: "done", color: "#2196f3" }
+  ];
   const [filter, setFilter] = React.useState({
     name: "3 dias",
     indexActive: 0,
@@ -27,19 +37,10 @@ export default function Dashboard() {
   });
   const [loading, setLoading] = React.useState(true);
   const [loadingSchedule, setLoadingSchedule] = React.useState(true);
-  const [companyInfo, setCompanyInfo] = React.useState(Cookies.get("companyInfo") ? JSON.parse(Cookies.get("companyInfo")) : undefined);
-  const companyUrl = Cookies.get("companyUrl");
   const [horarios, setHorarios] = React.useState([]);
-  const navigate = useNavigate();
   const [mobile, setMobile] = React.useState();
   const [paymentStatus, setPaymentStatus] = React.useState();
-  const filters = [
-    { label: "Sem filtro", value: "", color: "" },
-    { label: "Expirado", value: "expired", color: "#9e9e9e" },
-    { label: "Disponível", value: "available", color: "#4caf50" },
-    { label: "Agendado", value: "scheduled", color: "#f44336" },
-    { label: "Concluído", value: "done", color: "#2196f3" }
-  ];
+  
   const [filtered, setFiltered] = React.useState();
 
   const filterSchedulesByDropdown = (value) => {
