@@ -48,6 +48,16 @@ const Form = styled.form`
     box-shadow: 0 2px 8px rgba(142, 152, 142, 0.1);
 `;
 
+const LogoWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+
+  svg {
+    min-width: 300px;
+    min-height: 150px;
+  }
+`;
+
 function Login() {
   const navigate = useNavigate();
   const [mobile, setMobile] = useState();
@@ -116,7 +126,9 @@ function Login() {
       $backgroundcolor="var(--color-background)"
     >
         <Form $width={mobile ? "80%" : "400px"}>
-          <Logo />
+          <LogoWrapper>
+            <Logo />
+          </LogoWrapper>
           <Label>USUÁRIO</Label>
           <Input 
             placeholder='Digite seu usuário'
