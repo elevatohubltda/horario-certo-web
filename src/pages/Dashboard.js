@@ -128,7 +128,7 @@ export default function Dashboard() {
     setLoadingSchedule(true);
     try { 
       var response = await getCompanySchedulesAuth(companyUrl, filter.startDate, filter.endDate);
-      setFiltered([]);
+      setFiltered(undefined);
       setHorarios(response.data);
       setLoadingSchedule(false);
     } catch (error) {
