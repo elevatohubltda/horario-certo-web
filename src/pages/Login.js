@@ -9,7 +9,7 @@ import Cookies from "js-cookie";
 import { isAvailableLogin } from '../util/auth';
 import { Container } from '../components/container/style';
 import { expiresAt } from '../util/date';
-import { ReactComponent as Logo } from '../assets/horario-certo-logo.svg';
+import { ReactComponent as Logo } from '../assets/horario-certo-logo.svg?component';
 import { Button } from '../components/button';
 import styled from 'styled-components';
 import { isMobile } from '../util/util';
