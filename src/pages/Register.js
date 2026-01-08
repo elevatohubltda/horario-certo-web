@@ -98,7 +98,7 @@ function Register() {
         if(step > 0){
             setStep(step - 1);
         } else {
-            navigate('/login');
+            navigate('/');
         }
     };
 
@@ -140,7 +140,7 @@ function Register() {
                 });
 
                 toast.success("Empresa criada com sucesso!");
-                navigate('/login');
+                navigate('/');
             }
         } catch (err) {
             handleError(err.response?.data || err.message);

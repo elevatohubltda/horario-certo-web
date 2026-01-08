@@ -23,7 +23,7 @@ const Overlay = styled.div`
 const Modal = styled.div`
   position: absolute;
   top: 3rem;
-  left: 50%;
+  left: -320%;
   transform: translateX(-50%);
   z-index: 9999;
   background: #fff;

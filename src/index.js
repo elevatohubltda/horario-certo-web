@@ -15,12 +15,11 @@ import './global.css';
 const router = createBrowserRouter(
   [
     {
-      path: '/:companyUrl',
-      element: <Home />,
-    },
-    {
       path: '/',
-      element: <Login />,
+      children: [
+        { index: true, element: <Login /> },
+        { path: ":companyUrl", element: <Home /> },
+      ],
     },
     {
       path: '/dashboard',
