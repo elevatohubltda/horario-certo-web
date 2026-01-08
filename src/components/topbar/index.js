@@ -55,8 +55,7 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
   const renderEstablishment = () => (
     <div className={!isMobile ? 'establishmentBox' : 'establishmentBoxMobile'}>
       <img
-        src={ mobile ? imagem : imagem === "" ? businessLogo : imagem
-        }
+        src={ mobile ? (imagem === "" ? businessLogo : imagem) : (imagem === "" ? businessLogo : imagem)}
         alt="Barbearia Seu Zé"
       />
       <div className="content">
