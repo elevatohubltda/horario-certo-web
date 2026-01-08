@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ReactComponent as UserLogo } from '../../assets/icons/user.svg';
-import { ReactComponent as MenuLogo } from '../../assets/icons/menu.svg';
-import { ReactComponent as Logo } from '../../assets/horario-certo-logo-horizontal.svg';
+import { ReactComponent as UserLogo } from '../../assets/icons/user.svg?component';
+import { ReactComponent as MenuLogo } from '../../assets/icons/menu.svg?component';
+import { ReactComponent as Logo } from '../../assets/horario-certo-logo-horizontal.svg?component';
 import { TopbarStyle } from './style';
 import { Instagram, WhatsApp } from '@mui/icons-material';
 import businessLogo from '../../assets/images/corporate-building.png';

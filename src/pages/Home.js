@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import Slider from "react-slick";
-import { ReactComponent as ArrowLeft } from '../assets/icons/arrow-left.svg';
-import { ReactComponent as ArrowRight } from '../assets/icons/arrow-right.svg';
+import { ReactComponent as ArrowLeft } from '../assets/icons/arrow-left.svg?component';
+import { ReactComponent as ArrowRight } from '../assets/icons/arrow-right.svg?component';
 import "slick-carousel/slick/slick.css"; 
 import "slick-carousel/slick/slick-theme.css";
 import "../styles/index.css";

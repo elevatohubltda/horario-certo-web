@@ -3,7 +3,7 @@ import { DateRange } from "react-date-range";
 import { addDays } from "date-fns";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
-import { ReactComponent as Calendar } from "../../assets/icons/calendar.svg";
+import { ReactComponent as Calendar } from "../../assets/icons/calendar.svg?component";
 import { ptBR } from "date-fns/locale";
 import styled from "styled-components";
 

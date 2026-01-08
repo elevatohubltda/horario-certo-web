@@ -13,7 +13,7 @@ import { Container } from '../components/container/style';
 import { isMobile } from '../util/util';
 import { formataNumeroTelefone } from '../util/format';
 import { expiresAt } from '../util/date';
-import { ReactComponent as Logo } from '../assets/horario-certo-logo.svg';
+import { ReactComponent as Logo } from '../assets/horario-certo-logo.svg?component';
 import styled from 'styled-components';
 
 const Form = styled.form`
