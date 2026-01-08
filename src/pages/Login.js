@@ -13,6 +13,7 @@ import { ReactComponent as Logo } from '../assets/horario-certo-logo.svg?compone
 import { Button } from '../components/button';
 import styled from 'styled-components';
 import { isMobile } from '../util/util';
+import { format, parse } from 'date-fns';
 
 const Label = styled.label`
   font-size: 0.8rem;
@@ -70,9 +71,9 @@ function Login() {
     }
     login(userData)
       .then(res => {
-        var token = res.data.token;
-        var expirationDate = new Date(res.data.expirationDate.replace(" ", "T"));
-        var companyUrl = res.data.companyUrl;
+        const token = res.data.token;
+        const expirationDate = parse(res.data.expirationDate, 'HH:mm:ss dd/MM/yyyy', new Date());
+        const companyUrl = res.data.companyUrl;
 
         if (res.status === 200) {
           Cookies.set("token", token, {
@@ -80,7 +81,7 @@ function Login() {
             secure: true,
             sameSite: "Strict",
           });
-          Cookies.set("expirationDate", expirationDate, {
+          Cookies.set("expirationDate", format(expirationDate, "yyyy-MM-dd'T'HH:mm:ss"), {
             expires: expiresAt,
             secure: true,
             sameSite: "Strict",
@@ -94,13 +95,13 @@ function Login() {
         }
       })
       .catch(err => {
-        handleError(err.response.data);
+        handleError(err.response);
       });
   }
   useEffect(() => {
     setMobile(isMobile()); 
     if(isAvailableLogin()) {
-      navigate('/');
+      navigate('/dashboard');
     }
   }, [navigate, mobile]);
 
