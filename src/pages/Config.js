@@ -136,7 +136,8 @@ export default function Config() {
     if (!validarHoraCompleta(companyProperties.cancelTime) && companyLogo === "") {
       toast.error("O tempo para cancelamento deve estar no formato HH:mm");
       return;
-    } else if(companyLogo !== "" && companyLogo.size > 2 * 1024 * 1024) {
+    }
+    if(companyLogo !== "" && companyLogo.size > 2 * 1024 * 1024) {
       toast.error("O tamanho da logo não pode exceder 2MB");
       return;
     }
@@ -149,9 +150,16 @@ export default function Config() {
         Cookies.set("companyProperties", JSON.stringify(companyProperties), {
           expires: expiresAt
         });
+      } else {
+        toast.error("Erro ao atualizar as propriedades da empresa");
+        return;
       }
       if (companyLogo !== "") {
-        await uploadLogo(companyUrl, companyLogo);
+        const companyLogoResponse = await uploadLogo(companyUrl, companyLogo);
+      }
+      if (companyLogoResponse.status !== 200) {
+        toast.error("Erro ao atualizar a logo da empresa");
+        return;
       }
       const responseCompany = await updateCompany(
         companyInfo,
@@ -161,6 +169,9 @@ export default function Config() {
         Cookies.set("companyInfo", JSON.stringify(companyInfo), {
           expires: expiresAt
         });
+      } else {
+        toast.error("Erro ao atualizar as informações da empresa");
+        return;
       }
       toast.success("Configurações atualizadas com sucesso!");
     } catch (error) {
