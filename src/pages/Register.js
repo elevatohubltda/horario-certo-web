@@ -163,7 +163,7 @@ function Register() {
             $width="100%"
             $height={mobile ? 'fit-content' : '100dvh'}
         >
-            <Form $width={mobile ? '' : '500px'}>
+            <Form $width={mobile ? '80%' : '500px'}>
                 <Logo />
 
                 <Separator $width="100%" $bordercolor="var(--color-dark)" $margin="1rem 0" />

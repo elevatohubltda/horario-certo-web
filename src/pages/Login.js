@@ -12,6 +12,7 @@ import { expiresAt } from '../util/date';
 import { ReactComponent as Logo } from '../assets/horario-certo-logo.svg';
 import { Button } from '../components/button';
 import styled from 'styled-components';
+import { isMobile } from '../util/util';
 
 const Label = styled.label`
   font-size: 0.8rem;
@@ -48,6 +49,7 @@ const Form = styled.form`
 
 function Login() {
   const navigate = useNavigate();
+  const [mobile, setMobile] = useState();
   const [userData, setUserData] = useState({
     username: '',
     password: ''
@@ -96,6 +98,7 @@ function Login() {
       });
   }
   useEffect(() => {
+    setMobile(isMobile()); 
     if(isAvailableLogin()) {
       navigate('/');
     }
@@ -111,7 +114,7 @@ function Login() {
       $width="100%" 
       $backgroundcolor="var(--color-background)"
     >
-        <Form $width="400px">
+        <Form $width={mobile ? "80%" : "400px"}>
           <Logo />
           <Label>USUÁRIO</Label>
           <Input 
