@@ -93,7 +93,7 @@ const Sidebar = ({ children }) => {
     { icon: <Home size={currentPage === 'dashboard' ? 16 : 14} />, label: "Dashboard", url: "/dashboard" },
     //{ icon: <User size={currentPage === 'clientes' ? 16 : 14} />, label: "Clientes", url: "/clientes" },
     { icon: <CalendarDays size={currentPage === 'criar-agendamentos' ? 16 : 14} />, label: "Criar agendamentos", url: "/criar-agendamentos" },
-    // { icon: <DollarSignIcon size={currentPage === 'minha-assinatura' ? 16 : 14} />, label: "Minha Assinatura", url: "/minha-assinatura" },
+    { icon: <DollarSignIcon size={currentPage === 'minha-assinatura' ? 16 : 14} />, label: "Minha Assinatura", url: "/minha-assinatura" },
     { icon: <Settings size={currentPage === 'configuracoes' ? 16 : 14} />, label: "Configurações", url: "/configuracoes" },
     { icon: <KeyRound size={currentPage === 'alterar-senha' ? 16 : 14} />, label: "Alterar senha", url: "/alterar-senha" },
   ]
