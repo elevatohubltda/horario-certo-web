@@ -33,7 +33,7 @@ export default function Dashboard() {
     name: "3 dias",
     indexActive: 0,
     startDate: new Date().toISOString().split('T')[0],
-    endDate: new Date(new Date().setDate(new Date().getDate() + 3)).toISOString().split('T')[0],
+    endDate: new Date(new Date().setDate(new Date().getDate() + 2)).toISOString().split('T')[0],
   });
   const [loading, setLoading] = React.useState(true);
   const [loadingSchedule, setLoadingSchedule] = React.useState(true);

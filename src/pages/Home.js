@@ -369,7 +369,7 @@ export default function Home() {
               }
               {loadingSchedule &&
                 <div className="loading-slide">
-                  <ThreeDots color="#6A5ACD" height={20} width={60} />
+                  <ThreeDots color="var(--color-sage)" height={20} width={60} />
                   <p>Buscando horários...</p>
                 </div>
               }
