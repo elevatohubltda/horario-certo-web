@@ -165,7 +165,11 @@ export default function MySchedule() {
         toast.success("Horários salvos com sucesso!");
       }
     } catch (error) {
-      console.error(error);
+      if(error.status === 409){
+        toast.error(error.response.data);
+      } else {
+        console.log(error);
+      }
     }
   };
 
