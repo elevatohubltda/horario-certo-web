@@ -248,10 +248,6 @@ export default function Home() {
   };
   
   const hasAnyAvailableFutureSchedule = (horarios) => {
-    const now = new Date().toLocaleString('sv-SE', {
-      timeZone: 'America/Sao_Paulo',
-      hour12: false
-    }).replace(' ', 'T');
 
     return horarios.some(day =>
       day.horarios.some(h =>
@@ -430,6 +426,7 @@ export default function Home() {
               $justifycontent="space-between"
               $margin="0"
               $backgroundcolor="transparent"
+              $boxshadow="none"
           >
             <Button
               variant="link"
@@ -470,6 +467,7 @@ export default function Home() {
               $justifycontent="center"
               $margin="2rem 0 0 0"
               $backgroundcolor="transparent"
+              $boxshadow="none"
           >
               <Button
                 variant="confirm"
@@ -525,6 +523,7 @@ export default function Home() {
               $justifycontent="space-between"
               $margin="0"
               $backgroundcolor="transparent"
+              $boxshadow="none"
           >
             <Button
               variant="link"
@@ -567,6 +566,7 @@ export default function Home() {
                 $justifycontent="space-between"
                 $margin="2rem 0 0 0"
                 $backgroundcolor="transparent"
+                $boxshadow="none"
             >
               <Button
                 style={{ fontSize: "0.8rem", padding: "0.5rem 1rem", backgroundColor: "transparent", borderColor: "transparent", color: "#000000" }}
