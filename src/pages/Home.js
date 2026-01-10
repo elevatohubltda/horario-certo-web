@@ -584,6 +584,7 @@ export default function Home() {
           $display="flex" 
           $justifycontent="center" 
           $alignitems="center"
+          $boxshadow="none"
         >
           <span className="loader"></span>
         </Container>

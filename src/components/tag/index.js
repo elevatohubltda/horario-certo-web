@@ -9,4 +9,5 @@ export const Tag = styled.div`
     color: ${({ $color }) => $color};
     text-transform: ${({ $texttransform }) => $texttransform};
     background: ${({ $background }) => $background};
+    margin: ${({ $margin = '0' }) => $margin};
 `;
