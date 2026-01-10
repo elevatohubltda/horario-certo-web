@@ -39,7 +39,7 @@ export default function Home() {
     name: "3 dias",
     indexActive: 0,
     startDate: new Date().toISOString().split('T')[0],
-    endDate: new Date(new Date().setDate(new Date().getDate() + 3)).toISOString().split('T')[0],
+    endDate: new Date(new Date().setDate(new Date().getDate() + 2)).toISOString().split('T')[0],
   });
   const { companyUrl } = useParams();
   const [mobile, setMobile] = React.useState();
@@ -72,7 +72,7 @@ export default function Home() {
           name: name,
           indexActive: index,
           startDate: new Date().toISOString().split('T')[0],
-          endDate: new Date(new Date().setDate(new Date().getDate() + 3)).toISOString().split('T')[0],
+          endDate: new Date(new Date().setDate(new Date().getDate() + 2)).toISOString().split('T')[0],
         });
         break;
       case "7 dias":
@@ -80,7 +80,7 @@ export default function Home() {
           name: name,
           indexActive: index,
           startDate: new Date().toISOString().split('T')[0],
-          endDate: new Date(new Date().setDate(new Date().getDate() + 7)).toISOString().split('T')[0],
+          endDate: new Date(new Date().setDate(new Date().getDate() + 6)).toISOString().split('T')[0],
         });
         break;
       default:
@@ -369,7 +369,7 @@ export default function Home() {
               }
               {loadingSchedule &&
                 <div className="loading-slide">
-                  <ThreeDots color="#6A5ACD" height={20} width={60} />
+                  <ThreeDots color="var(--color-sage)" height={20} width={60} />
                   <p>Buscando horários...</p>
                 </div>
               }
@@ -584,6 +584,7 @@ export default function Home() {
           $display="flex" 
           $justifycontent="center" 
           $alignitems="center"
+          $boxshadow="none"
         >
           <span className="loader"></span>
         </Container>

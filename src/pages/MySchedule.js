@@ -93,6 +93,7 @@ const Actions = styled(Container)`
   background: transparent;
   margin: 0;
   width: 100%;
+  box-shadow: none;
 `;
 
 /* =======================
@@ -197,6 +198,7 @@ export default function MySchedule() {
             $padding="0"
             $display="flex"
             $flexdirection="column"
+            $boxshadow="none"
           >
             {loading && <span className="loader" />}
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"
 import styled from "styled-components"
-import { Home, Settings, PanelLeftClose, PanelLeftOpen, KeyRound, CalendarDays } from "lucide-react"
+import { Home, Settings, PanelLeftClose, PanelLeftOpen, KeyRound, CalendarDays, DollarSignIcon } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { isMobile } from "../../util/util"
 
@@ -92,8 +92,8 @@ const Sidebar = ({ children }) => {
   const menuItems = [
     { icon: <Home size={currentPage === 'dashboard' ? 16 : 14} />, label: "Dashboard", url: "/dashboard" },
     //{ icon: <User size={currentPage === 'clientes' ? 16 : 14} />, label: "Clientes", url: "/clientes" },
-    { icon: <CalendarDays size={currentPage === 'meus-agendamentos' ? 16 : 14} />, label: "Criar agendamentos", url: "/criar-agendamentos" },
-    //{ icon: <DollarSignIcon size={currentPage === 'plano' ? 16 : 14} />, label: "Meu plano", url: "/plano" },
+    { icon: <CalendarDays size={currentPage === 'criar-agendamentos' ? 16 : 14} />, label: "Criar agendamentos", url: "/criar-agendamentos" },
+    // { icon: <DollarSignIcon size={currentPage === 'minha-assinatura' ? 16 : 14} />, label: "Minha Assinatura", url: "/minha-assinatura" },
     { icon: <Settings size={currentPage === 'configuracoes' ? 16 : 14} />, label: "Configurações", url: "/configuracoes" },
     { icon: <KeyRound size={currentPage === 'alterar-senha' ? 16 : 14} />, label: "Alterar senha", url: "/alterar-senha" },
   ]
