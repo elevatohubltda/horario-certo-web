@@ -191,17 +191,45 @@ function Register() {
                         <Label>INSTAGRAM</Label>
                         <Input
                             value={companyData.instagram}
-                            onChange={(e) =>
-                                setCompanyData(prev => ({ ...prev, instagram: e.target.value }))
-                            }
+                            onChange={(e) => {
+                                let value = e.target.value
+                                .toLowerCase()
+                                .replace(/[^a-z0-9._]/g, '')
+                                .replace(/\.{2,}/g, '.');
+
+                                if (value.startsWith('.')) value = value.slice(1);
+                                if (value.length > 30) value = value.slice(0, 30);
+
+                                setCompanyData(prev => ({ ...prev, instagram: value }));
+                            }}
+                            onKeyDown={(e) => {
+                                if (
+                                e.key.length === 1 &&
+                                !/[a-z0-9._]/i.test(e.key)
+                                ) {
+                                e.preventDefault();
+                                }
+                            }}
                         />
 
                         <Label>LINK DA EMPRESA</Label>
                         <Input
                             value={companyData.url}
-                            onChange={(e) =>
-                                setCompanyData(prev => ({ ...prev, url: e.target.value }))
-                            }
+                            onChange={(e) => {
+                                const value = e.target.value
+                                .toLowerCase()
+                                .replace(/[^a-z0-9]/g, '');
+
+                                setCompanyData(prev => ({ ...prev, url: value }));
+                            }}
+                            onKeyDown={(e) => {
+                                if (
+                                e.key.length === 1 &&
+                                !/[a-z0-9]/i.test(e.key)
+                                ) {
+                                e.preventDefault();
+                                }
+                            }}
                         />
 
                         <Hint>
@@ -215,9 +243,21 @@ function Register() {
                         <Label>USUÁRIO</Label>
                         <Input
                             value={userData.username}
-                            onChange={(e) =>
-                                setUserData(prev => ({ ...prev, username: e.target.value }))
-                            }
+                            onChange={(e) => {
+                                const value = e.target.value
+                                .toLowerCase()
+                                .replace(/[^a-z0-9]/g, '');
+
+                                setUserData(prev => ({ ...prev, username: value }));
+                            }}
+                            onKeyDown={(e) => {
+                                if (
+                                e.key.length === 1 &&
+                                !/[a-z0-9]/i.test(e.key)
+                                ) {
+                                e.preventDefault();
+                                }
+                            }}
                         />
 
                         <Label>SENHA</Label>

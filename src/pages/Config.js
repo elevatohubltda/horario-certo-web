@@ -98,7 +98,8 @@ const Actions = styled(Container)`
   align-items: flex-end;
   background: transparent;
   margin: 0;
-  width: 100%
+  width: 100%;
+  box-shadow: none;
 `;
 
 /* =======================
@@ -286,10 +287,26 @@ export default function Config() {
 
                   <Label>Instagram:</Label>
                   <Input
-                    value={companyInfo.instagram}
-                    onChange={e =>
-                      handleCompanyInfo("instagram", e.target.value)
-                    }
+                      value={companyInfo.instagram}
+                      onChange={(e) => {
+                          let value = e.target.value
+                          .toLowerCase()
+                          .replace(/[^a-z0-9._]/g, '')
+                          .replace(/\.{2,}/g, '.');
+
+                          if (value.startsWith('.')) value = value.slice(1);
+                          if (value.length > 30) value = value.slice(0, 30);
+
+                          handleCompanyInfo("instagram", value);
+                      }}
+                      onKeyDown={(e) => {
+                          if (
+                          e.key.length === 1 &&
+                          !/[a-z0-9._]/i.test(e.key)
+                          ) {
+                          e.preventDefault();
+                          }
+                      }}
                   />
 
                   <Label>Logo da empresa:</Label>
@@ -361,6 +378,7 @@ export default function Config() {
                 $display="flex" 
                 $justifycontent="center" 
                 $alignitems="center"
+                $boxshadow="none"
             >
                 <span className="loader"></span>
             </Container>

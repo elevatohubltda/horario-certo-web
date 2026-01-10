@@ -50,6 +50,7 @@ const Actions = styled(Container)`
   background: transparent;
   margin: 0;
   width: 100%;
+  box-shadow: none;
 `;
 
 /* =======================

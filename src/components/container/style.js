@@ -12,7 +12,7 @@ export const Container = styled.div`
   background-color: ${({ $backgroundcolor = '#f8f8f8' }) => $backgroundcolor};
   border-radius: ${({ $borderradius = '0' }) => $borderradius};
   border: ${({ $border = 'none' }) => $border};
-  box-shadow: ;${({ $boxshadow = '0 0 2px rgba(0, 0, 0, 0.1)' }) => $boxshadow};
+  box-shadow: ${({ $boxshadow = '0px 4px 6px 0px rgba(0, 0, 0, 0.1)' }) => $boxshadow};
 
   .loader {
     width: 48px;
