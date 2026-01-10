@@ -246,6 +246,20 @@ export default function Home() {
         break;
     }
   };
+  
+  const hasAnyAvailableFutureSchedule = (horarios) => {
+    const now = new Date().toLocaleString('sv-SE', {
+      timeZone: 'America/Sao_Paulo',
+      hour12: false
+    }).replace(' ', 'T');
+
+    return horarios.some(day =>
+      day.horarios.some(h =>
+        h.available === true &&
+        !itsAvailableNow(day.data, h.horario)
+      )
+    );
+  };
 
   useEffect(() => {
     handleCompanySchedules();
@@ -360,13 +374,13 @@ export default function Home() {
                   </div>
                 )
               ))
-            }
-              {!loadingSchedule && horarios.length === 0 && 
+              }
+              {!loadingSchedule && !hasAnyAvailableFutureSchedule(horarios) && (
                 <div className="slide no-schedules">
                   <h3>Nenhum horário disponível</h3>
                   <p>Verifique novamente mais tarde.</p>
                 </div>
-              }
+              )}
               {loadingSchedule &&
                 <div className="loading-slide">
                   <ThreeDots color="var(--color-sage)" height={20} width={60} />
