@@ -246,6 +246,16 @@ export default function Home() {
         break;
     }
   };
+  
+  const hasAnyAvailableFutureSchedule = (horarios) => {
+
+    return horarios.some(day =>
+      day.horarios.some(h =>
+        h.available === true &&
+        !itsAvailableNow(day.data, h.horario)
+      )
+    );
+  };
 
   useEffect(() => {
     handleCompanySchedules();
@@ -360,13 +370,13 @@ export default function Home() {
                   </div>
                 )
               ))
-            }
-              {!loadingSchedule && horarios.length === 0 && 
+              }
+              {!loadingSchedule && !hasAnyAvailableFutureSchedule(horarios) && (
                 <div className="slide no-schedules">
                   <h3>Nenhum horário disponível</h3>
                   <p>Verifique novamente mais tarde.</p>
                 </div>
-              }
+              )}
               {loadingSchedule &&
                 <div className="loading-slide">
                   <ThreeDots color="var(--color-sage)" height={20} width={60} />
@@ -416,6 +426,7 @@ export default function Home() {
               $justifycontent="space-between"
               $margin="0"
               $backgroundcolor="transparent"
+              $boxshadow="none"
           >
             <Button
               variant="link"
@@ -456,6 +467,7 @@ export default function Home() {
               $justifycontent="center"
               $margin="2rem 0 0 0"
               $backgroundcolor="transparent"
+              $boxshadow="none"
           >
               <Button
                 variant="confirm"
@@ -511,6 +523,7 @@ export default function Home() {
               $justifycontent="space-between"
               $margin="0"
               $backgroundcolor="transparent"
+              $boxshadow="none"
           >
             <Button
               variant="link"
@@ -553,6 +566,7 @@ export default function Home() {
                 $justifycontent="space-between"
                 $margin="2rem 0 0 0"
                 $backgroundcolor="transparent"
+                $boxshadow="none"
             >
               <Button
                 style={{ fontSize: "0.8rem", padding: "0.5rem 1rem", backgroundColor: "transparent", borderColor: "transparent", color: "#000000" }}
