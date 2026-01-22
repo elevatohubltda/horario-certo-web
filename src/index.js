@@ -42,10 +42,10 @@ const router = createBrowserRouter(
       path: '/criar-agendamentos',
       element: <MySchedule />,
     },
-    // {
-    //   path: '/minha-assinatura',
-    //   element: <Payment />,
-    // },
+    {
+      path: '/minha-assinatura',
+      element: <Payment />,
+    },
   ],
   {
     future: {
