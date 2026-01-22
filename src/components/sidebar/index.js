@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"
 import styled from "styled-components"
-import { Home, Settings, PanelLeftClose, PanelLeftOpen, KeyRound, CalendarDays, DollarSignIcon } from "lucide-react"
+import { Home, Settings, PanelLeftClose, PanelLeftOpen, KeyRound, CalendarDays } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { isMobile } from "../../util/util"
 
