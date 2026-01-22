@@ -11,6 +11,7 @@ import ChangePassword from './pages/ChangePassword';
 import Register from './pages/Register';
 import MySchedule from './pages/MySchedule';
 import './global.css';
+import Payment from './pages/Payment';
 
 const router = createBrowserRouter(
   [
@@ -40,6 +41,10 @@ const router = createBrowserRouter(
     {
       path: '/criar-agendamentos',
       element: <MySchedule />,
+    },
+    {
+      path: '/minha-assinatura',
+      element: <Payment />,
     },
   ],
   {
