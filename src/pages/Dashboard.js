@@ -14,9 +14,10 @@ import { useNavigate } from "react-router-dom";
 import SortedTable from "../components/sortedTable";
 import { isMobile } from "../util/util";
 import Alert from "../components/alert";
-import { getClientStatus } from "../services/endpoints/payment";
+//import { getClientStatus } from "../services/endpoints/payment";
 import { expiresAt } from "../util/date";
 import FilterDropdown from "../components/filterDropdown";
+import enableNotifications from "../util/push";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -39,7 +40,7 @@ export default function Dashboard() {
   const [loadingSchedule, setLoadingSchedule] = React.useState(true);
   const [horarios, setHorarios] = React.useState([]);
   const [mobile, setMobile] = React.useState();
-  const [paymentStatus, setPaymentStatus] = React.useState();
+  const [paymentStatus] = React.useState();
   const [activeFilter, setActiveFilter] = React.useState(filters[0]);
   const [filtered, setFiltered] = React.useState();
 
@@ -144,14 +145,14 @@ export default function Dashboard() {
     }
   }
 
-  const getClientStatusInfo = async () => {
-    try {
-      var response = await getClientStatus(companyUrl);
-      setPaymentStatus(response.data);
-    } catch (error) {
-      console.error("Erro ao buscar o status de pagamento:", error);
-    }
-  }
+  // const getClientStatusInfo = async () => {
+  //   try {
+  //     var response = await getClientStatus(companyUrl);
+  //     setPaymentStatus(response.data);
+  //   } catch (error) {
+  //     console.error("Erro ao buscar o status de pagamento:", error);
+  //   }
+  // }
 
   const getCompanyInfo = async () => {
       try {
@@ -175,10 +176,11 @@ export default function Dashboard() {
   useEffect(() => {
     if(isAvailableLogin()) {
       setLoading(true);
+      enableNotifications();
       if(companyInfo === undefined || companyInfo === null) {
         getCompanyInfo();
       }
-      getClientStatusInfo();
+      //getClientStatusInfo();
       setMobile(isMobile()); 
       setLoading(false);
     } else{
