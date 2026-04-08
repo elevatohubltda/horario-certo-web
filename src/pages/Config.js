@@ -220,41 +220,53 @@ export default function Config() {
         <Topbar {...companyInfo} loggedIn />
 
         <Container 
-            $width={!mobile ? "100%" : "90%"}
-            $display="flex"
-            $flexdirection="column"
-            $padding={!mobile ? "0" : "1rem"}
-            $margin="0"
-            $backgroundcolor="transparent"
-            $borderradius="0"
-            $boxshadow="0"
+          $width="100%"
+          $display="flex"
+          $flexdirection="column"
+          $padding={!mobile ? "0" : "1rem"}
+          $margin="0"
+          $backgroundcolor="transparent"
+          $borderradius="0"
+          $boxshadow="0"
         >
         <Sidebar>
           {!loading && companyProperties && (
-            <Container
-              $width="90%"
-              $backgroundcolor="var(--color-background)"
-              $borderradius="0 1rem 2rem 1rem"
-              $padding="0"
-              $display="flex"
-              $flexdirection="column"
-            >
+            <>
+              {loading && companyInfo === undefined &&
+                <Container 
+                  $width="100%" 
+                  $height="100vh" 
+                  $margin="0" 
+                  $padding="0" 
+                  $backgroundcolor="none"
+                  $borderradius="0" 
+                  $border="none"
+                  $display="flex" 
+                  $justifycontent="center" 
+                  $alignitems="center"
+                  $boxshadow="none"
+                >
+                  <span className="loader"></span>
+                </Container>
+              }
               <Title
                 $padding="1rem"
-                $margin="0"
+                $margin="1rem 0 0 0"
                 $fontweight="600"
-                $fontsize="1.25rem"
+                $fontsize="2rem"
                 $color="var(--color-dark)"
+                $width="max-content"
               >
                 Configurações
               </Title>
 
               <Separator
                 $width="calc(100% - 2rem)"
-                $bordercolor="var(--color-dark)"
+                $bordercolor="var(--color-olive)"
                 $margin="0 1rem 1rem 1rem"
+                $style="dotted"
               />
-                <Form>
+              <Form>
                   <Label>Tempo para cancelamento:</Label>
                   <Input
                     value={paraHoraSemSegundos(companyProperties.cancelTime)}
@@ -362,27 +374,9 @@ export default function Config() {
                       Salvar alterações
                     </Button>
                   </Actions>
-                </Form>
-            </Container>
+              </Form>
+            </>
           )}
-
-          {loading &&
-            <Container 
-                $width="100%" 
-                $height="90vh" 
-                $margin="0" 
-                $padding="0" 
-                $backgroundcolor="none"
-                $borderradius="0" 
-                $border="none"
-                $display="flex" 
-                $justifycontent="center" 
-                $alignitems="center"
-                $boxshadow="none"
-            >
-                <span className="loader"></span>
-            </Container>
-          }
           <ToastContainer position="top-right" autoClose={3000} />
         </Sidebar>
       </Container>

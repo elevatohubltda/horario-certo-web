@@ -20,15 +20,16 @@ const Container = styled.div`
   padding: 2rem;
   border-radius: 8px;
   min-width: 300px;
-  max-width: 90%;
+  width: ${({ $mobile }) => ($mobile ? '80%' : 'auto')};
+  max-width: ${({ $mobile }) => ($mobile ? '80%' : '500px')};
   box-shadow: 0 4px 20px rgba(0,0,0,0.3);
 `;
 
 // ---------- Component ----------
-export default function Dialog({ open, onClose, children }) {
+export default function Dialog({ open, onClose, children, mobile }) {
   return (
     <Overlay open={open} onClick={onClose}>
-      <Container onClick={(e) => e.stopPropagation()}>
+      <Container $mobile={mobile} onClick={(e) => e.stopPropagation()}>
         {children}
       </Container>
     </Overlay>

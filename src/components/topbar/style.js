@@ -246,7 +246,7 @@ export const TopbarStyle = styled.div`
     margin-top: 8px;
     background-color: white;
     border: 1px solid #ccc;
-    width: 160px;
+    width: 180px;
     box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
     z-index: 999;
   }

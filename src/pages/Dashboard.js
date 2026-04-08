@@ -1,157 +1,194 @@
-import React, { useEffect } from "react";
-import "slick-carousel/slick/slick.css"; 
-import "slick-carousel/slick/slick-theme.css";
+import { useEffect, useState } from "react";
+import styled from "styled-components";
 import "../styles/index.css";
 import Topbar from "../components/topbar";
-import { Container } from "../components/container/style";
-import { CustomFilterStyle } from "../components/filter/style";
-import { getCompany, getCompanySchedulesAuth } from "../services/endpoints/company";
-import DateRangeSelector from "../components/dateRangeSelector";
-import Cookies from "js-cookie";
 import Sidebar from "../components/sidebar";
-import { isAvailableLogin } from "../util/auth";
-import { useNavigate } from "react-router-dom";
-import SortedTable from "../components/sortedTable";
-import { isMobile } from "../util/util";
+import { Container } from "../components/container/style";
+import { Title } from "../components/title";
 import Alert from "../components/alert";
+import { isAvailableLogin } from "../util/auth";
+import { isMobile } from "../util/util";
+import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 import { getClientStatus } from "../services/endpoints/payment";
+import { Clock, CalendarDays, Check } from "lucide-react";
+import { getCompany } from "../services/endpoints/company";
 import { expiresAt } from "../util/date";
-import FilterDropdown from "../components/filterDropdown";
+
+
+const HeaderSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+`;
+
+const Greeting = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+`;
+
+const Subtitle = styled.p`
+  margin: 0;
+  color: var(--color-dark);
+  opacity: 0.75;
+`;
+
+const FakeBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 0.9rem;
+  border-radius: 999px;
+  background: rgba(142, 152, 142, 0.12);
+  font-size: 0.85rem;
+  color: var(--color-dark);
+  text-align: center;
+`;
+
+const CardsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  width: 100%;
+  margin-top: 1.5rem;
+
+  @media (max-width: 960px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const StatCard = styled.div`
+  background: #fff;
+  border-radius: 24px;
+  padding: 1.25rem;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+`;
+
+const StatLabel = styled.span`
+  font-size: 0.95rem;
+  color: var(--color-dark);
+  opacity: 0.85;
+`;
+
+const StatValue = styled.span`
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: var(--color-dark);
+`;
+
+const SectionGrid = styled.div`
+  display: grid;
+  align-items: start;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+
+  @media (max-width: 960px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const ContentCard = styled.div`
+  background: #fff;
+  border-radius: 24px;
+  padding: 1.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.05);
+  width: fill-available;
+  min-width: 0;
+`;
+
+const SectionItem = styled.div`
+  grid-column: 1 / -1;
+  width: 100%;
+`;
+
+const CardHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+`;
+
+const CardTitle = styled(Title)`
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+`;
+
+const AgendaList = styled.div`
+  display: grid;
+  gap: 1rem;
+`;
+
+const AgendaItem = styled.div`
+  background: #f9f9fb;
+  border-radius: 18px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  min-height: 74px;
+`;
+
+const AgendaInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+`;
+
+const AgendaTime = styled.span`
+  color: rgba(30, 44, 40, 0.75);
+  font-size: 0.9rem;
+`;
+
+const TagChip = styled.span`
+  padding: 0.5rem 0.85rem;
+  border-radius: 999px;
+  background: rgba(142, 152, 142, 0.12);
+  font-size: 0.85rem;
+  color: var(--color-dark);
+  white-space: nowrap;
+`;
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const companyUrl = Cookies.get("companyUrl");
-  const [companyInfo, setCompanyInfo] = React.useState(Cookies.get("companyInfo") ? JSON.parse(Cookies.get("companyInfo")) : undefined);
-  const filters = [
-    { label: "Sem filtro", value: "", color: "" },
-    { label: "Expirado", value: "expired", color: "#9e9e9e" },
-    { label: "Disponível", value: "available", color: "#4caf50" },
-    { label: "Agendado", value: "scheduled", color: "#f44336" },
-    { label: "Concluído", value: "done", color: "#2196f3" }
+  const [companyInfo, setCompanyInfo] = useState(Cookies.get("companyInfo") ? JSON.parse(Cookies.get("companyInfo")) : undefined);
+  const [mobile, setMobile] = useState();
+  const [paymentStatus, setPaymentStatus] = useState();
+
+  const cards = [
+    { title: "Agendamentos realizados", value: "25", icon: <Check size={18} />, description: "Esta semana" },
+    { title: "Agendamentos em aberto", value: "10", icon: <Clock size={18} />, description: "Próximos dias" },
+    { title: "Total de agendamentos", value: "35", icon: <CalendarDays size={18} />, description: "No mês" },
   ];
-  const [filter, setFilter] = React.useState({
-    name: "3 dias",
-    indexActive: 0,
-    startDate: new Date().toISOString().split('T')[0],
-    endDate: new Date(new Date().setDate(new Date().getDate() + 2)).toISOString().split('T')[0],
-  });
-  const [loading, setLoading] = React.useState(true);
-  const [loadingSchedule, setLoadingSchedule] = React.useState(true);
-  const [horarios, setHorarios] = React.useState([]);
-  const [mobile, setMobile] = React.useState();
-  const [paymentStatus, setPaymentStatus] = React.useState();
-  const [activeFilter, setActiveFilter] = React.useState(filters[0]);
-  const [filtered, setFiltered] = React.useState();
 
-  const filterSchedulesByDropdown = (value) => {
-    const now = new Date()
-      .toLocaleString("sv-SE", {
-        timeZone: "America/Sao_Paulo",
-        hour12: false
-      }).replace(" ", "T");
-    if(value === ''){
-      setActiveFilter(filters[0]);
-    }
-    switch (value) {
-      case "available": {
-        const filtered = horarios.filter(item =>
-          item.available === true &&
-          item.schedule > now
-        );
-        setActiveFilter(value);
-        setFiltered(filtered);
-        break;
-      }
-
-      case "expired": {
-        const filtered = horarios.filter(item =>
-          item.schedule <= now && item.available === true
-        );
-        setFiltered(filtered);
-        break;
-      }
-
-      case "scheduled": {
-        const filtered = horarios.filter(item =>
-          item.available === false &&
-          item.schedule > now
-        );
-        setFiltered(filtered);
-        break;
-      }
-
-      case "done": {
-        const filtered = horarios.filter(item =>
-          item.available === false &&
-          item.schedule <= now
-        );
-        setFiltered(filtered);
-        break;
-      }
-
-      default:
-        setFiltered(horarios);
-        break;
-    }
-  };
-
-  const handleFilter = (name, index, startDate, endDate) => {
-    switch (name) {
-      case "3 dias":
-        filterSchedulesByDropdown('');
-        setFilter({
-          name: name,
-          indexActive: index,
-          startDate: new Date().toISOString().split('T')[0],
-          endDate: new Date(new Date().setDate(new Date().getDate() + 2)).toISOString().split('T')[0],
-        });
-        break;
-      case "7 dias":
-        filterSchedulesByDropdown('');
-        setFilter({
-          name: name,
-          indexActive: index,
-          startDate: new Date().toISOString().split('T')[0],
-          endDate: new Date(new Date().setDate(new Date().getDate() + 6)).toISOString().split('T')[0],
-        });
-        break;
-      default:
-        if (!startDate || !endDate) {
-          console.error("startDate e endDate são obrigatórios para esse filtro.");
-          return;
-        }
-        filterSchedulesByDropdown('');
-        setFilter({
-          name: name,
-          indexActive: index,
-          startDate: new Date(startDate).toISOString().split('T')[0],
-          endDate: new Date(endDate).toISOString().split('T')[0],
-        });
-        break;
-    }
-  };
-
-  const handleCompanySchedules = async () => {
-    setLoadingSchedule(true);
-    try { 
-      var response = await getCompanySchedulesAuth(companyUrl, filter.startDate, filter.endDate);
-      setFiltered(undefined);
-      setHorarios(response.data);
-      setLoadingSchedule(false);
-    } catch (error) {
-      console.error("Erro ao buscar os dados da empresa:", error);
-      setLoadingSchedule(false);
-    }
-  }
+  const agenda = [
+    { title: "Joao Paulo", time: "12:30", service: "Corte de Cabelo" },
+    { title: "Nathan Jorge", time: "14:00", service: "Corte de Barba" },
+    { title: "Mateus Gabriel", time: "16:00", service: "Tratamento Capilar" },
+    { title: "Junior Silva", time: "18:00", service: "Design de Sobrancelha" },
+  ];
 
   const getClientStatusInfo = async () => {
     try {
-      var response = await getClientStatus(companyUrl);
+      const response = await getClientStatus(companyUrl);
       setPaymentStatus(response.data);
     } catch (error) {
       console.error("Erro ao buscar o status de pagamento:", error);
     }
-  }
+  };
 
   const getCompanyInfo = async () => {
       try {
@@ -168,96 +205,100 @@ export default function Dashboard() {
   }
 
   useEffect(() => {
-    handleCompanySchedules();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter, companyUrl]);
-
-  useEffect(() => {
-    if(isAvailableLogin()) {
-      setLoading(true);
+    if (isAvailableLogin()) {
       if(companyInfo === undefined || companyInfo === null) {
         getCompanyInfo();
       }
       getClientStatusInfo();
-      setMobile(isMobile()); 
-      setLoading(false);
-    } else{
-      navigate("/"+companyUrl);
+      setMobile(isMobile());
+    } else {
+      navigate("/" + companyUrl);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companyUrl, navigate]);
 
   return (
     <>
-      {companyInfo && 
+      {companyInfo && (
         <>
-            <Topbar 
-                name={companyInfo.name} 
-                imagem={companyInfo.imagem}
-                whatsapp={companyInfo.whatsapp} 
-                instagram={companyInfo.instagram}
-                loggedIn={true}
-            />
-            <Container
-                $width={!mobile ? "100%" : "90%"}
+          <Topbar
+            name={companyInfo.name}
+            imagem={companyInfo.imagem}
+            whatsapp={companyInfo.whatsapp}
+            instagram={companyInfo.instagram}
+            loggedIn={true}
+          />
+          <Container
+            $width={!mobile ? "100%" : "100%"}
+            $display="flex"
+            $flexdirection="column"
+            $padding={!mobile ? "0" : "1rem"}
+            $margin="0"
+            $backgroundcolor="transparent"
+            $borderradius="0"
+            $boxshadow="none"
+          >
+            <Sidebar>
+              <Container
+                $width="90%"
+                $borderradius="0 1rem 2rem 1rem"
+                $padding="0"
                 $display="flex"
                 $flexdirection="column"
-                $padding={!mobile ? "0" : "1rem"}
-                $margin="0"
                 $backgroundcolor="transparent"
-                $borderradius="0"
-                $boxshadow="0"
-            >
-                <Sidebar>
-                  {loading && companyInfo === undefined &&
-                    <Container 
-                      $width="100%" 
-                      $height="100vh" 
-                      $margin="0" 
-                      $padding="0" 
-                      $backgroundcolor="none"
-                      $borderradius="0" 
-                      $border="none"
-                      $display="flex" 
-                      $justifycontent="center" 
-                      $alignitems="center"
-                      $boxshadow="none"
-                    >
-                      <span className="loader"></span>
-                    </Container>
-                  }
-                    {paymentStatus && paymentStatus !== '' && 
-                      <Alert
-                        badge={paymentStatus.badge}
-                        message={paymentStatus.message}
-                      />
-                    }
-                    <CustomFilterStyle $width="100%" $padding="1rem 0 0 0">
-                      <FilterDropdown
-                        filters={filters}
-                        activeFilter={activeFilter}
-                        onChange={(value) => {
-                          filterSchedulesByDropdown(value);
-                        }}
-                      />
-                      <button className={filter.indexActive === 0 ? 'active filter-button' : 'filter-button'} onClick={() => handleFilter("3 dias", 0)}>
-                          3 dias
-                      </button>
-                      <button className={filter.indexActive === 1 ? 'active filter-button' : 'filter-button'} onClick={() => handleFilter("7 dias", 1)}>
-                          7 dias
-                      </button>
-                      <DateRangeSelector
-                          isActive={filter.indexActive === 2}
-                          onChangeRange={({ startDate, endDate }) => {
-                              handleFilter("personalizado", 2, startDate, endDate);
-                          }}
-                      />
-                    </CustomFilterStyle>
-                    <SortedTable data={filtered ? filtered : horarios} loading={loadingSchedule} isMobile={mobile} onChange={handleCompanySchedules}/>
-                </Sidebar>
-            </Container>
+                $boxshadow="none"
+              >
+                {paymentStatus && (
+                  <Alert badge={paymentStatus.badge} message={paymentStatus.message} />
+                )}
+                <HeaderSection>
+                  <Greeting>
+                    <Title $fontsize="2rem">Bem vindo de volta!</Title>
+                    <Subtitle>Gerencie suas próximas sessões e acompanhe o progresso dos clientes em um só lugar.</Subtitle>
+                  </Greeting>
+                </HeaderSection>
+
+                <CardsGrid>
+                  {cards.map((card) => (
+                    <StatCard key={card.title}>
+                      <CardHeader>
+                        <StatLabel>{card.title}</StatLabel>
+                        <FakeBadge>{card.icon}</FakeBadge>
+                      </CardHeader>
+                      <StatValue>{card.value}</StatValue>
+                      <Subtitle>{card.description}</Subtitle>
+                    </StatCard>
+                  ))}
+                </CardsGrid>
+
+                <SectionGrid>
+                  <SectionItem>
+                    <ContentCard style={{ marginTop: '1.5rem' }}>
+                      <CardHeader>
+                        <CardTitle>Próximos Agendamentos</CardTitle>
+                        <FakeBadge style={{ cursor: 'pointer' }} onClick={() => navigate('/meus-agendamentos')}>
+                          Ver tudo
+                        </FakeBadge>
+                      </CardHeader>
+                      <AgendaList>
+                        {agenda.map((item) => (
+                          <AgendaItem key={item.title}>
+                            <AgendaInfo>
+                              <strong>{item.title}</strong>
+                              <AgendaTime>{item.time}</AgendaTime>
+                            </AgendaInfo>
+                            <TagChip>{item.service}</TagChip>
+                          </AgendaItem>
+                        ))}
+                      </AgendaList>
+                    </ContentCard>
+                  </SectionItem>
+                </SectionGrid>
+              </Container>
+            </Sidebar>
+          </Container>
         </>
-      }
+      )}
     </>
   );
 }

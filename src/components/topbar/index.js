@@ -11,10 +11,75 @@ import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import { isMobile, openInstagram, openWhatsApp } from '../../util/util';
 import Cookies from "js-cookie";
+import Dialog from '../dialog';
+import styled from 'styled-components';
+
+const DialogTitle = styled.h3`
+  margin: 0 0 1rem 0;
+  font-size: 1.15rem;
+  color: var(--color-dark);
+`;
+
+const DialogText = styled.span`
+  margin: 0 1rem 1.5rem 0;
+  color: rgba(30, 44, 40, 0.8);
+  line-height: 1.5;
+`;
+
+const DialogInput = styled.input`
+  width: -webkit-fill-available;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(30, 44, 40, 0.12);
+  border-radius: 12px;
+  margin-top: 1rem;
+  font-size: 0.95rem;
+  color: var(--color-dark);
+  background: #f5f5f7;
+`;
+
+const DialogActions = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+`;
+
+const DialogButton = styled.button`
+  cursor: pointer;
+  border: none;
+  border-radius: 999px;
+  padding: 0.85rem 1rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  min-width: 120px;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+`;
+
+const CopyButton = styled(DialogButton)`
+  background: var(--color-dark);
+  color: #fff;
+  align-items: center;
+  justify-content: center;
+`;
+
+const WhatsAppButton = styled(DialogButton)`
+  background: #25d366;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
 
 export default function Topbar({imagem, whatsapp, instagram, name}) {
   const [isAuth, setIsAuth] = useState(false);
   const [open, setOpen] = useState(false);
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const menuRef = useRef(null);
   const navigate = useNavigate();
   const [mobile, setMobile] = useState();
@@ -50,6 +115,23 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
     navigate('/'+companyUrl);
   }
 
+  const shareUrl = `${window.location.origin}/${companyUrl}`;
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success('Link copiado para a área de transferência');
+    } catch (error) {
+      toast.error('Não foi possível copiar o link');
+    }
+  };
+
+  const handleShareWhatsApp = () => {
+    const message = `Olá! Venha conhecer os serviços de qualidade da ${name}!\n\n- Fácil de agendar\n- Rápido e seguro\n- Melhor atendimento\n\nClique aqui e agende seu horário agora: ${shareUrl}\n\nAté logo!`;
+    const text = encodeURIComponent(message);
+    window.open(`https://wa.me/?text=${text}`, '_blank');
+  };
+
   const showEstablishment = (mobile && !isAuth) || (!mobile && !isAuth);
 
   const renderEstablishment = () => (
@@ -79,9 +161,6 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
             <div className="dropdown-item">
               <button onClick={() => handleNavigate('/')}>Acessar</button>
             </div>
-            {/* <div className="dropdown-item">
-              <button>Seja Parceiro</button>
-            </div> */}
           </div>
         )}
       </div>
@@ -104,10 +183,17 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
           <div className="dropdown-item" onClick={() => handleNavigate('/'+companyUrl)}>
             <button>Minha agenda</button>
           </div>
+
+          {!mobile && (
+            <div className="dropdown-item" onClick={() => { setShareDialogOpen(true); setOpen(false); }}>
+              <button>Link compartilhável</button>
+            </div>
+          )}
+
           {mobile ? 
             <>
-              <div className="dropdown-item" onClick={() => handleNavigate('/criar-agendamentos')}>
-                <button>Criar agenda</button>
+              <div className="dropdown-item" onClick={() => handleNavigate('/meus-agendamentos')}>
+                <button>Meus agendamentos</button>
               </div>
               {/* <div className="dropdown-item" onClick={() => handleNavigate('/minha-assinatura')}>
                 <button>Minha assinatura</button>
@@ -117,6 +203,9 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
               </div>
               <div className="dropdown-item" onClick={() => handleNavigate('/configuracoes')}>
                 <button>Configurações</button>
+              </div>
+              <div className="dropdown-item" onClick={() => { setShareDialogOpen(true); setOpen(false); }}>
+                <button>Link compartilhável</button>
               </div>
             </>
           : <></>
@@ -148,6 +237,19 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
 
           {mobile && !isAuth && renderMenuNotAuth()}
           {isAuth && renderMenuAuth()}
+
+          <Dialog open={shareDialogOpen} onClose={() => setShareDialogOpen(false)} mobile={mobile}>
+            <DialogTitle>Compartilhe sua agenda</DialogTitle>
+            <DialogText>Copie o link da sua agenda ou compartilhe pelo WhatsApp com uma mensagem pronta.</DialogText>
+            <DialogInput readOnly value={shareUrl} />
+            <DialogActions>
+              <CopyButton onClick={handleCopyLink}>Copiar link</CopyButton>
+              <WhatsAppButton onClick={handleShareWhatsApp}>
+                <WhatsApp style={{ marginRight: '0.5rem' }} />
+                Compartilhar
+              </WhatsAppButton>
+            </DialogActions>
+          </Dialog>
         </>
       <ToastContainer position={isMobile ? 'bottom-right' : 'top-right'} className={isMobile ? 'mobile' : 'desktop'} autoClose={3000} />
     </TopbarStyle>

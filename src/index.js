@@ -6,6 +6,7 @@ import {
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import MyAppointments from './pages/MyAppointments';
 import Config from './pages/Config';
 import ChangePassword from './pages/ChangePassword';
 import Register from './pages/Register';
@@ -17,14 +18,19 @@ const router = createBrowserRouter(
   [
     {
       path: '/',
-      children: [
-        { index: true, element: <Login /> },
-        { path: ":companyUrl", element: <Home /> },
-      ],
+      element: <Login />,
+    },
+    {
+      path: '/:companyUrl',
+      element: <Home />,
     },
     {
       path: '/dashboard',
       element: <Dashboard />,
+    },
+    {
+      path: '/meus-agendamentos',
+      element: <MyAppointments />,
     },
     {
       path: '/configuracoes',

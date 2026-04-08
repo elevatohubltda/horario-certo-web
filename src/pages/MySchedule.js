@@ -17,7 +17,7 @@ import {
   maskTime,
   paraHoraCompleta
 } from "../util/format";
-import { XIcon } from "lucide-react";
+import { XIcon, ArrowLeft } from "lucide-react";
 import { createSchedule } from "../services/endpoints/companySchedule";
 import DatePicker from "../components/datePicker";
 import { getNowInBrazilDate } from "../util/date";
@@ -25,6 +25,27 @@ import { getNowInBrazilDate } from "../util/date";
 /* =======================
    Styled Components
 ======================= */
+
+const PageActions = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+`;
+
+const ActionButton = styled.button`
+  cursor: pointer;
+  border: none;
+  border-radius: 999px;
+  padding: 0.85rem 1.25rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  background: transparent;
+  color: var(--color-dark);
+  border: 1px solid rgba(30, 44, 40, 0.16);
+`;
 
 const Form = styled.form`
   width: calc(100% - 2rem);
@@ -187,7 +208,7 @@ export default function MySchedule() {
       <Topbar {...companyInfo} loggedIn />
 
       <Container
-        $width={!mobile ? "100%" : "90%"}
+        $width="100%"
         $display="flex"
         $flexdirection="column"
         $padding={!mobile ? "0" : "1rem"}
@@ -195,35 +216,27 @@ export default function MySchedule() {
         $backgroundcolor="transparent"
       >
         <Sidebar>
-          <Container
-            $width="90%"
-            $backgroundcolor="var(--color-background)"
-            $borderradius="0 1rem 2rem 1rem"
-            $padding="0"
-            $display="flex"
-            $flexdirection="column"
-            $boxshadow="none"
-          >
-            {loading && <span className="loader" />}
+          {loading && <span className="loader" />}
 
-            {!loading && (
-              <>
-                <Title
-                  $padding="1rem"
-                  $fontweight="600"
-                  $fontsize="1.25rem"
-                  $color="var(--color-dark)"
-                >
-                  Criar agendamentos
-                </Title>
+          {!loading && (
+            <>
+              <Title
+                $padding="1rem"
+                $margin="1rem 0"
+                $fontweight="600"
+                $fontsize="2rem"
+                $color="var(--color-dark)"
+              >
+                Criar agendamentos
+              </Title>
 
-                <Separator
-                  $width="calc(100% - 2rem)"
-                  $bordercolor="var(--color-dark)"
-                  $margin="0 1rem 1rem 1rem"
-                />
+              <Separator
+                $width="calc(100% - 2rem)"
+                $bordercolor="var(--color-dark)"
+                $margin="0 1rem 1rem 1rem"
+              />
 
-                <Form>
+              <Form>
                   <Label>Data:</Label>
                   <DatePicker
                     value={scheduleData.date}
@@ -394,11 +407,10 @@ export default function MySchedule() {
                 </Form>
               </>
             )}
-          </Container>
+          </Sidebar>
 
           <ToastContainer position="top-right" autoClose={3000} />
-        </Sidebar>
-      </Container>
+        </Container>
     </>
   );
 }

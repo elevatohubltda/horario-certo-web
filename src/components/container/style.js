@@ -6,6 +6,8 @@ export const Container = styled.div`
   align-items: ${({ $alignitems = 'unset' }) => $alignitems};
   flex-direction: ${({ $flexdirection = 'unset' }) => $flexdirection};
   width: ${({ $width = '90%' }) => $width};
+  max-width: 100%;
+  box-sizing: border-box;
   height: ${({ $height = 'max-content' }) => $height};
   margin: ${({ $margin = '1rem auto 0 auto' }) => $margin};
   padding: ${({ $padding = '0' }) => $padding};
