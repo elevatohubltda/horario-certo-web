@@ -116,6 +116,8 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
   }
 
   const shareUrl = `${window.location.origin}/${companyUrl}`;
+  const safeImage = typeof imagem === 'string' ? imagem.trim() : '';
+  const imageSrc = safeImage ? safeImage : businessLogo;
 
   const handleCopyLink = async () => {
     try {
@@ -135,9 +137,13 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
   const showEstablishment = (mobile && !isAuth) || (!mobile && !isAuth);
 
   const renderEstablishment = () => (
-    <div className={!isMobile ? 'establishmentBox' : 'establishmentBoxMobile'}>
+    <div className={mobile ? 'establishmentBoxMobile' : 'establishmentBox'}>
       <img
-        src={ mobile ? (imagem === "" ? businessLogo : imagem) : (imagem === "" ? businessLogo : imagem)}
+        src={imageSrc}
+        onError={(event) => {
+          event.currentTarget.onerror = null;
+          event.currentTarget.src = businessLogo;
+        }}
         alt="Barbearia Seu Zé"
       />
       <div className="content">
@@ -254,7 +260,7 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
             </DialogActions>
           </Dialog>
         </>
-      <ToastContainer position={isMobile ? 'bottom-right' : 'top-right'} className={isMobile ? 'mobile' : 'desktop'} autoClose={3000} />
+      <ToastContainer position={mobile ? 'bottom-right' : 'top-right'} className={mobile ? 'mobile' : 'desktop'} autoClose={3000} />
     </TopbarStyle>
   );
 }

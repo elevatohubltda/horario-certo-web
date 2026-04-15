@@ -5,6 +5,7 @@ import {
 } from 'react-router-dom';
 import Home from './pages/Home';
 import Login from './pages/Login';
+import ForgotPassword from './pages/ForgotPassword';
 import Dashboard from './pages/Dashboard';
 import MyAppointments from './pages/MyAppointments';
 import Config from './pages/Config';
@@ -21,6 +22,10 @@ const router = createBrowserRouter(
     {
       path: '/',
       element: <Login />,
+    },
+    {
+      path: '/esqueci-senha',
+      element: <ForgotPassword />,
     },
     {
       path: '/:companyUrl',
