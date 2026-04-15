@@ -506,7 +506,12 @@ export default function Home() {
                 OK
             </Button>
           </Container>
-          <ToastContainer position="top-right" autoClose={3000} closeButton={false} />
+          <ToastContainer
+            position={mobile ? "bottom-center" : "top-right"}
+            autoClose={3000}
+            closeButton={false}
+            style={mobile ? { margin: '0 5% 1rem 5%', width: '90%' } : undefined}
+          />
         </form>
       </Dialog>
       {/* PREENCHIMENTO DADOS CANCELAMENTO DO AGENDAMENTO */}
@@ -588,7 +593,12 @@ export default function Home() {
                 Cancelar
             </Button>
           </Container>
-          <ToastContainer position="top-right" autoClose={3000} closeButton={false} />
+          <ToastContainer
+            position={mobile ? "bottom-center" : "top-right"}
+            autoClose={3000}
+            closeButton={false}
+            style={mobile ? { margin: '0 5% 1rem 5%', width: '90%' } : undefined}
+          />
         </form>
       </Dialog>
       {/* CANCELAMENTO NÃO POSSÍVEL */}
@@ -629,7 +639,12 @@ export default function Home() {
                 <WhatsApp/> Falar com {companyInfo.name}
               </Button>
             </Container>
-            <ToastContainer position={mobile ? "bottom-center": "top-right"} autoClose={3000} closeButton={false} />
+            <ToastContainer
+              position={mobile ? "bottom-center" : "top-right"}
+              autoClose={3000}
+              closeButton={false}
+              style={mobile ? { margin: '0 5% 1rem 5%', width: '90%' } : undefined}
+            />
           </form>
         </Dialog>
       }

@@ -378,7 +378,11 @@ export default function Config() {
               </Form>
             </>
           )}
-          <ToastContainer position="top-right" autoClose={3000} />
+          <ToastContainer 
+            position={mobile ? "bottom-center" : "top-right"} 
+            autoClose={3000} 
+            style={mobile ? { margin: '0 5% 1rem 5%', width: '90%' } : undefined}
+          />
         </Sidebar>
       </Container>
     </>

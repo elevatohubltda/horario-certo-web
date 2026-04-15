@@ -396,7 +396,12 @@ export default function ChangeSubscription() {
           </PageContent>
         </Sidebar>
       </Container>
-      <ToastContainer containerId="change-subscription" position="top-right" autoClose={3000} />
+      <ToastContainer 
+        containerId="change-subscription" 
+        position={mobile ? "bottom-center" : "top-right"} 
+        autoClose={3000} 
+        style={mobile ? { margin: '0 5% 1rem 5%', width: '90%' } : undefined}
+      />
     </>
   );
 }

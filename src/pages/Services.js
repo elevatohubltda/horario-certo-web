@@ -472,8 +472,9 @@ export default function Services() {
 
           <ToastContainer
             containerId={TOAST_CONTAINER_ID}
-            position="top-right"
+            position={mobile ? "bottom-center" : "top-right"}
             autoClose={3000}
+            style={mobile ? { margin: '0 5% 1rem 5%', width: '90%' } : undefined}
           />
 
         </Sidebar>

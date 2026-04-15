@@ -378,7 +378,7 @@ export default function Dashboard() {
               <Container
                 $width="90%"
                 $borderRadius="0 1rem 2rem 1rem"
-                $padding="0"
+                $padding="0 0 3rem 0"
                 $display="flex"
                 $flexdirection="column"
                 $backgroundcolor="transparent"

@@ -260,7 +260,11 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
             </DialogActions>
           </Dialog>
         </>
-      <ToastContainer position={mobile ? 'bottom-right' : 'top-right'} className={mobile ? 'mobile' : 'desktop'} autoClose={3000} />
+      <ToastContainer 
+        position={mobile ? 'bottom-center' : 'top-right'} 
+        style={mobile ? { margin: '0 5% 1rem 5%', width: '90%' } : undefined}
+        autoClose={3000} 
+      />
     </TopbarStyle>
   );
 }

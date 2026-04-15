@@ -734,10 +734,10 @@ const SortedTable = ({ data, loading, isMobile, onChange, showServiceColumn = tr
                         </Dialog>
                     )}
                     
-                    {/* Toast notification */}
                     <ToastContainer
-                        position={isMobile ? "bottom-right" : "top-right"}
+                        position={isMobile ? "bottom-center" : "top-right"}
                         autoClose={3000}
+                        style={isMobile ? { margin: '0 5% 1rem 5%', width: '90%' } : undefined}
                     />
                 </>
             }

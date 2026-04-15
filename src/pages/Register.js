@@ -542,7 +542,7 @@ function Register() {
             <ToastContainer
                 position={isMobileViewport ? 'bottom-center' : 'top-right'}
                 autoClose={3000}
-                style={isMobileViewport ? { marginBottom: '1rem' } : undefined}
+                style={isMobileViewport ? { margin: '0 5% 1rem 5%', width: '90%' } : undefined}
             />
         </Page>
     );
