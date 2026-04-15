@@ -226,7 +226,7 @@ export default function Config() {
           $padding={!mobile ? "0" : "1rem"}
           $margin="0"
           $backgroundcolor="transparent"
-          $borderradius="0"
+          $borderRadius="0"
           $boxshadow="0"
         >
         <Sidebar>
@@ -239,7 +239,7 @@ export default function Config() {
                   $margin="0" 
                   $padding="0" 
                   $backgroundcolor="none"
-                  $borderradius="0" 
+                  $borderRadius="0" 
                   $border="none"
                   $display="flex" 
                   $justifycontent="center" 
@@ -360,6 +360,7 @@ export default function Config() {
                     $width="100%"
                     $bordercolor="var(--color-dark)"
                     $margin="1rem 0 1rem 0"
+                    $style="dotted"
                   />
 
                   <Actions>

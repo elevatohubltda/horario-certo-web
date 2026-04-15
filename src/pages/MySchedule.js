@@ -17,7 +17,7 @@ import {
   maskTime,
   paraHoraCompleta
 } from "../util/format";
-import { XIcon, ArrowLeft } from "lucide-react";
+import { XIcon } from "lucide-react";
 import { createSchedule } from "../services/endpoints/companySchedule";
 import DatePicker from "../components/datePicker";
 import { getNowInBrazilDate } from "../util/date";
@@ -25,27 +25,6 @@ import { getNowInBrazilDate } from "../util/date";
 /* =======================
    Styled Components
 ======================= */
-
-const PageActions = styled.div`
-  display: flex;
-  justify-content: flex-start;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  margin-bottom: 1rem;
-`;
-
-const ActionButton = styled.button`
-  cursor: pointer;
-  border: none;
-  border-radius: 999px;
-  padding: 0.85rem 1.25rem;
-  font-weight: 600;
-  font-size: 0.95rem;
-  transition: background-color 0.2s ease, color 0.2s ease;
-  background: transparent;
-  color: var(--color-dark);
-  border: 1px solid rgba(30, 44, 40, 0.16);
-`;
 
 const Form = styled.form`
   width: calc(100% - 2rem);
@@ -214,6 +193,7 @@ export default function MySchedule() {
         $padding={!mobile ? "0" : "1rem"}
         $margin="0"
         $backgroundcolor="transparent"
+        $boxshadow="none"
       >
         <Sidebar>
           {loading && <span className="loader" />}
@@ -224,6 +204,7 @@ export default function MySchedule() {
                 $padding="1rem"
                 $margin="1rem 0"
                 $fontweight="600"
+                $width="initial"
                 $fontsize="2rem"
                 $color="var(--color-dark)"
               >
@@ -234,6 +215,7 @@ export default function MySchedule() {
                 $width="calc(100% - 2rem)"
                 $bordercolor="var(--color-dark)"
                 $margin="0 1rem 1rem 1rem"
+                $style="dotted"
               />
 
               <Form>
@@ -349,6 +331,7 @@ export default function MySchedule() {
                       <Separator
                         $width="100%"
                         $bordercolor="var(--color-dark)"
+                        $style="dotted"
                       />
                       <Label>Meus intervalos:</Label>
                       <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
@@ -391,6 +374,7 @@ export default function MySchedule() {
                   <Separator
                     $width="100%"
                     $bordercolor="var(--color-dark)"
+                    $style="dotted"
                   />
 
                   <Actions>

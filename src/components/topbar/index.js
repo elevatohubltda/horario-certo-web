@@ -192,12 +192,15 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
 
           {mobile ? 
             <>
-              <div className="dropdown-item" onClick={() => handleNavigate('/meus-agendamentos')}>
-                <button>Meus agendamentos</button>
+              <div className="dropdown-item" onClick={() => handleNavigate('/agendamentos')}>
+                <button>Agendamentos</button>
               </div>
-              {/* <div className="dropdown-item" onClick={() => handleNavigate('/minha-assinatura')}>
-                <button>Minha assinatura</button>
-              </div> */}
+              <div className="dropdown-item" onClick={() => handleNavigate('/servicos')}>
+                <button>Serviços</button>
+              </div>
+              <div className="dropdown-item" onClick={() => handleNavigate('/assinatura')}>
+                <button>Assinatura</button>
+              </div>
               <div className="dropdown-item" onClick={() => handleNavigate('/alterar-senha')}>
                 <button>Alterar senha</button>
               </div>
@@ -210,7 +213,7 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
             </>
           : <></>
           }
-          <Separator $width="100%" $bordercolor="#ccc" $margin="0" />
+          <Separator $width="100%" $bordercolor="#ccc" $margin="0" $style="dotted" />
           <div className="dropdown-item">
             <button onClick={handleLogout}>Sair</button>
           </div>

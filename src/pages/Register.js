@@ -166,7 +166,7 @@ function Register() {
             <Form $width={mobile ? '80%' : '500px'}>
                 <Logo />
 
-                <Separator $width="100%" $bordercolor="var(--color-dark)" $margin="1rem 0" />
+                <Separator $width="100%" $bordercolor="var(--color-dark)" $margin="1rem 0" $style="dotted" />
 
                 <Stepper steps={steps} currentStep={step} />
 
@@ -286,7 +286,7 @@ function Register() {
                     </>
                 )}
 
-                <Separator $width="100%" $bordercolor="var(--color-dark)" $margin="1rem 0" />
+                <Separator $width="100%" $bordercolor="var(--color-dark)" $margin="1rem 0" $style="dotted" />
 
                 <Actions $step={step}>
                     {!loading && (

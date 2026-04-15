@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import styled from "styled-components";
 import "slick-carousel/slick/slick.css"; 
 import "slick-carousel/slick/slick-theme.css";
@@ -16,6 +16,8 @@ import SortedTable from "../components/sortedTable";
 import { isMobile } from "../util/util";
 import { expiresAt } from "../util/date";
 import FilterDropdown from "../components/filterDropdown";
+import { Title } from "../components/title";
+import { Separator } from "../components/separator/style";
 
 const PageActions = styled.div`
   display: flex;
@@ -30,7 +32,7 @@ const ActionButton = styled.button`
   cursor: pointer;
   border: none;
   border-radius: 999px;
-  padding: 0.85rem 1.25rem;
+  padding: 0.5rem 1.25rem;
   font-weight: 600;
   font-size: 0.95rem;
   transition: background-color 0.2s ease, color 0.2s ease;
@@ -57,7 +59,7 @@ export default function MyAppointments() {
   const navigate = useNavigate();
   const companyUrl = Cookies.get("companyUrl");
   const [companyInfo, setCompanyInfo] = React.useState(Cookies.get("companyInfo") ? JSON.parse(Cookies.get("companyInfo")) : undefined);
-  const filters = [
+  const statusFilters = [
     { label: "Sem filtro", value: "", color: "" },
     { label: "Expirado", value: "expired", color: "#9e9e9e" },
     { label: "Disponível", value: "available", color: "#4caf50" },
@@ -74,48 +76,104 @@ export default function MyAppointments() {
   const [loadingSchedule, setLoadingSchedule] = React.useState(true);
   const [horarios, setHorarios] = React.useState([]);
   const [mobile, setMobile] = React.useState();
-  const [activeFilter, setActiveFilter] = React.useState(filters[0]);
+  const [activeStatusFilter, setActiveStatusFilter] = React.useState(statusFilters[0]);
+  const [activeServiceFilter, setActiveServiceFilter] = React.useState({ label: "Sem filtro", value: "", color: "" });
+  const [selectedStatus, setSelectedStatus] = React.useState("");
+  const [selectedService, setSelectedService] = React.useState("");
   const [filtered, setFiltered] = React.useState();
 
-  const filterSchedulesByDropdown = (value) => {
-    const selected = value;
+  const getScheduleStatus = useCallback((item) => {
+    const currentNow = new Date()
+      .toLocaleString("sv-SE", {
+        timeZone: "America/Sao_Paulo",
+        hour12: false
+      })
+      .replace(" ", "T");
 
-    if (selected === "expired") {
-      const expired = horarios.filter((item) => item.status === "expired");
-      setFiltered(expired);
-      setActiveFilter(filters[1]);
+    if (item.available && item.schedule >= currentNow) {
+      return "available";
+    }
+
+    if (!item.available && item.schedule >= currentNow) {
+      return "scheduled";
+    }
+
+    if (!item.available && item.schedule < currentNow) {
+      return "done";
+    }
+
+    return "expired";
+  }, []);
+
+  const getServiceType = useCallback((item) => {
+    if (item?.service && typeof item.service === "object") {
+      return item.service.name || "";
+    }
+
+    return item?.service || item?.servico || "";
+  }, []);
+
+  const serviceFilters = useMemo(() => {
+    const services = [...new Set(horarios.map((item) => getServiceType(item)).filter(Boolean))];
+
+    return [
+      { label: "Sem filtro", value: "", color: "" },
+      ...services.map((service) => ({
+        label: service,
+        value: service,
+        color: "var(--color-olive)"
+      }))
+    ];
+  }, [getServiceType, horarios]);
+
+  const hasServiceSchedules = serviceFilters.length > 1;
+
+  const filterSchedulesByStatus = (value) => {
+    const selected = statusFilters.find((item) => item.value === value) || statusFilters[0];
+    setSelectedStatus(value);
+    setActiveStatusFilter(selected);
+  };
+
+  const filterSchedulesByService = (value) => {
+    const selected = serviceFilters.find((item) => item.value === value) || serviceFilters[0];
+    setSelectedService(value);
+    setActiveServiceFilter(selected);
+  };
+
+  useEffect(() => {
+    if (!selectedStatus && !selectedService) {
+      setFiltered(undefined);
       return;
     }
 
-    if (selected === "available") {
-      const available = horarios.filter((item) => item.status === "available");
-      setFiltered(available);
-      setActiveFilter(filters[2]);
-      return;
-    }
+    const filteredSchedules = horarios.filter((item) => {
+      const matchesStatus = selectedStatus ? getScheduleStatus(item) === selectedStatus : true;
+      const matchesService = selectedService ? getServiceType(item) === selectedService : true;
 
-    if (selected === "scheduled") {
-      const scheduled = horarios.filter((item) => item.status === "scheduled");
-      setFiltered(scheduled);
-      setActiveFilter(filters[3]);
-      return;
-    }
+      return matchesStatus && matchesService;
+    });
 
-    if (selected === "done") {
-      const done = horarios.filter((item) => item.status === "done");
-      setFiltered(done);
-      setActiveFilter(filters[4]);
-      return;
-    }
+    setFiltered(filteredSchedules);
+  }, [getScheduleStatus, getServiceType, horarios, selectedStatus, selectedService]);
 
-    setFiltered(undefined);
-    setActiveFilter(filters[0]);
+  useEffect(() => {
+    if (selectedService && !serviceFilters.some((item) => item.value === selectedService)) {
+      setSelectedService("");
+      setActiveServiceFilter(serviceFilters[0]);
+    }
+  }, [serviceFilters, selectedService]);
+
+  const resetDropdownFilters = () => {
+    setSelectedStatus("");
+    setSelectedService("");
+    setActiveStatusFilter(statusFilters[0]);
+    setActiveServiceFilter({ label: "Sem filtro", value: "", color: "" });
   };
 
   const handleFilter = (name, index, startDate, endDate) => {
     switch (name) {
       case "3 dias":
-        filterSchedulesByDropdown('');
+        resetDropdownFilters();
         setFilter({
           name: name,
           indexActive: index,
@@ -124,7 +182,7 @@ export default function MyAppointments() {
         });
         break;
       case "7 dias":
-        filterSchedulesByDropdown('');
+        resetDropdownFilters();
         setFilter({
           name: name,
           indexActive: index,
@@ -137,7 +195,7 @@ export default function MyAppointments() {
           console.error("startDate e endDate são obrigatórios para esse filtro.");
           return;
         }
-        filterSchedulesByDropdown('');
+        resetDropdownFilters();
         setFilter({
           name: name,
           indexActive: index,
@@ -152,7 +210,6 @@ export default function MyAppointments() {
     setLoadingSchedule(true);
     try { 
       var response = await getCompanySchedulesAuth(companyUrl, filter.startDate, filter.endDate);
-      setFiltered(undefined);
       setHorarios(response.data);
       setLoadingSchedule(false);
     } catch (error) {
@@ -233,15 +290,44 @@ export default function MyAppointments() {
                       <span className="loader"></span>
                     </Container>
                   }
+                <Title
+                  $padding="1rem"
+                  $margin="1rem 0 0 0"
+                  $fontweight="600"
+                  $fontsize="2rem"
+                  $color="var(--color-dark)"
+                  $width="max-content"
+                >
+                  Agendamentos
+                </Title>
+
+                <Separator
+                  $width="calc(100% - 2rem)"
+                  $bordercolor="var(--color-olive)"
+                  $margin="0 1rem 1rem 1rem"
+                  $style="dotted"
+                />
+
                 <PageActions $margin="1rem 0 0 0" $justifycontent={!mobile ? "end" : "end"}>
                   <ActionButton onClick={() => navigate('/criar-agendamentos')}>Criar agendamentos</ActionButton>
                 </PageActions>
                 <CustomFilterStyle $margin="0" $width="100%" $padding="1rem 0 0 0">
+                      {hasServiceSchedules && (
+                        <FilterDropdown
+                          filters={serviceFilters}
+                          activeFilter={activeServiceFilter}
+                          placeholder="Filtrar serviço"
+                          onChange={(value) => {
+                            filterSchedulesByService(value);
+                          }}
+                        />
+                      )}
                       <FilterDropdown
-                        filters={filters}
-                        activeFilter={activeFilter}
+                        filters={statusFilters}
+                        activeFilter={activeStatusFilter}
+                        placeholder="Filtrar status"
                         onChange={(value) => {
-                          filterSchedulesByDropdown(value);
+                          filterSchedulesByStatus(value);
                         }}
                       />
                       <button className={filter.indexActive === 0 ? 'active filter-button' : 'filter-button'} onClick={() => handleFilter("3 dias", 0)}>
@@ -257,7 +343,13 @@ export default function MyAppointments() {
                           }}
                       />
                     </CustomFilterStyle>
-                    <SortedTable data={filtered ? filtered : horarios} loading={loadingSchedule} isMobile={mobile} onChange={handleCompanySchedules}/>
+                    <SortedTable
+                      data={filtered ? filtered : horarios}
+                      loading={loadingSchedule}
+                      isMobile={mobile}
+                      onChange={handleCompanySchedules}
+                      showServiceColumn={hasServiceSchedules}
+                    />
                 </Sidebar>
             </Container>
         </>

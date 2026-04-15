@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { FunnelIcon } from "lucide-react"
 
-export default function FilterDropdown({ filters, activeFilter, onChange }) {
+export default function FilterDropdown({ filters, activeFilter, onChange, placeholder = "Filtrar" }) {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState(null);
+  const containerRef = useRef(null);
 
   function handleSelect(filter) {
     setSelected(filter);
@@ -16,8 +17,22 @@ export default function FilterDropdown({ filters, activeFilter, onChange }) {
     setSelected(activeFilter);
   }, [activeFilter]);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (containerRef.current && !containerRef.current.contains(event.target)) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
-    <Container>
+    <Container ref={containerRef}>
       <Trigger onClick={() => setOpen(!open)}>
         {selected && selected.value ? (
           <>
@@ -27,7 +42,7 @@ export default function FilterDropdown({ filters, activeFilter, onChange }) {
         ) : (
             <>
               <FunnelIcon size={12}/>
-              <span>Filtrar</span>
+              <span>{placeholder}</span>
             </>
         )}
       </Trigger>
@@ -79,7 +94,9 @@ const Menu = styled.div`
   box-shadow: none;
   padding: 4px 0;
   z-index: 10;
-  border: 1px solid rgb(204, 204, 204);   
+  border: 1px solid rgb(204, 204, 204);
+  width: max-content;
+  min-width: 100%;
 `;
 
 const Option = styled.button`
@@ -93,6 +110,7 @@ const Option = styled.button`
   gap: 8px;
   font-size: 14px;
   color: #333;
+  white-space: nowrap;
 
   &:hover {
     background: #f5f5f5;

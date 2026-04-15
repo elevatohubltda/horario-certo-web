@@ -13,6 +13,8 @@ import Register from './pages/Register';
 import MySchedule from './pages/MySchedule';
 import './global.css';
 import Payment from './pages/Payment';
+import ChangeSubscription from './pages/ChangeSubscription';
+import Services from './pages/Services';
 
 const router = createBrowserRouter(
   [
@@ -29,7 +31,7 @@ const router = createBrowserRouter(
       element: <Dashboard />,
     },
     {
-      path: '/meus-agendamentos',
+      path: '/agendamentos',
       element: <MyAppointments />,
     },
     {
@@ -49,8 +51,16 @@ const router = createBrowserRouter(
       element: <MySchedule />,
     },
     {
-      path: '/minha-assinatura',
+      path: '/assinatura',
       element: <Payment />,
+    },
+    {
+      path: '/mudar-assinatura',
+      element: <ChangeSubscription />,
+    },
+    {
+      path: '/servicos',
+      element: <Services />,
     },
   ],
   {

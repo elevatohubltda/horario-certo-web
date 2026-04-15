@@ -143,7 +143,7 @@ function Login() {
             onChange={(e) => handleUserData('password', e.target.value)}
           />
           <Button type='button' variant="confirm" onClick={handleLogin}>ACESSAR</Button>
-          <Separator $width="50%" $bordercolor="#ccc" $margin="2rem 25% 0 25%" />
+          <Separator $width="50%" $bordercolor="#ccc" $margin="2rem 25% 0 25%" $style="dotted" />
           <Title
             $fontweight="300"
             $fontsize="14px"

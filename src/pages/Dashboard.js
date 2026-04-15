@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import "../styles/index.css";
 import Topbar from "../components/topbar";
@@ -11,18 +11,68 @@ import { isMobile } from "../util/util";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { getClientStatus } from "../services/endpoints/payment";
-import { Clock, CalendarDays, Check } from "lucide-react";
-import { getCompany } from "../services/endpoints/company";
+import { Clock, CalendarDays, Check, Filter } from "lucide-react";
+import { getCompany, getCompanySchedules } from "../services/endpoints/company";
 import { expiresAt } from "../util/date";
 
 
 const HeaderSection = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: space-between;
   align-items: flex-start;
   gap: 1rem;
   flex-wrap: wrap;
+`;
+
+const FilterWrapper = styled.div`
+  position: relative;
+`;
+
+const FilterButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: #fff;
+  color: var(--color-dark);
+  border-radius: 999px;
+  padding: 0.55rem 0.9rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+
+  &:hover {
+    border-color: rgba(0, 0, 0, 0.2);
+  }
+`;
+
+const FilterMenu = styled.div`
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  min-width: 180px;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: #fff;
+  box-shadow: 0 18px 24px rgba(0, 0, 0, 0.08);
+  padding: 0.4rem;
+  z-index: 20;
+`;
+
+const FilterOption = styled.button`
+  width: 100%;
+  border: none;
+  background: ${({ $active }) => ($active ? "rgba(142, 152, 142, 0.18)" : "transparent")};
+  color: var(--color-dark);
+  border-radius: 10px;
+  padding: 0.5rem 0.7rem;
+  text-align: left;
+  font-size: 0.9rem;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(142, 152, 142, 0.12);
+  }
 `;
 
 const Greeting = styled.div`
@@ -162,24 +212,90 @@ const TagChip = styled.span`
 `;
 
 export default function Dashboard() {
+  const filterOptions = ["essa semana", "próximos 15 dias", "próximos 30 dias"];
   const navigate = useNavigate();
   const companyUrl = Cookies.get("companyUrl");
+  const filterRef = useRef(null);
   const [companyInfo, setCompanyInfo] = useState(Cookies.get("companyInfo") ? JSON.parse(Cookies.get("companyInfo")) : undefined);
   const [mobile, setMobile] = useState();
   const [paymentStatus, setPaymentStatus] = useState();
+  const [selectedPeriod, setSelectedPeriod] = useState("essa semana");
+  const [openFilterMenu, setOpenFilterMenu] = useState(false);
+  const [schedules, setSchedules] = useState([]);
+
+  const formatDateToApi = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  const getDateRangeByPeriod = (period) => {
+    const startDate = new Date();
+    const endDate = new Date();
+
+    switch (period) {
+      case "próximos 15 dias":
+        endDate.setDate(endDate.getDate() + 14);
+        break;
+      case "próximos 30 dias":
+        endDate.setDate(endDate.getDate() + 29);
+        break;
+      case "essa semana":
+      default:
+        endDate.setDate(endDate.getDate() + 6);
+        break;
+    }
+
+    return {
+      startDate: formatDateToApi(startDate),
+      endDate: formatDateToApi(endDate),
+    };
+  };
+
+  const getSchedulesByPeriod = async () => {
+    if (!companyUrl) return;
+
+    const { startDate, endDate } = getDateRangeByPeriod(selectedPeriod);
+
+    try {
+      const response = await getCompanySchedules(companyUrl, startDate, endDate);
+      setSchedules(response.data || []);
+    } catch (error) {
+      console.error("Erro ao buscar os agendamentos do dashboard:", error);
+      setSchedules([]);
+    }
+  };
+
+  const completedSchedules = schedules.filter((item) => item.available === false).length;
+  const openSchedules = schedules.filter((item) => item.available === true).length;
+  const totalSchedules = completedSchedules + openSchedules;
 
   const cards = [
-    { title: "Agendamentos realizados", value: "25", icon: <Check size={18} />, description: "Esta semana" },
-    { title: "Agendamentos em aberto", value: "10", icon: <Clock size={18} />, description: "Próximos dias" },
-    { title: "Total de agendamentos", value: "35", icon: <CalendarDays size={18} />, description: "No mês" },
+    { title: "Agendamentos realizados", value: completedSchedules, icon: <Check size={18} />, description: selectedPeriod },
+    { title: "Agendamentos em aberto", value: openSchedules, icon: <Clock size={18} />, description: selectedPeriod },
+    { title: "Total de agendamentos", value: totalSchedules, icon: <CalendarDays size={18} />, description: selectedPeriod },
   ];
 
-  const agenda = [
-    { title: "Joao Paulo", time: "12:30", service: "Corte de Cabelo" },
-    { title: "Nathan Jorge", time: "14:00", service: "Corte de Barba" },
-    { title: "Mateus Gabriel", time: "16:00", service: "Tratamento Capilar" },
-    { title: "Junior Silva", time: "18:00", service: "Design de Sobrancelha" },
-  ];
+  const upcomingAgenda = schedules
+    .filter((item) => item.available === false && item.schedule)
+    .map((item) => ({
+      ...item,
+      scheduleDate: new Date(item.schedule),
+    }))
+    .filter((item) => !Number.isNaN(item.scheduleDate.getTime()) && item.scheduleDate >= new Date())
+    .sort((a, b) => a.scheduleDate - b.scheduleDate)
+    .slice(0, 4)
+    .map((item) => {
+      const dateText = item.scheduleDate.toLocaleDateString("pt-BR");
+      const timeText = item.scheduleDate.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+      return {
+        key: item.id || `${item.schedule}-${item.name || "sem-nome"}`,
+        title: item.name || "Cliente",
+        time: `${dateText} às ${timeText}`,
+        service: item.service?.name || item.service || "Serviço não informado",
+      };
+    });
 
   const getClientStatusInfo = async () => {
     try {
@@ -217,6 +333,26 @@ export default function Dashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companyUrl, navigate]);
 
+  useEffect(() => {
+    if (isAvailableLogin()) {
+      getSchedulesByPeriod();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedPeriod, companyUrl]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (filterRef.current && !filterRef.current.contains(event.target)) {
+        setOpenFilterMenu(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <>
       {companyInfo && (
@@ -235,13 +371,13 @@ export default function Dashboard() {
             $padding={!mobile ? "0" : "1rem"}
             $margin="0"
             $backgroundcolor="transparent"
-            $borderradius="0"
+            $borderRadius="0"
             $boxshadow="none"
           >
             <Sidebar>
               <Container
                 $width="90%"
-                $borderradius="0 1rem 2rem 1rem"
+                $borderRadius="0 1rem 2rem 1rem"
                 $padding="0"
                 $display="flex"
                 $flexdirection="column"
@@ -254,8 +390,31 @@ export default function Dashboard() {
                 <HeaderSection>
                   <Greeting>
                     <Title $fontsize="2rem">Bem vindo de volta!</Title>
-                    <Subtitle>Gerencie suas próximas sessões e acompanhe o progresso dos clientes em um só lugar.</Subtitle>
+                    <Subtitle>Gerencie seus próximos agendamentos e acompanhe a situação do seu negócio.</Subtitle>
                   </Greeting>
+                  <FilterWrapper ref={filterRef}>
+                    <FilterButton type="button" onClick={() => setOpenFilterMenu((prev) => !prev)}>
+                      <Filter size={16} />
+                      {selectedPeriod}
+                    </FilterButton>
+                    {openFilterMenu && (
+                      <FilterMenu>
+                        {filterOptions.map((option) => (
+                          <FilterOption
+                            key={option}
+                            type="button"
+                            $active={selectedPeriod === option}
+                            onClick={() => {
+                              setSelectedPeriod(option);
+                              setOpenFilterMenu(false);
+                            }}
+                          >
+                            {option}
+                          </FilterOption>
+                        ))}
+                      </FilterMenu>
+                    )}
+                  </FilterWrapper>
                 </HeaderSection>
 
                 <CardsGrid>
@@ -276,20 +435,29 @@ export default function Dashboard() {
                     <ContentCard style={{ marginTop: '1.5rem' }}>
                       <CardHeader>
                         <CardTitle>Próximos Agendamentos</CardTitle>
-                        <FakeBadge style={{ cursor: 'pointer' }} onClick={() => navigate('/meus-agendamentos')}>
+                        <FakeBadge style={{ cursor: 'pointer' }} onClick={() => navigate('/agendamentos')}>
                           Ver tudo
                         </FakeBadge>
                       </CardHeader>
                       <AgendaList>
-                        {agenda.map((item) => (
-                          <AgendaItem key={item.title}>
+                        {upcomingAgenda.length > 0 ? (
+                          upcomingAgenda.map((item) => (
+                            <AgendaItem key={item.key}>
+                              <AgendaInfo>
+                                <strong>{item.title}</strong>
+                                <AgendaTime>{item.time}</AgendaTime>
+                              </AgendaInfo>
+                              <TagChip>{item.service}</TagChip>
+                            </AgendaItem>
+                          ))
+                        ) : (
+                          <AgendaItem>
                             <AgendaInfo>
-                              <strong>{item.title}</strong>
-                              <AgendaTime>{item.time}</AgendaTime>
+                              <strong>Nenhum agendamento futuro</strong>
+                              <AgendaTime>Não há agendamentos confirmados no período selecionado.</AgendaTime>
                             </AgendaInfo>
-                            <TagChip>{item.service}</TagChip>
                           </AgendaItem>
-                        ))}
+                        )}
                       </AgendaList>
                     </ContentCard>
                   </SectionItem>

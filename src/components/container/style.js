@@ -12,7 +12,7 @@ export const Container = styled.div`
   margin: ${({ $margin = '1rem auto 0 auto' }) => $margin};
   padding: ${({ $padding = '0' }) => $padding};
   background-color: ${({ $backgroundcolor = '#f8f8f8' }) => $backgroundcolor};
-  border-radius: ${({ $borderradius = '0' }) => $borderradius};
+  border-radius: ${({ $borderRadius = '0' }) => $borderRadius};
   border: ${({ $border = 'none' }) => $border};
   box-shadow: ${({ $boxshadow = '0px 4px 6px 0px rgba(0, 0, 0, 0.1)' }) => $boxshadow};
 

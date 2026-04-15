@@ -72,7 +72,7 @@ const ConfirmDialog = ({ isOpen, title, message, onConfirm, onCancel, close, con
       <DialogBox onClick={stopPropagation}>
         <CloseButton onClick={close}>&times;</CloseButton>
         <h2>{title}</h2>
-        <Separator $width="100%" $bordercolor="#ccc" $margin="1rem 0 1rem 0" />
+        <Separator $width="100%" $bordercolor="#ccc" $margin="1rem 0 1rem 0" $style="dotted" />
         <p>{message}</p>
         <ButtonGroup>
           {onCancel && cancelText &&

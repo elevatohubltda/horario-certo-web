@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"
 import styled from "styled-components"
-import { Home, Settings, KeyRound, CalendarDays } from "lucide-react"
+import { Home, Settings, KeyRound, CalendarDays, Banknote, Scissors } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { isMobile } from "../../util/util"
 
@@ -74,9 +74,8 @@ const Content = styled.div`
 
 const Layout = styled.div`
   display: flex;
-  height: calc(100vh - 60px);
+  height: calc(100vh - 80px);
   width: 100%;
-  overflow: hidden;
 `;
 
 const Sidebar = ({ children }) => {
@@ -88,7 +87,9 @@ const Sidebar = ({ children }) => {
 
   const menuItems = [
     { icon: <Home size={18} />, label: "Dashboard", url: "/dashboard" },
-    { icon: <CalendarDays size={18} />, label: "Meus agendamentos", url: "/meus-agendamentos" },
+    { icon: <CalendarDays size={18} />, label: "Agendamentos", url: "/agendamentos" },
+    { icon: <Scissors size={18} />, label: "Serviços", url: "/servicos" },
+    { icon: <Banknote size={18} />, label: "Assinatura", url: "/assinatura" },
     { icon: <Settings size={18} />, label: "Configurações", url: "/configuracoes" },
     { icon: <KeyRound size={18} />, label: "Alterar senha", url: "/alterar-senha" },
   ]
