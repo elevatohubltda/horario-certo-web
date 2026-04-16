@@ -110,25 +110,6 @@ const Input = styled.input`
   }
 `;
 
-const FormFooter = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  margin: 0.2rem 0 1.2rem;
-`;
-
-const ForgotButton = styled.button`
-  border: none;
-  background: transparent;
-  color: #61695f;
-  font-size: 0.82rem;
-  cursor: pointer;
-  padding: 0;
-
-  &:hover {
-    color: #1f271d;
-  }
-`;
-
 const SubmitButton = styled.button`
   width: 100%;
   border: none;
