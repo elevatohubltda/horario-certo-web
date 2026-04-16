@@ -267,8 +267,15 @@ export default function Dashboard() {
     }
   };
 
+  const isFutureAvailableSchedule = (item) => {
+    if (item?.available !== true || !item?.schedule) return false;
+    const scheduleDate = new Date(item.schedule);
+    if (Number.isNaN(scheduleDate.getTime())) return false;
+    return scheduleDate > new Date();
+  };
+
   const completedSchedules = schedules.filter((item) => item.available === false).length;
-  const openSchedules = schedules.filter((item) => item.available === true).length;
+  const openSchedules = schedules.filter((item) => isFutureAvailableSchedule(item)).length;
   const totalSchedules = completedSchedules + openSchedules;
 
   const cards = [
