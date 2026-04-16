@@ -157,7 +157,7 @@ export default function Home() {
       name: selectedSchedule.nome,
       telephone: selectedSchedule.telefone.replace(/\D/g, ''),
       schedule: scheduleISOFormat[0],
-      service: selectedSchedule.servicoId
+      service: hasServices ? selectedSchedule.servicoId : null
     }
     try {
       const response = await createReservedSchedule(companyUrl, reservedSchedule);
@@ -280,6 +280,9 @@ export default function Home() {
     setMobile(isMobile());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companyUrl]);
+
+  const hasServices = services.length > 0;
+  const isScheduleFormInvalid = !selectedSchedule.nome || !selectedSchedule.telefone || (hasServices && !selectedSchedule.servicoId);
 
   return (
     <>
@@ -435,19 +438,22 @@ export default function Home() {
             value={formataNumeroTelefone(selectedSchedule.telefone || "")} 
             onChange={(e) => setSelectedSchedule({ ...selectedSchedule, telefone: formataNumeroTelefone(e.target.value) }) }
           />
-          <Label>Selecione um serviço:</Label>
-          <DialogSelect
-            value={selectedSchedule.servicoId || ""}
-            onChange={(e) => setSelectedSchedule({ ...selectedSchedule, servicoId: e.target.value })}
-          >
-            <option key="default" value=""> Selecione um serviço </option>
-            {services.map((service) => (
-              <option key={service.id} value={service.id}>
-                {service.name}
-              </option>
-            ))}
-            
-          </DialogSelect>
+          {hasServices && (
+            <>
+              <Label>Selecione um serviço:</Label>
+              <DialogSelect
+                value={selectedSchedule.servicoId || ""}
+                onChange={(e) => setSelectedSchedule({ ...selectedSchedule, servicoId: e.target.value })}
+              >
+                <option key="default" value=""> Selecione um serviço </option>
+                {services.map((service) => (
+                  <option key={service.id} value={service.id}>
+                    {service.name}
+                  </option>
+                ))}
+              </DialogSelect>
+            </>
+          )}
           <Container
               $width="auto"
               $display="flex"
@@ -466,7 +472,7 @@ export default function Home() {
             </Button>
             <Button
               type="button"
-              variant={!selectedSchedule.nome || !selectedSchedule.telefone || !selectedSchedule.servicoId ? "disabled" : "confirm"}
+              variant={isScheduleFormInvalid ? "disabled" : "confirm"}
               onClick={makeSchedule}
             >
                 Agendar
@@ -543,25 +549,26 @@ export default function Home() {
             value={formataNumeroTelefone(selectedSchedule.telefone || "")} 
             onChange={(e) => setSelectedSchedule({ ...selectedSchedule, telefone: formataNumeroTelefone(e.target.value) }) }
           />
-          <Label>Serviço:</Label>
-          <DialogSelect
-            value={selectedSchedule.servicoId || ""}
-            disabled
-          >
-            {selectedSchedule.servicoId ? null : (
-              <option key="empty-service" value="">Serviço não informado</option>
-            )}
-            {selectedSchedule.service && !services.some((service) => String(service.id) === String(selectedSchedule.servicoId)) && (
-              <option key="selected-service" value={selectedSchedule.servicoId}>
-                {selectedSchedule.service.name}
-              </option>
-            )}
-            {services.map((service) => (
-              <option key={service.id} value={service.id}>
-                {service.name}
-              </option>
-            ))}
-          </DialogSelect>
+          {selectedSchedule.servicoId && (
+            <>
+              <Label>Serviço:</Label>
+              <DialogSelect
+                value={selectedSchedule.servicoId || ""}
+                disabled
+              >
+                {selectedSchedule.service && !services.some((service) => String(service.id) === String(selectedSchedule.servicoId)) && (
+                  <option key="selected-service" value={selectedSchedule.servicoId}>
+                    {selectedSchedule.service.name}
+                  </option>
+                )}
+                {services.map((service) => (
+                  <option key={service.id} value={service.id}>
+                    {service.name}
+                  </option>
+                ))}
+              </DialogSelect>
+            </>
+          )}
           <Label>Digite seu código de cancelamento:</Label>
           <DialogInput 
             type="text" 

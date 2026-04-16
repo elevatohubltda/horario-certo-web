@@ -356,11 +356,11 @@ function Login() {
               onChange={(e) => handleUserData('password', e.target.value)}
             />
 
-            <FormFooter>
+            {/* <FormFooter>
               <ForgotButton type="button" onClick={() => navigate('/esqueci-senha')}>
                 Esqueceu sua senha?
               </ForgotButton>
-            </FormFooter>
+            </FormFooter> */}
 
             <SubmitButton type="submit">Entrar</SubmitButton>
 
