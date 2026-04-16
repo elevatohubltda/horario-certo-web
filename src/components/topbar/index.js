@@ -165,7 +165,7 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
         {open && (
           <div className="user-dropdown">
             <div className="dropdown-item">
-              <button onClick={() => handleNavigate('/')}>Acessar</button>
+              <button onClick={() => handleNavigate('/login')}>Acessar</button>
             </div>
           </div>
         )}
@@ -244,7 +244,7 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
           {!mobile && !isAuth && (
             <div className="menu">
               {/* <button className="be-a-partner">Seja Parceiro</button> */}
-              <button className="my-area" onClick={() => handleNavigate('/')}>
+              <button className="my-area" onClick={() => handleNavigate('/login')}>
                 Entrar
               </button>
             </div>
