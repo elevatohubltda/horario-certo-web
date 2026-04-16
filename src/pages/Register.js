@@ -284,7 +284,7 @@ function Register() {
         if(step > 0){
             setStep(step - 1);
         } else {
-            navigate('/');
+            navigate('/login');
         }
     };
 
@@ -326,7 +326,7 @@ function Register() {
                 });
 
                 toast.success("Empresa criada com sucesso!");
-                navigate('/');
+                navigate('/login');
             }
         } catch (err) {
             handleError(err.response?.data || err.message);
@@ -531,7 +531,7 @@ function Register() {
 
                         <FooterText>
                             Ja possui conta?{' '}
-                            <FooterLink type="button" onClick={() => navigate('/')}>
+                            <FooterLink type="button" onClick={() => navigate('/login')}>
                                 Fazer login
                             </FooterLink>
                         </FooterText>

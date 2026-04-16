@@ -15,6 +15,10 @@ export const getSubscriptionPlans = (companyUrl) => {
     return api.get(`/plans/screen-data?${params}`, { withAuth: true })
 };
 
+export const getPublicSubscriptionPlans = () => {
+    return api.get('/plans/public-screen-data');
+};
+
 export const updateSubscription = (companyUrl, payload) => {
     const params = new URLSearchParams({ companyUrl }).toString();
     return api.put(`/payment/subscription?${params}`, payload, { withAuth: true });

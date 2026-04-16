@@ -321,7 +321,7 @@ function ForgotPassword() {
             </HelperText>
 
             <PrimaryButton type="submit">Solicitar redefinicao</PrimaryButton>
-            <SecondaryButton type="button" onClick={() => navigate('/')}>
+            <SecondaryButton type="button" onClick={() => navigate('/login')}>
               Voltar para login
             </SecondaryButton>
 
