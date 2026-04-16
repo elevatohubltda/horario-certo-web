@@ -10,7 +10,7 @@ import Topbar from "../components/topbar";
 import { Container } from "../components/container/style";
 import { CustomFilterStyle } from "../components/filter/style";
 import { useParams } from "react-router-dom";
-import { getCompany, getCompanySchedules } from "../services/endpoints/company";
+import { getCompany, getCompanySchedules, registerCompanyScheduleView } from "../services/endpoints/company";
 import { getServicesPublic } from "../services/endpoints/service";
 import { formataNumeroTelefone, formatSchedulesToISO, transformarHorariosPorData } from "../util/format";
 import { ThreeDots } from "react-loader-spinner";
@@ -27,6 +27,7 @@ import styled from "styled-components";
 import { Button } from "../components/button";
 
 export default function Home() {
+  const hasTrackedAgendaView = React.useRef(false);
   const settings = {
     dots: false,
     infinite: false,
@@ -133,6 +134,19 @@ export default function Home() {
     } catch (error) {
       toast.error("Erro ao buscar os horários da empresa:", error);
       setLoadingSchedule(false);
+    }
+  }
+
+  const trackAgendaView = async () => {
+    if (!companyUrl || hasTrackedAgendaView.current) {
+      return;
+    }
+
+    try {
+      await registerCompanyScheduleView(companyUrl);
+      hasTrackedAgendaView.current = true;
+    } catch (error) {
+      console.error("Erro ao registrar visualizacao da agenda:", error);
     }
   }
 
@@ -277,6 +291,8 @@ export default function Home() {
   useEffect(() => {
     getCompanyInfo();
     fetchServices();
+    hasTrackedAgendaView.current = false;
+    trackAgendaView();
     setMobile(isMobile());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companyUrl]);

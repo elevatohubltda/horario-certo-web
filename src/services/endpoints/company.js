@@ -49,3 +49,17 @@ export const updateCompanyProperties = (companyUrl, companyProperties) => {
   const params = new URLSearchParams({ companyUrl, ...companyProperties }).toString();
   return api.put(`/company-properties?${params}`, null, { withAuth: true });
 };
+
+export const registerCompanyScheduleView = (companyUrl) => {
+    const params = new URLSearchParams({ companyUrl }).toString();
+    return api.post(`/company-analytics/schedule-view?${params}`, null, {
+        withAuth: false,
+    });
+};
+
+export const getCompanyScheduleViews = (companyUrl, startDate, endDate) => {
+    const params = new URLSearchParams({ companyUrl, startDate, endDate }).toString();
+    return api.get(`/company-analytics/schedule-view?${params}`, {
+        withAuth: true,
+    });
+};

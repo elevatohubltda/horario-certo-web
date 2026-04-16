@@ -16,6 +16,8 @@ import './global.css';
 import Payment from './pages/Payment';
 import ChangeSubscription from './pages/ChangeSubscription';
 import Services from './pages/Services';
+import Analytics from './pages/Analytics';
+import Reports from './pages/Reports';
 
 const router = createBrowserRouter(
   [
@@ -66,6 +68,14 @@ const router = createBrowserRouter(
     {
       path: '/servicos',
       element: <Services />,
+    },
+    {
+      path: '/analytics',
+      element: <Analytics />,
+    },
+    {
+      path: '/relatorios',
+      element: <Reports />,
     },
   ],
   {
