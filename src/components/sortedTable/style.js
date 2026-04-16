@@ -8,6 +8,71 @@ export const TableWrapper = styled.div`
   border-radius: 10px;
 `;
 
+export const TableHeaderActions = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+  margin-top: 8px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background-color: #fff;
+  border: 1px solid var(--color-olive);
+  box-shadow: inset 0 0 0 1px transparent;
+`;
+
+export const PageSizeField = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--color-dark);
+
+  label {
+    font-weight: 600;
+    color: var(--color-dark);
+  }
+`;
+
+export const SelectWrapper = styled.div`
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+
+  select {
+    appearance: none;
+    border: 1px solid var(--color-olive);
+    border-radius: 6px;
+    padding: 8px 28px 8px 12px;
+    background: #fff;
+    color: var(--color-dark);
+    min-width: 96px;
+    font-size: 0.95rem;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      border-color: var(--color-sage);
+    }
+
+    &:focus {
+      outline: none;
+      border-color: var(--color-sage);
+      box-shadow: 0 0 0 2px rgba(142, 152, 142, 0.2);
+    }
+  }
+
+  svg {
+    position: absolute;
+    right: 8px;
+    pointer-events: none;
+    color: var(--color-olive);
+  }
+`;
+
 export const Table = styled.table`
   width: 100%;  
   border-collapse: separate;
@@ -21,12 +86,28 @@ export const Th = styled.th`
   text-transform: uppercase;
   color: var(--color-dark);
   text-align: center;
+
+  &:first-child {
+    width: 48px;
+  }
 `;
 
 export const Td = styled.td`
   padding: 12px;
   text-align: center;
   border-top: 1px solid rgba(142, 152, 142, 0.2);
+
+  &:first-child {
+    width: 48px;
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  input[type='checkbox'] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+  }
 `;
 
 export const Tr = styled.tr`
@@ -64,14 +145,50 @@ export const DialogInput = styled.input`
 
   background-color: transparent;
   border: none;
-  border-bottom: 1px solid var(--color-olive);
+  border-top: 1px solid var(--color-olive);
 
   font-size: 14px;
   color: var(--color-dark);
 
   &:focus {
     outline: none;
-    border-bottom-color: var(--color-sage);
+    border-top-color: var(--color-sage);
+  }
+`;
+
+export const DialogSelect = styled.select`
+  width: 100%;
+  height: 56px;
+  padding: 8px 28px 8px 4px;
+  margin-top: .5rem;
+  margin-bottom: 1.25rem;
+  background-color: transparent;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7d6b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 18px;
+  border: none !important;
+  border-top: 1px solid var(--color-olive) !important;
+  font-size: 14px;
+  color: var(--color-dark);
+  cursor: pointer;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
+
+  &:focus {
+    outline: none;
+    border-bottom-color: var(--color-sage) !important;
+  }
+
+  option {
+    background-color: #fff;
+    color: var(--color-dark);
+    height: 40px;
+    line-height: 40px;
+    padding: 8px;
+    transform: none;
   }
 `;
 

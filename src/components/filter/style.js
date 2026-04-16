@@ -7,8 +7,7 @@ export const CustomFilterStyle = styled.div`
   justify-content: end;
   padding: ${({ $padding = '1rem 1rem 0 0' }) => $padding};
   width: ${({ $width = '100%' }) => $width};
-  margin: auto;
-  margin-top: 1rem;
+  margin: ${({ $margin = '1rem auto auto auto' }) => $margin};
 
   .filter-button{
     padding: 0;

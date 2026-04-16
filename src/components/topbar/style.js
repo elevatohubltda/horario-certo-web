@@ -120,7 +120,7 @@ export const TopbarStyle = styled.div`
   }
   .establishmentBox{
     width: fit-content;
-    padding: 0 4rem;
+    padding: 0;
     display: flex;
     align-items: center;
 
@@ -156,6 +156,7 @@ export const TopbarStyle = styled.div`
 
       .social-media{
         display: flex;
+        margin-left: 1rem;
         gap: .5rem;
     
         .whatsapp{
@@ -210,6 +211,7 @@ export const TopbarStyle = styled.div`
 
       .social-media{
         display: flex;
+        margin-left: 1rem;
         gap: .5rem;
     
         .whatsapp{
@@ -246,7 +248,7 @@ export const TopbarStyle = styled.div`
     margin-top: 8px;
     background-color: white;
     border: 1px solid #ccc;
-    width: 160px;
+    width: 180px;
     box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
     z-index: 999;
   }

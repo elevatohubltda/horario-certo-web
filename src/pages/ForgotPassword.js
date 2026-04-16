@@ -1,13 +1,8 @@
-import React, { useEffect, useState } from 'react'
-import { login } from '../services/endpoints/auth';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import Cookies from "js-cookie";
-import { isAvailableLogin } from '../util/auth';
-import { expiresAt } from '../util/date';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import styled from 'styled-components';
-import { format, parse } from 'date-fns';
 
 const Page = styled.main`
   min-height: 100vh;
@@ -20,7 +15,7 @@ const Page = styled.main`
   background: linear-gradient(135deg, #f4f5f2 0%, #ebece8 100%);
 `;
 
-const LoginShell = styled.section`
+const Shell = styled.section`
   width: min(1040px, 100%);
   min-height: 640px;
   border-radius: 1.75rem;
@@ -56,7 +51,7 @@ const Brand = styled.span`
 `;
 
 const Heading = styled.h1`
-  font-size: clamp(2.2rem, 5vw, 3rem);
+  font-size: clamp(2rem, 4.5vw, 2.8rem);
   line-height: 1.05;
   margin: 0.75rem 0;
   color: #131313;
@@ -67,17 +62,17 @@ const Subheading = styled.p`
   font-size: 0.98rem;
   line-height: 1.6;
   color: #5f665d;
-  max-width: 360px;
+  max-width: 380px;
 `;
 
-const LoginForm = styled.form`
+const Form = styled.form`
   margin: 0;
   padding: 0;
   box-shadow: none;
   border-radius: 0;
   background: transparent;
   width: 100%;
-  max-width: 380px;
+  max-width: 390px;
 `;
 
 const Label = styled.label`
@@ -110,26 +105,13 @@ const Input = styled.input`
   }
 `;
 
-const FormFooter = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  margin: 0.2rem 0 1.2rem;
+const HelperText = styled.p`
+  margin: 0.3rem 0 1.25rem;
+  font-size: 0.8rem;
+  color: #73816d;
 `;
 
-const ForgotButton = styled.button`
-  border: none;
-  background: transparent;
-  color: #61695f;
-  font-size: 0.82rem;
-  cursor: pointer;
-  padding: 0;
-
-  &:hover {
-    color: #1f271d;
-  }
-`;
-
-const SubmitButton = styled.button`
+const PrimaryButton = styled.button`
   width: 100%;
   border: none;
   border-radius: 999px;
@@ -145,6 +127,19 @@ const SubmitButton = styled.button`
     transform: translateY(-1px);
     box-shadow: 0 10px 18px rgba(0, 0, 0, 0.16);
   }
+`;
+
+const SecondaryButton = styled.button`
+  width: 100%;
+  margin-top: 0.75rem;
+  border-radius: 999px;
+  height: 3rem;
+  background: transparent;
+  border: 1px solid #c8cec4;
+  color: #3f4b3b;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
 `;
 
 const Divider = styled.div`
@@ -171,7 +166,7 @@ const InfoText = styled.p`
   text-align: center;
 `;
 
-const RegisterLink = styled.button`
+const LinkButton = styled.button`
   border: none;
   background: transparent;
   color: #59774a;
@@ -255,64 +250,13 @@ const IllustrationText = styled.p`
   }
 `;
 
-function Login() {
+function ForgotPassword() {
   const navigate = useNavigate();
   const [isMobileViewport, setIsMobileViewport] = useState(window.innerWidth <= 768);
-  const [userData, setUserData] = useState({
+  const [formData, setFormData] = useState({
     username: '',
-    password: ''
+    contact: ''
   });
-  const handleError = (error) => {
-    toast.error(error);
-  };
-  const handleUserData = (parameter, value) => {
-    setUserData((prev) => ({
-      ...prev,
-      [parameter]: value
-    }))
-  }
-  const handleLogin = async (event) => {
-    event.preventDefault();
-
-    if (!userData.username || !userData.password) {
-      handleError("Preencha todos os campos!");
-      return;
-    }
-    login(userData)
-      .then(res => {
-        const token = res.data.token;
-        const expirationDate = parse(res.data.expirationDate, 'HH:mm:ss dd/MM/yyyy', new Date());
-        const companyUrl = res.data.companyUrl;
-
-        if (res.status === 200) {
-          Cookies.set("token", token, {
-            expires: expiresAt,
-            secure: true,
-            sameSite: "Strict",
-          });
-          Cookies.set("expirationDate", format(expirationDate, "yyyy-MM-dd'T'HH:mm:ss"), {
-            expires: expiresAt,
-            secure: true,
-            sameSite: "Strict",
-          });
-          Cookies.set("companyUrl", companyUrl, {
-            expires: expiresAt,
-            secure: true,
-            sameSite: "Strict",
-          });
-          navigate('/dashboard');
-        }
-      })
-      .catch(err => {
-        handleError(err?.response?.data?.message || 'Nao foi possivel realizar o login.');
-      });
-  }
-
-  useEffect(() => {
-    if(isAvailableLogin()) {
-      navigate('/dashboard');
-    }
-  }, [navigate]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -326,53 +270,70 @@ function Login() {
     };
   }, []);
 
+  const handleChange = (field, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    if (!formData.username || !formData.contact) {
+      toast.error('Preencha usuario e whatsapp para continuar.');
+      return;
+    }
+
+    toast.success('Solicitacao recebida! Em breve entraremos em contato para redefinicao de senha.');
+  };
+
   return (
     <Page>
-      <LoginShell>
+      <Shell>
         <FormPanel>
           <Brand>Horario Certo</Brand>
-          <Heading>Bem-vindo de volta!</Heading>
+          <Heading>Esqueceu sua senha?</Heading>
           <Subheading>
-            Organize sua rotina e acesse sua agenda em poucos segundos com sua conta.
+            Informe seus dados para abrir uma solicitacao de redefinicao e recuperar o acesso da sua conta.
           </Subheading>
 
-          <LoginForm onSubmit={handleLogin}>
+          <Form onSubmit={handleSubmit}>
             <Label htmlFor="username">Usuario</Label>
             <Input
               id="username"
-              autoComplete="username"
               placeholder="Digite seu usuario"
-              value={userData.username}
-              onChange={(e) => handleUserData('username', e.target.value)}
+              autoComplete="username"
+              value={formData.username}
+              onChange={(e) => handleChange('username', e.target.value)}
             />
 
-            <Label htmlFor="password">Senha</Label>
+            <Label htmlFor="contact">Whatsapp da empresa</Label>
             <Input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              placeholder="Digite sua senha"
-              value={userData.password}
-              onChange={(e) => handleUserData('password', e.target.value)}
+              id="contact"
+              placeholder="(00) 00000-0000"
+              value={formData.contact}
+              onChange={(e) => handleChange('contact', e.target.value)}
             />
 
-            {/* <FormFooter>
-              <ForgotButton type="button" onClick={() => navigate('/esqueci-senha')}>
-                Esqueceu sua senha?
-              </ForgotButton>
-            </FormFooter> */}
+            <HelperText>
+              Use um numero valido para receber as orientacoes de redefinicao.
+            </HelperText>
 
-            <SubmitButton type="submit">Entrar</SubmitButton>
+            <PrimaryButton type="submit">Solicitar redefinicao</PrimaryButton>
+            <SecondaryButton type="button" onClick={() => navigate('/')}>
+              Voltar para login
+            </SecondaryButton>
 
-            <Divider>Acesso somente por usuario e senha</Divider>
+            <Divider>Precisa criar uma conta nova?</Divider>
 
             <InfoText>
-              Nao possui cadastro?{' '}
-              <RegisterLink type="button" onClick={() => navigate('/registro')}>
+              Ainda nao tem cadastro?{' '}
+              <LinkButton type="button" onClick={() => navigate('/registro')}>
                 Registre-se agora
-              </RegisterLink>
+              </LinkButton>
             </InfoText>
-          </LoginForm>
+          </Form>
         </FormPanel>
 
         <IllustrationPanel>
@@ -382,11 +343,12 @@ function Login() {
             <Orbit />
             <Character />
             <IllustrationText>
-              Deixe seu trabalho mais simples com o <strong>Horario Certo</strong>
+              Recupere seu acesso e volte a organizar com o <strong>Horario Certo</strong>
             </IllustrationText>
           </IllustrationCard>
         </IllustrationPanel>
-      </LoginShell>
+      </Shell>
+
       <ToastContainer
         position={isMobileViewport ? 'bottom-center' : 'top-right'}
         autoClose={3000}
@@ -396,4 +358,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default ForgotPassword;

@@ -19,6 +19,7 @@ export function transformarHorariosPorData(array) {
       horario: horaFormatada,
       available: item.available,
       name: item.name,
+      service: item.service || item.servico || null,
     });
   });
 

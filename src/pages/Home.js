@@ -11,6 +11,7 @@ import { Container } from "../components/container/style";
 import { CustomFilterStyle } from "../components/filter/style";
 import { useParams } from "react-router-dom";
 import { getCompany, getCompanySchedules } from "../services/endpoints/company";
+import { getServicesPublic } from "../services/endpoints/service";
 import { formataNumeroTelefone, formatSchedulesToISO, transformarHorariosPorData } from "../util/format";
 import { ThreeDots } from "react-loader-spinner";
 import DateRangeSelector from "../components/dateRangeSelector";
@@ -48,13 +49,16 @@ export default function Home() {
   const [companyInfo, setCompanyInfo] = React.useState();
   const [horarios, setHorarios] = React.useState([]);
   const [filtered, setFiltered] = React.useState([]);
+  const [services, setServices] = React.useState([]);
   const [open, setOpen] = React.useState(false);
   const [selectedSchedule, setSelectedSchedule] = React.useState(
     {
       data: "",
       horario: "",
       nome: undefined,
-      telefone: undefined
+      telefone: undefined,
+      servicoId: undefined,
+      service: undefined
     }
   );
   const [available, setAvailable] = React.useState()
@@ -110,6 +114,16 @@ export default function Home() {
     }
   }
 
+  const fetchServices = async () => {
+    try {
+      const response = await getServicesPublic(companyUrl);
+      setServices(response.data || []);
+    } catch (error) {
+      console.error("Erro ao buscar serviços:", error);
+      setServices([]);
+    }
+  }
+
   const handleCompanySchedules = async () => {
     setLoadingSchedule(true);
     try { 
@@ -122,9 +136,10 @@ export default function Home() {
     }
   }
 
-  const selectSchedule = (data, horario, available, nome) => {
+  const selectSchedule = (data, horario, available, nome, service) => {
+    const selectedServiceId = service?.id || service?.servicoId || service?._id || "";
     setAvailable(available);
-    setSelectedSchedule({ data, horario, nome});
+    setSelectedSchedule({ data, horario, nome, service, servicoId: selectedServiceId });
     setCode('');
     setOpen(true);
   }
@@ -141,7 +156,8 @@ export default function Home() {
     const reservedSchedule = {
       name: selectedSchedule.nome,
       telephone: selectedSchedule.telefone.replace(/\D/g, ''),
-      schedule: scheduleISOFormat[0]
+      schedule: scheduleISOFormat[0],
+      service: hasServices ? selectedSchedule.servicoId : null
     }
     try {
       const response = await createReservedSchedule(companyUrl, reservedSchedule);
@@ -173,13 +189,7 @@ export default function Home() {
       handleRestartProps();
       setOpen(false);
     } catch (error) {
-      if(error.status === 422){
-        setError(error.response.data);
-      } else if(error.status === 400){
-        setError(error.response.data);
-      } else{
-        toast.error("Erro ao cancelar agendamento:", error);
-      }
+      setError(error.response.data);
     }
   }
 
@@ -189,7 +199,9 @@ export default function Home() {
         data: "",
         horario: "",
         nome: "",
-        telefone: ""
+        telefone: "",
+        servicoId: undefined,
+        service: undefined
       }
     )
     setAvailable();
@@ -264,9 +276,13 @@ export default function Home() {
 
   useEffect(() => {
     getCompanyInfo();
+    fetchServices();
     setMobile(isMobile());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companyUrl]);
+
+  const hasServices = services.length > 0;
+  const isScheduleFormInvalid = !selectedSchedule.nome || !selectedSchedule.telefone || (hasServices && !selectedSchedule.servicoId);
 
   return (
     <>
@@ -302,7 +318,7 @@ export default function Home() {
             $width="80%"
             $padding="0 0 1.5em 0"
             $backgroundcolor="#fff"
-            $borderradius="1rem"
+            $borderRadius="1rem"
           >
             <Slider {...settings}>
               {!loadingSchedule && horarios.length > 0 && filtered.length > 0 ? 
@@ -326,7 +342,8 @@ export default function Home() {
                                 item.data,
                                 iteminside.horario,
                                 iteminside.available,
-                                iteminside.name
+                                iteminside.name,
+                                iteminside.service
                               )
                             }
                           >
@@ -358,7 +375,8 @@ export default function Home() {
                                 item.data,
                                 iteminside.horario,
                                 iteminside.available,
-                                iteminside.name
+                                iteminside.name,
+                                iteminside.service
                               )
                             }
                           >
@@ -400,7 +418,8 @@ export default function Home() {
         <Separator 
           $width="100%"
           $bordercolor="var(--color-olive)"
-          $margin="0.75rem 0 2rem 0" 
+          $margin="0.75rem 0 2rem 0"
+          $style="dotted"
         />
         <form style={{ backgroundColor: "transparent", boxShadow: "none", width: "100%", padding: "0" }}>
           <Label>Data:</Label>
@@ -419,6 +438,22 @@ export default function Home() {
             value={formataNumeroTelefone(selectedSchedule.telefone || "")} 
             onChange={(e) => setSelectedSchedule({ ...selectedSchedule, telefone: formataNumeroTelefone(e.target.value) }) }
           />
+          {hasServices && (
+            <>
+              <Label>Selecione um serviço:</Label>
+              <DialogSelect
+                value={selectedSchedule.servicoId || ""}
+                onChange={(e) => setSelectedSchedule({ ...selectedSchedule, servicoId: e.target.value })}
+              >
+                <option key="default" value=""> Selecione um serviço </option>
+                {services.map((service) => (
+                  <option key={service.id} value={service.id}>
+                    {service.name}
+                  </option>
+                ))}
+              </DialogSelect>
+            </>
+          )}
           <Container
               $width="auto"
               $display="flex"
@@ -437,7 +472,7 @@ export default function Home() {
             </Button>
             <Button
               type="button"
-              variant={!selectedSchedule.nome || !selectedSchedule.telefone ? "disabled" : "confirm"}
+              variant={isScheduleFormInvalid ? "disabled" : "confirm"}
               onClick={makeSchedule}
             >
                 Agendar
@@ -455,7 +490,7 @@ export default function Home() {
         >
           Agendamento confirmado!
         </Title>
-        <Separator $width="100%" $bordercolor="#ccc" $margin="1rem 0 3rem 0" />
+        <Separator $width="100%" $bordercolor="#ccc" $margin="1rem 0 3rem 0" $style="dotted" />
         <form style={{ backgroundColor: "transparent", boxShadow: "none", width: "100%", padding: "0", textAlign: "center" }}>
           <span>Guarde o código abaixo para desmarcar:</span>
           <h3 style={{margin: '2rem 0'}}>{code}</h3>
@@ -477,7 +512,12 @@ export default function Home() {
                 OK
             </Button>
           </Container>
-          <ToastContainer position="top-right" autoClose={3000} closeButton={false} />
+          <ToastContainer
+            position={mobile ? "bottom-center" : "top-right"}
+            autoClose={3000}
+            closeButton={false}
+            style={mobile ? { margin: '0 5% 1rem 5%', width: '90%' } : undefined}
+          />
         </form>
       </Dialog>
       {/* PREENCHIMENTO DADOS CANCELAMENTO DO AGENDAMENTO */}
@@ -490,7 +530,7 @@ export default function Home() {
         >
           Cancele seu agendamento
         </Title>
-        <Separator $width="100%" $bordercolor="var(--color-dark)" $margin="1rem 0 3rem 0" />
+        <Separator $width="100%" $bordercolor="var(--color-dark)" $margin="1rem 0 3rem 0" $style="dotted" />
         <form style={{ backgroundColor: "transparent", boxShadow: "none", width: "100%", padding: "0" }}>
           <Label>Data:</Label>
           <DialogInput type="text" value={selectedSchedule.data} readOnly />
@@ -509,13 +549,33 @@ export default function Home() {
             value={formataNumeroTelefone(selectedSchedule.telefone || "")} 
             onChange={(e) => setSelectedSchedule({ ...selectedSchedule, telefone: formataNumeroTelefone(e.target.value) }) }
           />
+          {selectedSchedule.servicoId && (
+            <>
+              <Label>Serviço:</Label>
+              <DialogSelect
+                value={selectedSchedule.servicoId || ""}
+                disabled
+              >
+                {selectedSchedule.service && !services.some((service) => String(service.id) === String(selectedSchedule.servicoId)) && (
+                  <option key="selected-service" value={selectedSchedule.servicoId}>
+                    {selectedSchedule.service.name}
+                  </option>
+                )}
+                {services.map((service) => (
+                  <option key={service.id} value={service.id}>
+                    {service.name}
+                  </option>
+                ))}
+              </DialogSelect>
+            </>
+          )}
           <Label>Digite seu código de cancelamento:</Label>
           <DialogInput 
             type="text" 
             value={code} 
             onChange={(e) => setCode(e.target.value)}
           />
-          <Separator $width="100%" $bordercolor="#ccc" />
+          <Separator $width="100%" $bordercolor="#ccc" $style="dotted" />
           <Container
               $width="auto"
               $display="flex"
@@ -540,7 +600,12 @@ export default function Home() {
                 Cancelar
             </Button>
           </Container>
-          <ToastContainer position="top-right" autoClose={3000} closeButton={false} />
+          <ToastContainer
+            position={mobile ? "bottom-center" : "top-right"}
+            autoClose={3000}
+            closeButton={false}
+            style={mobile ? { margin: '0 5% 1rem 5%', width: '90%' } : undefined}
+          />
         </form>
       </Dialog>
       {/* CANCELAMENTO NÃO POSSÍVEL */}
@@ -554,7 +619,7 @@ export default function Home() {
           >
             Não foi possível cancelar seu agendamento
           </Title>
-          <Separator $width="100%" $bordercolor="#ccc" $margin="1rem 0 3rem 0" />
+          <Separator $width="100%" $bordercolor="#ccc" $margin="1rem 0 3rem 0" $style="dotted" />
           <form style={{ backgroundColor: "transparent", boxShadow: "none", width: "100%", padding: "0" }}>
             <span>
               {error}
@@ -581,7 +646,12 @@ export default function Home() {
                 <WhatsApp/> Falar com {companyInfo.name}
               </Button>
             </Container>
-            <ToastContainer position={mobile ? "bottom-center": "top-right"} autoClose={3000} closeButton={false} />
+            <ToastContainer
+              position={mobile ? "bottom-center" : "top-right"}
+              autoClose={3000}
+              closeButton={false}
+              style={mobile ? { margin: '0 5% 1rem 5%', width: '90%' } : undefined}
+            />
           </form>
         </Dialog>
       }
@@ -593,7 +663,7 @@ export default function Home() {
           $margin="0" 
           $padding="0" 
           $backgroundcolor="none"
-          $borderradius="0" 
+          $borderRadius="0" 
           $border="none"
           $display="flex" 
           $justifycontent="center" 
@@ -609,12 +679,12 @@ export default function Home() {
 
 export const DialogInput = styled.input`
   width: 100%;
-  padding: 8px 4px;
+  padding: 8px 0px;
   margin-bottom: 1.25rem;
 
   background-color: transparent;
   border: none;
-  border-bottom: 1px solid var(--color-olive);
+  border-top: 1px solid var(--color-olive);
 
   font-size: 14px;
   color: var(--color-dark);
@@ -630,4 +700,40 @@ export const Label = styled.label`
   color: var(--color-olive);
   margin-bottom: 4px;
   display: block;
+`;
+
+export const DialogSelect = styled.select`
+  width: 100%;
+  height: 56px;
+  padding: 8px 28px 8px 4px;
+  margin-top: .5rem;
+  margin-bottom: 1.25rem;
+  background-color: transparent;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7d6b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 18px;
+  border: none !important;
+  border-top: 1px solid var(--color-olive) !important;
+  font-size: 14px;
+  color: var(--color-dark);
+  cursor: pointer;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
+
+  &:focus {
+    outline: none;
+    border-bottom-color: var(--color-sage) !important;
+  }
+
+  option {
+    background-color: #fff;
+    color: var(--color-dark);
+    height: 40px;
+    line-height: 40px;
+    padding: 8px;
+    transform: none;
+  }
 `;

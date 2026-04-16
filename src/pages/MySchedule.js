@@ -17,7 +17,7 @@ import {
   maskTime,
   paraHoraCompleta
 } from "../util/format";
-import { XIcon } from "lucide-react";
+import { XIcon, Calendar, PauseCircle, Clock, Plus, Trash2, Timer, Save, AlertCircle } from "lucide-react";
 import { createSchedule } from "../services/endpoints/companySchedule";
 import DatePicker from "../components/datePicker";
 import { getNowInBrazilDate } from "../util/date";
@@ -31,69 +31,250 @@ const Form = styled.form`
   background: transparent;
   box-shadow: none;
   padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 `;
 
 const Label = styled.label`
-  font-size: 0.8rem;
-  color: var(--color-earth);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #546151;
+  margin-bottom: 0.55rem;
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 `;
 
 const Input = styled.input`
-  margin-top: 1rem;
-  padding: 0.5rem;
+  margin-top: 0.5rem;
+  padding: 0.6rem;
+  border: 1px solid rgb(243, 243, 243);
   border-top: 1px solid var(--color-sage);
   background-color: #fff;
   color: var(--color-dark);
-  font-size: 0.85rem;
+  font-size: 1rem;
+  transition: all 0.2s ease;
 
   &:focus {
     outline: none;
-    border-color: var(--color-dark);
+    border-color: var(--color-sage);
+  }
+`;
+
+const Section = styled.section`
+  padding: 2rem;
+  background: linear-gradient(135deg, #ffffff 0%, #fafbf9 100%);
+  border-radius: 12px;
+  border: 1px solid #e8e8e8;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  }
+
+  &:last-of-type {
+    margin-bottom: 0;
+  }
+`;
+
+const SectionTitle = styled.h3`
+  margin: 0 0 1.5rem 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #131313;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  letter-spacing: 0.5px;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #e8e8e8;
+
+  svg {
+    color: #546151;
+  }
+`;
+
+const FormGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+
+  > div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
   }
 `;
 
 const ButtonsGroup = styled.div`
   display: flex;
-  gap: 1rem;
+  gap: 0.85rem;
   flex-wrap: wrap;
-  justify-content: center;
-  margin: 1rem 0 0.5rem 0;
+  margin: 1.75rem 0 0 0;
 `;
 
-const Badge = styled.div`
-  display: flex;
-  align-items: center;
-  border-radius: 0.5rem;
-  color: var(--color-dark);
-  font-size: 0.75rem;
-`;
-
-const BadgeContent = styled.div`
-  display: flex;
-  align-items: center;
-  border: 1px solid var(--color-sage);
-  border-radius: 0.5rem;
-  padding: 0.2rem 0.5rem;
-  color: var(--color-dark);
-  font-size: 0.75rem;
-`;
-
-const RemoveIcon = styled(XIcon)`
-  background: #d9534f;
-  color: #fff;
-  border-radius: 50%;
+const PrimaryButton = styled(Button)`
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.6rem !important;
+  background: var(--color-olive) !important;
+  border: none !important;
+  color: #fff !important;
+  padding: 0.75rem 1.35rem !important;
+  border-radius: 8px !important;
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
   cursor: pointer;
-  margin-top: -1.2rem;
-  margin-left: -0.6rem
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+
+  &:hover:not(:disabled) {
+    background: var(--color-brown) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    background: #d0d0d0 !important;
+    opacity: 0.65;
+    cursor: not-allowed;
+    box-shadow: none !important;
+  }
 `;
 
-const Actions = styled(Container)`
+const ChipContainer = styled.div`
+  display: flex;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #e8e8e8;
+`;
+
+const Chip = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: linear-gradient(135deg, #f0f3ed 0%, #e8ebe5 100%);
+  border: 1.5px solid #d7dbd4;
+  border-radius: 20px;
+  padding: 0.65rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #546151;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+
+  &:hover {
+    background: linear-gradient(135deg, #e8ebe5 0%, #e0e3dc 100%);
+    border-color: #c9ccc6;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+`;
+
+const RemoveButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2rem;
+  color: #a0a89d;
+  transition: all 0.2s ease;
+  border-radius: 50%;
+
+  &:hover {
+    color: #d9534f;
+    background: rgba(217, 83, 79, 0.1);
+  }
+`;
+
+const Actions = styled.div`
+  display: flex;
+  gap: 1rem;
   justify-content: flex-end;
-  align-items: flex-end;
-  background: transparent;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid #e8e8e8;
+`;
+
+const EmptyState = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  padding: 3.5rem 2rem;
+  background: linear-gradient(180deg, #f5f7f3 0%, #eff1ed 100%);
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  text-align: center;
+  color: #a0a89d;
+  margin-top: 1.5rem;
+`;
+
+const EmptyStateIcon = styled.div`
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #e8ebe5 0%, #dfe2d9 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #546151;
+  font-size: 2.2rem;
+`;
+
+const EmptyStateText = styled.p`
   margin: 0;
-  width: 100%;
-  box-shadow: none;
+  font-size: 0.95rem;
+  color: #546151;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+`;
+
+const EmptyStateHint = styled.p`
+  margin: 0;
+  font-size: 0.8rem;
+  color: #a0a89d;
+  max-width: 320px;
+  line-height: 1.5;
+`;
+
+const GenerateButton = styled(PrimaryButton)`
+  background: linear-gradient(135deg, #546151 0%, #3d4a38 100%) !important;
+  border: none !important;
+  box-shadow: 0 6px 16px rgba(84, 97, 81, 0.3) !important;
+  font-size: 1rem !important;
+  padding: 0.9rem 2rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.3px !important;
+
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, #3d4a38 0%, #2d3628 100%) !important;
+    box-shadow: 0 8px 24px rgba(84, 97, 81, 0.4) !important;
+    transform: translateY(-3px) !important;
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(-1px) !important;
+  }
 `;
 
 /* =======================
@@ -140,6 +321,20 @@ export default function MySchedule() {
   };
 
   const generateSchedule = () => {
+    // Validar campos obrigatórios
+    if (!scheduleData.openTime) {
+      toast.error("Preencha o horário de abertura.");
+      return;
+    }
+    if (!scheduleData.closeTime) {
+      toast.error("Preencha o horário de fechamento.");
+      return;
+    }
+    if (!scheduleData.durationTime) {
+      toast.error("Preencha a duração do agendamento.");
+      return;
+    }
+
     const timeSlots = generateTimeSlots({
       openTime: scheduleData.openTime,
       closeTime: scheduleData.closeTime,
@@ -187,218 +382,280 @@ export default function MySchedule() {
       <Topbar {...companyInfo} loggedIn />
 
       <Container
-        $width={!mobile ? "100%" : "90%"}
+        $width="100%"
         $display="flex"
         $flexdirection="column"
         $padding={!mobile ? "0" : "1rem"}
         $margin="0"
         $backgroundcolor="transparent"
+        $boxshadow="none"
       >
         <Sidebar>
-          <Container
-            $width="90%"
-            $backgroundcolor="var(--color-background)"
-            $borderradius="0 1rem 2rem 1rem"
-            $padding="0"
-            $display="flex"
-            $flexdirection="column"
-            $boxshadow="none"
-          >
-            {loading && <span className="loader" />}
+          {loading && <span className="loader" />}
 
-            {!loading && (
-              <>
-                <Title
-                  $padding="1rem"
-                  $fontweight="600"
-                  $fontsize="1.25rem"
-                  $color="var(--color-dark)"
-                >
-                  Criar agendamentos
-                </Title>
+          {!loading && (
+            <>
+              <Title
+                $padding="1.5rem 1rem 0.5rem 1rem"
+                $margin="1.5rem 0 0.5rem 0"
+                $fontweight="700"
+                $width="initial"
+                $fontsize="2rem"
+                $color="#131313"
+              >
+                Criar agendamentos
+              </Title>
 
-                <Separator
-                  $width="calc(100% - 2rem)"
-                  $bordercolor="var(--color-dark)"
-                  $margin="0 1rem 1rem 1rem"
-                />
+              <Separator
+                $width="calc(100% - 2rem)"
+                $bordercolor="#e8e8e8"
+                $margin="0.75rem 1rem 1.5rem 1rem"
+                $style="solid"
+              />
 
-                <Form>
-                  <Label>Data:</Label>
-                  <DatePicker
-                    value={scheduleData.date}
-                    onChange={e =>
-                      setScheduleData(prev => ({ ...prev, date: e }))
-                    }
-                  />
+              <Form>
+                {/* SEÇÃO 1: Configuração básica */}
+                <Section>
+                  <SectionTitle>
+                    <Calendar size={20} />
+                    Configuração básica
+                  </SectionTitle>
+                  
+                  <FormGrid>
+                    <div>
+                      <Label>Data:</Label>
+                      <DatePicker
+                        value={scheduleData.date}
+                        onChange={e =>
+                          setScheduleData(prev => ({ ...prev, date: e }))
+                        }
+                      />
+                    </div>
 
-                  <Label>Horário de abertura:</Label>
-                  <Input
-                    value={maskTime(scheduleData.openTime)}
-                    onChange={e =>
-                      setScheduleData(prev => ({
-                        ...prev,
-                        openTime: paraHoraCompleta(e.target.value)
-                      }))
-                    }
-                  />
+                    <div>
+                      <Label>Horário de abertura:</Label>
+                      <Input
+                        placeholder="00:00"
+                        value={maskTime(scheduleData.openTime)}
+                        onChange={e =>
+                          setScheduleData(prev => ({
+                            ...prev,
+                            openTime: paraHoraCompleta(e.target.value)
+                          }))
+                        }
+                      />
+                    </div>
 
-                  <Label>Horário de fechamento:</Label>
-                  <Input
-                    value={maskTime(scheduleData.closeTime)}
-                    onChange={e =>
-                      setScheduleData(prev => ({
-                        ...prev,
-                        closeTime: e.target.value
-                      }))
-                    }
-                  />
+                    <div>
+                      <Label>Horário de fechamento:</Label>
+                      <Input
+                        placeholder="23:59"
+                        value={maskTime(scheduleData.closeTime)}
+                        onChange={e =>
+                          setScheduleData(prev => ({
+                            ...prev,
+                            closeTime: e.target.value
+                          }))
+                        }
+                      />
+                    </div>
 
-                  <Label>Duração (minutos):</Label>
-                  <Input
-                    value={scheduleData.durationTime}
-                    onChange={e =>
-                      setScheduleData(prev => ({
-                        ...prev,
-                        durationTime: e.target.value
-                      }))
-                    }
-                  />
+                    <div>
+                      <Label>Duração do agendamento (minutos):</Label>
+                      <Input
+                        type="number"
+                        placeholder="30"
+                        value={scheduleData.durationTime}
+                        onChange={e =>
+                          setScheduleData(prev => ({
+                            ...prev,
+                            durationTime: e.target.value
+                          }))
+                        }
+                      />
+                    </div>
+                  </FormGrid>
+                </Section>
 
-                  <Label>Intervalo início:</Label>
-                  <Input
-                    value={maskTime(interval.start || "")}
-                    onChange={e =>
-                      setInterval(prev => ({
-                        ...prev,
-                        start: e.target.value
-                      }))
-                    }
-                  />
+                {/* SEÇÃO 2: Intervalos */}
+                <Section>
+                  <SectionTitle>
+                    <PauseCircle size={20} />
+                    Intervalos
+                  </SectionTitle>
+                  
+                  <FormGrid>
+                    <div>
+                      <Label style={{ fontSize: '0.75rem', marginBottom: '0.45rem', textTransform: 'uppercase' }}>Início:</Label>
+                      <Input
+                        placeholder="00:00"
+                        value={maskTime(interval.start || "")}
+                        onChange={e =>
+                          setInterval(prev => ({
+                            ...prev,
+                            start: e.target.value
+                          }))
+                        }
+                      />
+                    </div>
 
-                  <Label>Intervalo fim:</Label>
-                  <Input
-                    value={maskTime(interval.end || "")}
-                    onChange={e =>
-                      setInterval(prev => ({
-                        ...prev,
-                        end: e.target.value
-                      }))
-                    }
-                  />
+                    <div>
+                      <Label style={{ fontSize: '0.75rem', marginBottom: '0.45rem', textTransform: 'uppercase' }}>Fim:</Label>
+                      <Input
+                        placeholder="00:00"
+                        value={maskTime(interval.end || "")}
+                        onChange={e =>
+                          setInterval(prev => ({
+                            ...prev,
+                            end: e.target.value
+                          }))
+                        }
+                      />
+                    </div>
+                  </FormGrid>
 
                   <ButtonsGroup>
-                    <Button
-                      style={{
-                        backgroundColor: "var(--color-olive)",
-                        borderColor: "var(--color-brown)",
-                      }}
+                    <PrimaryButton 
+                      type="button"
                       onClick={insertInterval}
                     >
+                      <Plus size={16} />
                       Inserir intervalo
-                    </Button>
+                    </PrimaryButton>
 
-                    <Button
-                      style={{
-                        backgroundColor: "var(--color-olive)",
-                        borderColor: "var(--color-brown)",
-                      }}
-                      onClick={() =>
-                        setScheduleData(prev => ({ ...prev, interval: [] }))
-                      }
-                    >
-                      Limpar intervalos
-                    </Button>
-
-                    <Button
-                      style={{
-                        backgroundColor: "var(--color-olive)",
-                        borderColor: "var(--color-brown)",
-                      }}
-                      onClick={generateSchedule}
-                    >
-                      Gerar horários
-                    </Button>
-
-                    <Button
-                      style={{
-                        backgroundColor: "var(--color-olive)",
-                        borderColor: "var(--color-brown)",
-                      }}
-                      onClick={() => setSchedule([])}
-                    >
-                      Limpar horários
-                    </Button>
+                    {scheduleData.interval.length > 0 && (
+                      <PrimaryButton
+                        type="button"
+                        style={{
+                          backgroundColor: "#666",
+                          borderColor: "#666"
+                        }}
+                        onClick={() =>
+                          setScheduleData(prev => ({ ...prev, interval: [] }))
+                        }
+                      >
+                        <Trash2 size={16} />
+                        Limpar todos
+                      </PrimaryButton>
+                    )}
                   </ButtonsGroup>
 
                   {scheduleData.interval.length > 0 && (
                     <>
-                      <Separator
-                        $width="100%"
-                        $bordercolor="var(--color-dark)"
-                      />
-                      <Label>Meus intervalos:</Label>
-                      <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                      <Label style={{ marginTop: '1.5rem', marginBottom: '1rem', fontWeight: '700', fontSize: '0.9rem', color: '#131313' }}>
+                        Intervalos adicionados:
+                      </Label>
+                      <ChipContainer>
                         {scheduleData.interval.map((item, index) => (
-                          <Badge key={index}>
-                            <BadgeContent>
-                                {item.start} - {item.end}
-                            </BadgeContent>
-                            <RemoveIcon
-                              size={12}
+                          <Chip key={index}>
+                            <Timer size={14} style={{ marginRight: '0.3rem', flexShrink: 0 }} />
+                            <span>{item.start} - {item.end}</span>
+                            <RemoveButton
+                              type="button"
                               onClick={() => removeInterval(item)}
-                            />
-                          </Badge>
+                              title="Remover intervalo"
+                            >
+                              <XIcon size={14} />
+                            </RemoveButton>
+                          </Chip>
                         ))}
-                      </div>
+                      </ChipContainer>
+                    </>
+                  )}
+                </Section>
+
+                {/* SEÇÃO 3: Gerar e gerenciar horários */}
+                <Section>
+                  <SectionTitle>
+                    <Clock size={20} />
+                    Horários disponíveis
+                  </SectionTitle>
+                  
+                  {schedule.length === 0 && (
+                    <>
+                      <ButtonsGroup style={{ marginTop: '0.5rem', marginBottom: '0' }}>
+                        <GenerateButton
+                          type="button"
+                          onClick={generateSchedule}
+                        >
+                          <Clock size={20} />
+                          Gerar horários
+                        </GenerateButton>
+                      </ButtonsGroup>
+                      <EmptyState>
+                        <EmptyStateIcon>
+                          <AlertCircle size={40} />
+                        </EmptyStateIcon>
+                        <div>
+                          <EmptyStateText>Nenhum horário gerado</EmptyStateText>
+                          <EmptyStateHint>Clique no botão acima para gerar os horários disponíveis para agendamentos</EmptyStateHint>
+                        </div>
+                      </EmptyState>
                     </>
                   )}
 
                   {schedule.length > 0 && (
                     <>
-                      <Label style={{ marginTop: "1rem" }}>
-                        Horários gerados:
+                      <ButtonsGroup>
+                        <PrimaryButton
+                          type="button"
+                          style={{
+                            backgroundColor: "#666",
+                            borderColor: "#666"
+                          }}
+                          onClick={() => setSchedule([])}
+                        >
+                          <Trash2 size={16} />
+                          Limpar horários
+                        </PrimaryButton>
+                      </ButtonsGroup>
+                      <Label style={{ marginTop: '1.5rem', marginBottom: '1rem', fontWeight: '700', fontSize: '0.9rem', color: '#131313' }}>
+                        {schedule.length} horários gerados:
                       </Label>
-                      <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                      <ChipContainer>
                         {schedule.map((item, index) => (
-                          <Badge key={index}>
-                            <BadgeContent>
-                                {item}
-                            </BadgeContent>
-                            <RemoveIcon
-                              size={12}
+                          <Chip key={index}>
+                            <span>{item}</span>
+                            <RemoveButton
+                              type="button"
                               onClick={() => removeSchedule(item)}
-                            />
-                          </Badge>
+                              title="Remover horário"
+                            >
+                              <XIcon size={14} />
+                            </RemoveButton>
+                          </Chip>
                         ))}
-                      </div>
+                      </ChipContainer>
                     </>
                   )}
+                </Section>
 
-                  <Separator
-                    $width="100%"
-                    $bordercolor="var(--color-dark)"
-                  />
-
-                  <Actions>
-                    <Button
-                      style={{
-                        backgroundColor: "var(--color-sage)",
-                        borderColor: "var(--color-sage)"
-                      }}
-                      onClick={saveSchedule}
-                    >
-                      Salvar
-                    </Button>
-                  </Actions>
-                </Form>
+                {/* AÇÕES FINAIS */}
+                <Actions>
+                  <PrimaryButton
+                    type="button"
+                    style={{
+                      backgroundColor: "var(--color-sage)",
+                      borderColor: "var(--color-sage)"
+                    }}
+                    disabled={schedule.length === 0}
+                    onClick={saveSchedule}
+                  >
+                    <Save size={16} />
+                    Salvar agendamentos
+                  </PrimaryButton>
+                </Actions>
+              </Form>
               </>
             )}
-          </Container>
+          </Sidebar>
 
-          <ToastContainer position="top-right" autoClose={3000} />
-        </Sidebar>
-      </Container>
+          <ToastContainer 
+            position={mobile ? "bottom-center" : "top-right"} 
+            autoClose={3000}
+            style={mobile ? { margin: '0 5% 1rem 5%', width: '90%' } : undefined}
+          />
+        </Container>
     </>
   );
 }

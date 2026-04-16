@@ -1,71 +1,66 @@
 import React, { useEffect, useState } from "react"
 import styled from "styled-components"
-import { Home, Settings, PanelLeftClose, PanelLeftOpen, KeyRound, CalendarDays } from "lucide-react"
+import { Home, Settings, KeyRound, CalendarDays, Banknote, Scissors } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { isMobile } from "../../util/util"
 
 const SidebarContainer = styled.div`
-  width: ${(props) => (props.$isOpen ? "200px" : "50px")};
-  height: calc(100vh - 60px);
-  background-color: var(--color-background);
+  width: ${(props) => (props.$isOpen ? "220px" : "70px")};
+  height: 100%;
   color: var(--color-dark);
-  transition: width 0.3s ease;
+  transition: width 0.5s ease;
   font-size: 12px;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid var(--color-olive);
-`;
-
-const ToggleButton = styled.button`
-  background: none;
-  border: none;
-  color: var(--color-sage);
-  padding: 12px 16px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-
-  &:hover {
-    color: var(--color-dark);
-  }
+  padding: 8px 0;
+  overflow: hidden;
 `;
 
 const Label = styled.span`
-  margin-left: 12px;
   display: ${(props) => (props.$isVisible ? "inline" : "none")};
-  font-weight: ${(props) => (props.$isActive ? "600" : "400")};
+  font-weight: ${(props) => (props.$isActive ? "600" : "500")};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const MenuList = styled.ul`
   list-style: none;
-  padding: 0;
+  padding: 8px 0;
   margin: 0;
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
 `;
 
 const MenuItem = styled.li`
   display: flex;
   align-items: center;
-  padding: 12px 16px;
+  justify-content: ${(props) => (props.$isOpen ? "flex-start" : "center")};
+  gap: 10px;
+  padding: 10px;
+  margin: 4px 6px;
   cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease;
-  width: ${(props) => (props.$isOpen ? "calc(200px - 34px)" : "calc(50px - 34px)")};
-  font-size: ${(props) => (props.$isActive ? "14px" : "12px")};
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  font-size: ${(props) => (props.$isActive ? "13px" : "12px")};
   color: ${(props) =>
-    props.$isActive ? "var(--color-dark)" : "var(--color-sage)"};
+    props.$isActive ? "#fff" : "var(--color-dark)"};
   background-color: ${(props) =>
-    props.$isActive ? "rgba(142, 152, 142, 0.15)" : "transparent"};
-  border-left: ${(props) =>
-    props.$isActive ? "3px solid var(--color-sage)" : "3px solid transparent"};
+    props.$isActive ? "var(--color-sage)" : "transparent"};
+  border-left: none;
 
   svg {
     color: inherit;
+    flex-shrink: 0;
   }
 
   &:hover {
-    background-color: rgba(142, 152, 142, 0.2);
-    color: var(--color-dark);
+    background-color: ${(props) =>
+      props.$isActive ? "var(--color-sage)" : "rgba(142, 152, 142, 0.15)"};
+    color: ${(props) => (props.$isActive ? "#fff" : "var(--color-dark)")};
   }
 `;
 
@@ -73,29 +68,30 @@ const Content = styled.div`
   flex: 1;
   padding: 2rem;
   padding-top: 0;
-  overflow-y: auto;
+  max-width: 100%;
+  box-sizing: border-box;
 `;
 
 const Layout = styled.div`
   display: flex;
-  height: calc(100vh - 60px);
+  height: calc(100vh - 80px);
   width: 100%;
-`
+`;
 
 const Sidebar = ({ children }) => {
-  const [isOpen, setIsOpen] = useState(true)
+  const [isOpen, setIsOpen] = useState(false)
   const [mobile, setMobile] = useState();
   const location = useLocation();
   const currentPage = location.pathname.split('/').filter(Boolean)[0];
   const navigate = useNavigate();
 
   const menuItems = [
-    { icon: <Home size={currentPage === 'dashboard' ? 16 : 14} />, label: "Dashboard", url: "/dashboard" },
-    //{ icon: <User size={currentPage === 'clientes' ? 16 : 14} />, label: "Clientes", url: "/clientes" },
-    { icon: <CalendarDays size={currentPage === 'criar-agendamentos' ? 16 : 14} />, label: "Criar agendamentos", url: "/criar-agendamentos" },
-    // { icon: <DollarSignIcon size={currentPage === 'minha-assinatura' ? 16 : 14} />, label: "Minha Assinatura", url: "/minha-assinatura" },
-    { icon: <Settings size={currentPage === 'configuracoes' ? 16 : 14} />, label: "Configurações", url: "/configuracoes" },
-    { icon: <KeyRound size={currentPage === 'alterar-senha' ? 16 : 14} />, label: "Alterar senha", url: "/alterar-senha" },
+    { icon: <Home size={18} />, label: "Dashboard", url: "/dashboard" },
+    { icon: <CalendarDays size={18} />, label: "Agendamentos", url: "/agendamentos" },
+    { icon: <Scissors size={18} />, label: "Serviços", url: "/servicos" },
+    { icon: <Banknote size={18} />, label: "Assinatura", url: "/assinatura" },
+    { icon: <Settings size={18} />, label: "Configurações", url: "/configuracoes" },
+    { icon: <KeyRound size={18} />, label: "Alterar senha", url: "/alterar-senha" },
   ]
 
   useEffect(() => {
@@ -105,13 +101,16 @@ const Sidebar = ({ children }) => {
   if (mobile) return <>{children}</>;
   return (
     <Layout>
-      <SidebarContainer $isOpen={isOpen}>
-
+      <SidebarContainer 
+        $isOpen={isOpen}
+        onMouseEnter={() => setIsOpen(true)}
+        onMouseLeave={() => setIsOpen(false)}
+      >
         <MenuList>
           {menuItems.map((item, index) => (
             <MenuItem 
-              key={index} 
-              $isOpen={isOpen} 
+              key={index}
+              $isOpen={isOpen}
               $isActive={currentPage === item.url.toLowerCase().replace('/', '')}
               onClick={() => navigate(item.url)}
             >
@@ -120,18 +119,6 @@ const Sidebar = ({ children }) => {
             </MenuItem>
           ))}
         </MenuList>
-        
-        <ToggleButton onClick={() => setIsOpen((prev) => !prev)}>
-          {isOpen && 
-            <>
-              <PanelLeftClose size={14} />
-              <Label $isVisible={isOpen}>Esconder</Label>
-            </>
-          }
-          {!isOpen &&
-            <PanelLeftOpen size={14} />
-          }
-        </ToggleButton>
       </SidebarContainer>
 
       <Content>{children}</Content>

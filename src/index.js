@@ -5,26 +5,39 @@ import {
 } from 'react-router-dom';
 import Home from './pages/Home';
 import Login from './pages/Login';
+import ForgotPassword from './pages/ForgotPassword';
 import Dashboard from './pages/Dashboard';
+import MyAppointments from './pages/MyAppointments';
 import Config from './pages/Config';
 import ChangePassword from './pages/ChangePassword';
 import Register from './pages/Register';
 import MySchedule from './pages/MySchedule';
 import './global.css';
 import Payment from './pages/Payment';
+import ChangeSubscription from './pages/ChangeSubscription';
+import Services from './pages/Services';
 
 const router = createBrowserRouter(
   [
     {
       path: '/',
-      children: [
-        { index: true, element: <Login /> },
-        { path: ":companyUrl", element: <Home /> },
-      ],
+      element: <Login />,
+    },
+    {
+      path: '/esqueci-senha',
+      element: <ForgotPassword />,
+    },
+    {
+      path: '/:companyUrl',
+      element: <Home />,
     },
     {
       path: '/dashboard',
       element: <Dashboard />,
+    },
+    {
+      path: '/agendamentos',
+      element: <MyAppointments />,
     },
     {
       path: '/configuracoes',
@@ -43,8 +56,16 @@ const router = createBrowserRouter(
       element: <MySchedule />,
     },
     {
-      path: '/minha-assinatura',
+      path: '/assinatura',
       element: <Payment />,
+    },
+    {
+      path: '/mudar-assinatura',
+      element: <ChangeSubscription />,
+    },
+    {
+      path: '/servicos',
+      element: <Services />,
     },
   ],
   {

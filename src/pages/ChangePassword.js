@@ -111,39 +111,51 @@ export default function ChangePassword() {
       <Topbar {...companyInfo} loggedIn />
 
       <Container
-        $width={!mobile ? "100%" : "90%"}
+        $width="100%"
         $display="flex"
         $flexdirection="column"
         $padding={!mobile ? "0" : "1rem"}
         $margin="0"
         $backgroundcolor="transparent"
-        $borderradius="0"
+        $borderRadius="0"
         $boxshadow="0"
       >
         <Sidebar>
-          {!loading && (
-            <Container
-              $width="90%"
-              $backgroundcolor="var(--color-background)"
-              $borderradius="0 1rem 2rem 1rem"
-              $padding="0"
-              $display="flex"
-              $flexdirection="column"
+          {loading &&
+            <Container 
+              $width="100%" 
+              $height="100vh" 
+              $margin="0" 
+              $padding="0" 
+              $backgroundcolor="none"
+              $borderRadius="0" 
+              $border="none"
+              $display="flex" 
+              $justifycontent="center" 
+              $alignitems="center"
+              $boxshadow="none"
             >
+              <span className="loader"></span>
+            </Container>
+          }
+          {!loading && (
+            <>
               <Title
                 $padding="1rem"
-                $margin="0"
+                $margin="1rem 0 0 0"
                 $fontweight="600"
-                $fontsize="1.25rem"
+                $fontsize="2rem"
                 $color="var(--color-dark)"
+                $width="max-content"
               >
                 Alterar Senha
               </Title>
 
               <Separator
                 $width="calc(100% - 2rem)"
-                $bordercolor="var(--color-dark)"
+                $bordercolor="var(--color-olive)"
                 $margin="0 1rem 1rem 1rem"
+                $style="dotted"
               />
 
               <Form>
@@ -171,6 +183,7 @@ export default function ChangePassword() {
                   $width="100%"
                   $bordercolor="var(--color-dark)"
                   $margin="1rem 0 1rem 0"
+                  $style="dotted"
                 />
 
                 <Actions>
@@ -187,10 +200,14 @@ export default function ChangePassword() {
                   </Button>
                 </Actions>
               </Form>
-            </Container>
+            </>
           )}
 
-          <ToastContainer position="top-right" autoClose={3000} />
+          <ToastContainer 
+            position={mobile ? "bottom-center" : "top-right"} 
+            autoClose={3000} 
+            style={mobile ? { margin: '0 5% 1rem 5%', width: '90%' } : undefined}
+          />
         </Sidebar>
       </Container>
     </>
