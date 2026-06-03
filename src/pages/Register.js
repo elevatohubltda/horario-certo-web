@@ -286,12 +286,26 @@ function Register() {
         }
     };
 
-    const handleNext = () => {
+    const handleNext = async () => {
         if (step === 0) {
             if (!companyData.name || !companyData.url) {
                 handleError("Preencha os dados da empresa!");
                 return;
             }
+
+            const code = companyData.discountCode.trim();
+            if (code) {
+                try {
+                    const res = await validateDiscountCode(code);
+                    setDiscountInfo(res.data.displayText);
+                    setDiscountError('');
+                } catch {
+                    setDiscountError('Código inválido ou expirado');
+                    setDiscountInfo(null);
+                    return;
+                }
+            }
+
             setStep(1);
         } else {
             handleRegister();
