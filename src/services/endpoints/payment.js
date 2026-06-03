@@ -28,3 +28,8 @@ export const validatePayment = (paymentId, companyUrl) => {
     const params = new URLSearchParams({ paymentId, companyUrl }).toString();
     return api.get(`/payment/validate?${params}`, { withAuth: true });
 };
+
+export const validateDiscountCode = (code) => {
+    const params = new URLSearchParams({ code }).toString();
+    return api.get(`/discount-code/validate?${params}`, { withAuth: false });
+};

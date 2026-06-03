@@ -6,6 +6,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { login } from '../services/endpoints/auth';
 import { registerUser } from '../services/endpoints/user';
 import { createCompany } from '../services/endpoints/company';
+import { validateDiscountCode } from '../services/endpoints/payment';
 import { formataNumeroTelefone } from '../util/format';
 import { expiresAt } from '../util/date';
 import styled from 'styled-components';
@@ -263,17 +264,48 @@ function Register() {
         name: '',
         url: '',
         whatsapp: '',
-        instagram: ''
+        instagram: '',
+        discountCode: ''
     });
+
+    const [discountInfo, setDiscountInfo] = useState(null);
+    const [discountError, setDiscountError] = useState('');
 
     const handleError = (error) => toast.error(error);
 
-    const handleNext = () => {
+    const handleDiscountCodeBlur = async () => {
+        const code = companyData.discountCode.trim();
+        setDiscountInfo(null);
+        setDiscountError('');
+        if (!code) return;
+        try {
+            const res = await validateDiscountCode(code);
+            setDiscountInfo(res.data.displayText);
+        } catch {
+            setDiscountError('Código inválido ou expirado');
+        }
+    };
+
+    const handleNext = async () => {
         if (step === 0) {
             if (!companyData.name || !companyData.url) {
                 handleError("Preencha os dados da empresa!");
                 return;
             }
+
+            const code = companyData.discountCode.trim();
+            if (code) {
+                try {
+                    const res = await validateDiscountCode(code);
+                    setDiscountInfo(res.data.displayText);
+                    setDiscountError('');
+                } catch {
+                    setDiscountError('Código inválido ou expirado');
+                    setDiscountInfo(null);
+                    return;
+                }
+            }
+
             setStep(1);
         } else {
             handleRegister();
@@ -322,7 +354,8 @@ function Register() {
                 await createCompany({
                     ...companyData,
                     user: userData.username,
-                    whatsapp: companyData.whatsapp.replace(/\D/g, '')
+                    whatsapp: companyData.whatsapp.replace(/\D/g, ''),
+                    discountCode: companyData.discountCode.trim() || undefined
                 });
 
                 toast.success("Empresa criada com sucesso!");
@@ -458,6 +491,35 @@ function Register() {
                                 <Hint>
                                     horariocerto.elevatohub.com.br/{companyData.url}
                                 </Hint>
+
+                                <Label htmlFor="discount-code">
+                                    Código de desconto <span style={{ color: '#7f8792' }}>(opcional)</span>
+                                </Label>
+                                <Input
+                                    id="discount-code"
+                                    placeholder="ex: BLACKFRIDAY"
+                                    value={companyData.discountCode}
+                                    onChange={(e) =>
+                                        setCompanyData(prev => ({
+                                            ...prev,
+                                            discountCode: e.target.value.toUpperCase()
+                                        }))
+                                    }
+                                    onBlur={handleDiscountCodeBlur}
+                                    style={
+                                        discountInfo
+                                            ? { borderColor: '#3fa487' }
+                                            : discountError
+                                            ? { borderColor: '#ef4444' }
+                                            : {}
+                                    }
+                                />
+                                {discountInfo && (
+                                    <Hint style={{ color: '#3fa487' }}>✓ {discountInfo}</Hint>
+                                )}
+                                {discountError && (
+                                    <Hint style={{ color: '#ef4444' }}>{discountError}</Hint>
+                                )}
                             </>
                         )}
 
