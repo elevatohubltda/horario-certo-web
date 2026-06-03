@@ -683,6 +683,15 @@ function Payment() {
                   <br />
                   {paymentProps?.status === "paid" ? "Pago" : paymentProps?.status === "pending" ? "Pendente" : "Teste"}
                 </PlanInfoItem>
+                {paymentProps?.discountDisplay && (
+                  <PlanInfoItem style={{ gridColumn: "1 / -1" }}>
+                    <strong>Desconto aplicado</strong>
+                    <br />
+                    <span style={{ color: "#16a34a", fontWeight: 600 }}>
+                      {paymentProps.discountDisplay}
+                    </span>
+                  </PlanInfoItem>
+                )}
               </PlanInfoGrid>
 
               <div
