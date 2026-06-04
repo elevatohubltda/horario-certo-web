@@ -6,7 +6,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { login } from '../services/endpoints/auth';
 import { registerUser } from '../services/endpoints/user';
 import { createCompany } from '../services/endpoints/company';
-import { validateDiscountCode } from '../services/endpoints/payment';
+import { validateDiscountCode, getPublicSubscriptionPlans, updateSubscription } from '../services/endpoints/payment';
 import { formataNumeroTelefone } from '../util/format';
 import { expiresAt } from '../util/date';
 import styled from 'styled-components';
@@ -249,6 +249,55 @@ const FooterLink = styled.button`
     }
 `;
 
+const PlanCard = styled.div`
+    border: 1px solid ${({ $selected }) => ($selected ? '#3fa487' : '#252b34')};
+    border-radius: 0.75rem;
+    padding: 0.9rem 1rem;
+    background: ${({ $selected }) => ($selected ? 'rgba(63, 164, 135, 0.08)' : '#12161c')};
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+`;
+
+const FeatureCheckbox = styled.label`
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.7rem 1rem;
+    border-radius: 0.65rem;
+    border: 1px solid #252b34;
+    background: #12161c;
+    cursor: pointer;
+    margin-bottom: 0.5rem;
+    color: #c8ced8;
+    font-size: 0.88rem;
+
+    input { accent-color: #3fa487; width: 16px; height: 16px; cursor: pointer; flex-shrink: 0; }
+`;
+
+const PriceSummary = styled.div`
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    background: rgba(63, 164, 135, 0.07);
+    border: 1px solid rgba(63, 164, 135, 0.25);
+`;
+
+const TrialBadge = styled.div`
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(63, 164, 135, 0.15);
+    color: #3fa487;
+    border-radius: 999px;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 0.6rem;
+`;
+
 function Register() {
     const navigate = useNavigate();
         const [isMobileViewport, setIsMobileViewport] = useState(window.innerWidth <= 768);
@@ -271,6 +320,32 @@ function Register() {
     const [discountInfo, setDiscountInfo] = useState(null);
     const [discountError, setDiscountError] = useState('');
 
+    const [plans, setPlans] = useState([]);
+    const [extraFeatures, setExtraFeatures] = useState([]);
+    const [selectedPlan, setSelectedPlan] = useState(null);
+    const [selectedExtras, setSelectedExtras] = useState([]);
+
+    const trialEndDate = (() => {
+        const d = new Date();
+        d.setDate(d.getDate() + 14);
+        return d.toLocaleDateString('pt-BR');
+    })();
+
+    const totalAmount = (() => {
+        const planPrice = selectedPlan?.price ?? 0;
+        const extrasPrice = selectedExtras.reduce((sum, name) => {
+            const f = extraFeatures.find(f => f.name === name);
+            return sum + (f ? Number(f.price) : 0);
+        }, 0);
+        return (planPrice + extrasPrice).toFixed(2).replace('.', ',');
+    })();
+
+    const toggleExtra = (name) => {
+        setSelectedExtras(prev =>
+            prev.includes(name) ? prev.filter(e => e !== name) : [...prev, name]
+        );
+    };
+
     const handleError = (error) => toast.error(error);
 
     const handleDiscountCodeBlur = async () => {
@@ -292,7 +367,8 @@ function Register() {
                 handleError("Preencha os dados da empresa!");
                 return;
             }
-
+            setStep(1);
+        } else if (step === 1) {
             const code = companyData.discountCode.trim();
             if (code) {
                 try {
@@ -305,8 +381,7 @@ function Register() {
                     return;
                 }
             }
-
-            setStep(1);
+            setStep(2);
         } else {
             handleRegister();
         }
@@ -358,6 +433,13 @@ function Register() {
                     discountCode: companyData.discountCode.trim() || undefined
                 });
 
+                if (selectedPlan || selectedExtras.length > 0) {
+                    await updateSubscription(companyData.url, {
+                        plan: selectedPlan?.name ?? 'Padrão',
+                        extras: selectedExtras
+                    });
+                }
+
                 toast.success("Empresa criada com sucesso!");
                 navigate('/login');
             }
@@ -369,15 +451,19 @@ function Register() {
     };
 
     useEffect(() => {
-        const handleResize = () => {
-            setIsMobileViewport(window.innerWidth <= 768);
-        };
-
+        const handleResize = () => setIsMobileViewport(window.innerWidth <= 768);
         window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
-        return () => {
-            window.removeEventListener('resize', handleResize);
-        };
+    useEffect(() => {
+        getPublicSubscriptionPlans().then(res => {
+            const fetchedPlans = res.data.plans ?? [];
+            const fetchedExtras = res.data.extraFeatures ?? [];
+            setPlans(fetchedPlans);
+            setExtraFeatures(fetchedExtras);
+            if (fetchedPlans.length > 0) setSelectedPlan(fetchedPlans[0]);
+        }).catch(() => {});
     }, []);
 
     return (
@@ -396,11 +482,11 @@ function Register() {
                         </StepCard>
                         <StepCard $active={step === 1}>
                             <StepBadge $active={step === 1}>2</StepBadge>
-                            <StepText>Defina seu acesso inicial</StepText>
+                            <StepText>Defina seu plano e recursos adicionais</StepText>
                         </StepCard>
-                        <StepCard $active={false}>
-                            <StepBadge $active={false}>3</StepBadge>
-                            <StepText>Conclua e acesse o sistema</StepText>
+                        <StepCard $active={step === 2}>
+                            <StepBadge $active={step === 2}>3</StepBadge>
+                            <StepText>Defina seu acesso inicial</StepText>
                         </StepCard>
                     </StepList>
                 </StoryPanel>
@@ -491,12 +577,74 @@ function Register() {
                                 <Hint>
                                     horariocerto.elevatohub.com.br/{companyData.url}
                                 </Hint>
+                            </>
+                        )}
 
-                                <Label htmlFor="discount-code">
+                        {step === 1 && (
+                            <>
+                                <Label>Plano</Label>
+                                {plans.map(plan => (
+                                    <div key={plan.id}>
+                                        <PlanCard
+                                            $selected={selectedPlan?.id === plan.id}
+                                            onClick={() => setSelectedPlan(plan)}
+                                        >
+                                            <span style={{ color: '#f2f4f7', fontSize: '0.9rem', fontWeight: 600 }}>
+                                                {plan.name}
+                                            </span>
+                                            <span style={{ color: '#3fa487', fontWeight: 700 }}>
+                                                R$ {Number(plan.price).toFixed(2).replace('.', ',')}/mês
+                                            </span>
+                                        </PlanCard>
+                                        {selectedPlan?.id === plan.id && plan.features?.length > 0 && (
+                                            <div style={{
+                                                background: '#0e1217',
+                                                border: '1px solid #1e2530',
+                                                borderTop: 'none',
+                                                borderRadius: '0 0 0.75rem 0.75rem',
+                                                padding: '0.75rem 1rem',
+                                                marginBottom: '0.5rem',
+                                                marginTop: '-0.5rem'
+                                            }}>
+                                                <span style={{ fontSize: '0.75rem', color: '#7ea594', display: 'block', marginBottom: '0.4rem' }}>
+                                                    Incluso no plano:
+                                                </span>
+                                                {plan.features.map((f, i) => (
+                                                    <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', marginBottom: '0.25rem' }}>
+                                                        <span style={{ color: '#3fa487', fontSize: '0.8rem', marginTop: '0.05rem' }}>✓</span>
+                                                        <span style={{ color: '#98a1ac', fontSize: '0.8rem' }}>{f}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+
+                                {extraFeatures.length > 0 && (
+                                    <>
+                                        <Label style={{ marginTop: '0.75rem' }}>
+                                            Recursos adicionais <span style={{ color: '#7f8792' }}>(opcional)</span>
+                                        </Label>
+                                        {extraFeatures.map(f => (
+                                            <FeatureCheckbox key={f.id}>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedExtras.includes(f.name)}
+                                                    onChange={() => toggleExtra(f.name)}
+                                                />
+                                                <span style={{ flex: 1 }}>{f.name}</span>
+                                                <span style={{ color: '#3fa487', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                                                    + R$ {Number(f.price).toFixed(2).replace('.', ',')}/mês
+                                                </span>
+                                            </FeatureCheckbox>
+                                        ))}
+                                    </>
+                                )}
+
+                                <Label style={{ marginTop: '0.75rem' }}>
                                     Código de desconto <span style={{ color: '#7f8792' }}>(opcional)</span>
                                 </Label>
                                 <Input
-                                    id="discount-code"
                                     placeholder="ex: BLACKFRIDAY"
                                     value={companyData.discountCode}
                                     onChange={(e) =>
@@ -520,10 +668,23 @@ function Register() {
                                 {discountError && (
                                     <Hint style={{ color: '#ef4444' }}>{discountError}</Hint>
                                 )}
+
+                                <PriceSummary>
+                                    <TrialBadge>🎁 14 dias grátis</TrialBadge>
+                                    <div style={{ color: '#98a1ac', fontSize: '0.82rem', marginBottom: '0.5rem' }}>
+                                        Primeiro pagamento em <strong style={{ color: '#f2f4f7' }}>{trialEndDate}</strong>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <span style={{ color: '#98a1ac', fontSize: '0.85rem' }}>Total mensal após o teste</span>
+                                        <span style={{ color: '#f2f4f7', fontWeight: 700, fontSize: '1.1rem' }}>
+                                            R$ {totalAmount}
+                                        </span>
+                                    </div>
+                                </PriceSummary>
                             </>
                         )}
 
-                        {step === 1 && (
+                        {step === 2 && (
                             <>
                                 <Label htmlFor="user-name">Usuario</Label>
                                 <Input
@@ -587,7 +748,7 @@ function Register() {
                             )}
 
                             <SubmitButton type="button" onClick={handleNext}>
-                                {loading ? 'Processando...' : step === 0 ? 'Avancar' : 'Cadastrar'}
+                                {loading ? 'Processando...' : step < 2 ? 'Avançar' : 'Cadastrar'}
                             </SubmitButton>
                         </Actions>
 
