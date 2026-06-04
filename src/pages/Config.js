@@ -228,12 +228,12 @@ export default function Config() {
     try {
       await connectWhatsApp(companyUrl);
 
-      // Aguarda 6s para a instância inicializar antes de começar a buscar o QR
-      await new Promise(r => setTimeout(r, 6000));
+      // Aguarda 10s para a instância inicializar antes de começar a buscar o QR
+      await new Promise(r => setTimeout(r, 10000));
 
-      // Polling até o QR code estar disponível (máx 15 tentativas, 3s entre cada = 45s total)
+      // Polling até o QR code estar disponível (máx 40 tentativas, 3s entre cada = 120s total)
       let qrBase64 = null;
-      for (let i = 0; i < 15; i++) {
+      for (let i = 0; i < 40; i++) {
         try {
           const qrRes = await getWhatsAppQrCode(companyUrl);
           const data = qrRes.data;
