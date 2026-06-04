@@ -6,11 +6,7 @@ import { Container } from "../components/container/style";
 import {
   getCompanyProperties,
   updateCompany,
-  updateCompanyProperties,
-  connectWhatsApp,
-  getWhatsAppQrCode,
-  getWhatsAppStatus,
-  disconnectWhatsApp
+  updateCompanyProperties
 } from "../services/endpoints/company";
 import Cookies from "js-cookie";
 import Sidebar from "../components/sidebar";
@@ -121,10 +117,6 @@ export default function Config() {
   const navigate = useNavigate();
   const [companyLogo, setCompanyLogo] = React.useState("");
 
-  const [whatsAppStatus, setWhatsAppStatus] = React.useState(null);
-  const [whatsAppQrCode, setWhatsAppQrCode] = React.useState(null);
-  const [whatsAppLoading, setWhatsAppLoading] = React.useState(false);
-
   const getCompanyProps = async () => {
     try {
       const response = await getCompanyProperties(companyUrl);
@@ -213,89 +205,15 @@ export default function Config() {
     }));
   };
 
-  const fetchWhatsAppStatus = React.useCallback(async () => {
-    try {
-      const res = await getWhatsAppStatus(companyUrl);
-      setWhatsAppStatus(res.data);
-    } catch {
-      setWhatsAppStatus({ connected: false });
-    }
-  }, [companyUrl]);
-
-  const handleConnectWhatsApp = async () => {
-    setWhatsAppLoading(true);
-    setWhatsAppQrCode(null);
-    try {
-      await connectWhatsApp(companyUrl);
-
-      // Aguarda 10s para a instância inicializar antes de começar a buscar o QR
-      await new Promise(r => setTimeout(r, 10000));
-
-      // Polling até o QR code estar disponível (máx 40 tentativas, 3s entre cada = 120s total)
-      let qrBase64 = null;
-      for (let i = 0; i < 40; i++) {
-        try {
-          const qrRes = await getWhatsAppQrCode(companyUrl);
-          const data = qrRes.data;
-          const base64 = data?.base64 || data?.qrcode?.base64 || data?.code;
-          if (base64) { qrBase64 = base64; break; }
-        } catch {}
-        await new Promise(r => setTimeout(r, 3000));
-      }
-
-      if (qrBase64) {
-        setWhatsAppQrCode(qrBase64);
-      } else {
-        toast.error("QR code não gerado. Tente novamente.");
-      }
-    } catch {
-      toast.error("Erro ao conectar. Tente novamente.");
-    } finally {
-      setWhatsAppLoading(false);
-    }
-  };
-
-  const handleDisconnectWhatsApp = async () => {
-    setWhatsAppLoading(true);
-    try {
-      await disconnectWhatsApp(companyUrl);
-      setWhatsAppStatus({ connected: false });
-      setWhatsAppQrCode(null);
-      toast.success("WhatsApp desconectado.");
-    } catch {
-      toast.error("Erro ao desconectar.");
-    } finally {
-      setWhatsAppLoading(false);
-    }
-  };
-
   useEffect(() => {
     if (isAvailableLogin()) {
       getCompanyProps();
       setMobile(isMobile());
-      fetchWhatsAppStatus();
     } else {
       navigate("/" + companyUrl);
     }
     // eslint-disable-next-line
   }, [companyUrl]);
-
-  useEffect(() => {
-    if (!whatsAppQrCode) return;
-    const interval = setInterval(async () => {
-      try {
-        const res = await getWhatsAppStatus(companyUrl);
-        setWhatsAppStatus(res.data);
-        if (res.data?.connected) {
-          setWhatsAppQrCode(null);
-          toast.success("WhatsApp conectado com sucesso!");
-          clearInterval(interval);
-        }
-      } catch {}
-    }, 4000);
-    return () => clearInterval(interval);
-    // eslint-disable-next-line
-  }, [whatsAppQrCode]);
 
   return (
     <>
@@ -459,81 +377,6 @@ export default function Config() {
                   </Actions>
               </Form>
 
-              <Separator
-                $width="calc(100% - 2rem)"
-                $bordercolor="var(--color-olive)"
-                $margin="0.5rem 1rem 1rem 1rem"
-                $style="dotted"
-              />
-
-              <div style={{ padding: "0 1rem 1.5rem" }}>
-                <Title
-                  $fontweight="600"
-                  $fontsize="1.1rem"
-                  $color="var(--color-dark)"
-                  $margin="0 0 0.5rem 0"
-                >
-                  Notificações via WhatsApp
-                </Title>
-                <p style={{ fontSize: "0.82rem", color: "#666", margin: "0 0 1rem 0" }}>
-                  Conecte o WhatsApp da sua barbearia para enviar confirmações, remarcações e cancelamentos automaticamente para seus clientes.
-                </p>
-
-                <div style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                  marginBottom: "1rem"
-                }}>
-                  <span style={{
-                    display: "inline-block",
-                    width: 10,
-                    height: 10,
-                    borderRadius: "50%",
-                    background: whatsAppStatus?.connected ? "#16a34a" : "#d1d5db"
-                  }} />
-                  <span style={{ fontSize: "0.85rem", color: "var(--color-dark)" }}>
-                    {whatsAppStatus?.connected ? "Conectado" : "Desconectado"}
-                  </span>
-                </div>
-
-                {whatsAppQrCode && (
-                  <div style={{ marginBottom: "1rem" }}>
-                    <p style={{ fontSize: "0.8rem", color: "#555", marginBottom: "0.5rem" }}>
-                      Abra o WhatsApp no celular → Dispositivos conectados → Conectar dispositivo → Escaneie o QR code abaixo:
-                    </p>
-                    <img
-                      src={`data:image/png;base64,${whatsAppQrCode.replace(/^data:image\/[a-z]+;base64,/, '')}`}
-                      alt="QR Code WhatsApp"
-                      style={{ width: 200, height: 200, border: "1px solid #e5e7eb", borderRadius: 8 }}
-                    />
-                  </div>
-                )}
-
-                <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
-                  {!whatsAppStatus?.connected && (
-                    <Button
-                      type="button"
-                      disabled={whatsAppLoading}
-                      style={{ backgroundColor: "#25D366", borderColor: "#25D366", fontSize: "0.85rem" }}
-                      onClick={handleConnectWhatsApp}
-                    >
-                      {whatsAppLoading ? "Aguarde..." : whatsAppQrCode ? "Atualizar QR Code" : "Conectar WhatsApp"}
-                    </Button>
-                  )}
-                  {whatsAppStatus?.connected && (
-                    <Button
-                      type="button"
-                      variant="outline-danger"
-                      disabled={whatsAppLoading}
-                      style={{ fontSize: "0.85rem" }}
-                      onClick={handleDisconnectWhatsApp}
-                    >
-                      {whatsAppLoading ? "Aguarde..." : "Desconectar"}
-                    </Button>
-                  )}
-                </div>
-              </div>
             </>
           )}
           <ToastContainer 
