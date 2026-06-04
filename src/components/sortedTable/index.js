@@ -56,6 +56,7 @@ const SortedTable = ({ data, loading, isMobile, onChange, showServiceColumn = tr
             telephone: true,
             status: true
         });
+    const [editAllowDateChange, setEditAllowDateChange] = useState(false);
     const [name, setName] = useState("");
     const [phone, setPhone] = useState("");
     const [services, setServices] = useState([]);
@@ -234,13 +235,15 @@ const SortedTable = ({ data, loading, isMobile, onChange, showServiceColumn = tr
         }
     };
 
-    const openEditDialog = (item) => {
+    const openEditDialog = (item, allowDateChange = false) => {
         const [date, time] = item.schedule.split("T");
         setSelectedSchedule({
-        date,
-        schedule_old: paraHoraSemSegundos(time),
-        schedule_new: paraHoraSemSegundos(time)
+            date,
+            date_new: date,
+            schedule_old: paraHoraSemSegundos(time),
+            schedule_new: paraHoraSemSegundos(time)
         });
+        setEditAllowDateChange(allowDateChange);
         setShowDialogEdit(true);
     };
 
@@ -265,15 +268,16 @@ const SortedTable = ({ data, loading, isMobile, onChange, showServiceColumn = tr
     }, [companyUrl]);
 
     const saveEdit = async () => {
+        const newDate = editAllowDateChange ? selectedSchedule.date_new : selectedSchedule.date;
         const response = await updateSchedule(companyUrl, {
-        old: `${selectedSchedule.date}T${selectedSchedule.schedule_old}:00`,
-        new: `${selectedSchedule.date}T${selectedSchedule.schedule_new}:00`
+            old: `${selectedSchedule.date}T${selectedSchedule.schedule_old}:00`,
+            new: `${newDate}T${selectedSchedule.schedule_new}:00`
         });
 
         if (response.status === 200) {
-        toast.success(response.data);
-        onChange();
-        setShowDialogEdit(false);
+            toast.success(response.data);
+            onChange();
+            setShowDialogEdit(false);
         }
     };
 
@@ -531,6 +535,9 @@ const SortedTable = ({ data, loading, isMobile, onChange, showServiceColumn = tr
                                                     <PhoneIcon color="green" size={16} />
                                                 </IconButton>
                                             )}
+                                            <IconButton onClick={() => openEditDialog(item, true)}>
+                                                <ClipboardPenLineIcon color="#007bff" size={16} />
+                                            </IconButton>
                                             <IconButton onClick={() => openDeleteDialog(item)}>
                                                 <CircleXIcon color="red" size={16} />
                                             </IconButton>
@@ -632,6 +639,23 @@ const SortedTable = ({ data, loading, isMobile, onChange, showServiceColumn = tr
                             $margin="0.75rem 0 2rem 0"
                             $style="dotted"
                         />
+
+                        {editAllowDateChange && (
+                            <>
+                                <Label>Data:</Label>
+                                <DialogInput
+                                    type="date"
+                                    value={selectedSchedule.date_new}
+                                    min={new Date().toISOString().split("T")[0]}
+                                    onChange={(e) =>
+                                        setSelectedSchedule({
+                                            ...selectedSchedule,
+                                            date_new: e.target.value
+                                        })
+                                    }
+                                />
+                            </>
+                        )}
 
                         <Label>Horário:</Label>
                         <DialogInput
