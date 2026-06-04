@@ -262,19 +262,51 @@ const PlanCard = styled.div`
 `;
 
 const FeatureCheckbox = styled.label`
-    display: flex;
+    display: grid;
+    grid-template-columns: 18px 1fr auto;
     align-items: center;
-    gap: 0.6rem;
-    padding: 0.7rem 1rem;
+    gap: 0.65rem;
+    padding: 0.8rem 1rem;
     border-radius: 0.65rem;
-    border: 1px solid #252b34;
-    background: #12161c;
+    border: 1px solid ${({ $checked }) => ($checked ? 'rgba(63,164,135,0.45)' : '#1e2530')};
+    background: ${({ $checked }) => ($checked ? 'rgba(63,164,135,0.07)' : '#0d1117')};
     cursor: pointer;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.45rem;
     color: #c8ced8;
-    font-size: 0.88rem;
+    font-size: 0.85rem;
+    transition: border-color 0.15s, background 0.15s;
 
-    input { accent-color: #3fa487; width: 16px; height: 16px; cursor: pointer; flex-shrink: 0; }
+    &:hover {
+        border-color: rgba(63,164,135,0.3);
+    }
+
+    input {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 18px;
+        height: 18px;
+        border-radius: 5px;
+        border: 1.5px solid ${({ $checked }) => ($checked ? '#3fa487' : '#3a404d')};
+        background: ${({ $checked }) => ($checked ? '#3fa487' : 'transparent')};
+        cursor: pointer;
+        flex-shrink: 0;
+        position: relative;
+        transition: background 0.15s, border-color 0.15s;
+
+        &::after {
+            content: '';
+            display: ${({ $checked }) => ($checked ? 'block' : 'none')};
+            position: absolute;
+            left: 4px;
+            top: 1px;
+            width: 5px;
+            height: 9px;
+            border: 2px solid #07090b;
+            border-top: none;
+            border-left: none;
+            transform: rotate(45deg);
+        }
+    }
 `;
 
 const PriceSummary = styled.div`
@@ -433,12 +465,10 @@ function Register() {
                     discountCode: companyData.discountCode.trim() || undefined
                 });
 
-                if (selectedPlan || selectedExtras.length > 0) {
-                    await updateSubscription(companyData.url, {
-                        plan: selectedPlan?.name ?? 'Padrão',
-                        extras: selectedExtras
-                    });
-                }
+                await updateSubscription(companyData.url, {
+                    plan: selectedPlan?.name ?? 'Padrão',
+                    extras: selectedExtras
+                });
 
                 toast.success("Empresa criada com sucesso!");
                 navigate('/login');
@@ -626,14 +656,17 @@ function Register() {
                                             Recursos adicionais <span style={{ color: '#7f8792' }}>(opcional)</span>
                                         </Label>
                                         {extraFeatures.map(f => (
-                                            <FeatureCheckbox key={f.id}>
+                                            <FeatureCheckbox
+                                                key={f.id}
+                                                $checked={selectedExtras.includes(f.name)}
+                                            >
                                                 <input
                                                     type="checkbox"
                                                     checked={selectedExtras.includes(f.name)}
                                                     onChange={() => toggleExtra(f.name)}
                                                 />
-                                                <span style={{ flex: 1 }}>{f.name}</span>
-                                                <span style={{ color: '#3fa487', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                                                <span>{f.name}</span>
+                                                <span style={{ color: '#3fa487', fontWeight: 600, whiteSpace: 'nowrap', fontSize: '0.82rem' }}>
                                                     + R$ {Number(f.price).toFixed(2).replace('.', ',')}/mês
                                                 </span>
                                             </FeatureCheckbox>
