@@ -227,11 +227,25 @@ export default function Config() {
     setWhatsAppQrCode(null);
     try {
       await connectWhatsApp(companyUrl);
-      const qrRes = await getWhatsAppQrCode(companyUrl);
-      const base64 = qrRes.data?.base64 || qrRes.data?.qrcode?.base64;
-      setWhatsAppQrCode(base64 || null);
+
+      // Polling até o QR code estar disponível (máx 10 tentativas, 2s entre cada)
+      let qrBase64 = null;
+      for (let i = 0; i < 10; i++) {
+        await new Promise(r => setTimeout(r, 2000));
+        try {
+          const qrRes = await getWhatsAppQrCode(companyUrl);
+          const base64 = qrRes.data?.base64 || qrRes.data?.qrcode?.base64;
+          if (base64) { qrBase64 = base64; break; }
+        } catch {}
+      }
+
+      if (qrBase64) {
+        setWhatsAppQrCode(qrBase64);
+      } else {
+        toast.error("QR code não gerado. Tente novamente.");
+      }
     } catch {
-      toast.error("Erro ao gerar QR code. Tente novamente.");
+      toast.error("Erro ao conectar. Tente novamente.");
     } finally {
       setWhatsAppLoading(false);
     }
