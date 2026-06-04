@@ -63,3 +63,23 @@ export const getCompanyScheduleViews = (companyUrl, startDate, endDate) => {
         withAuth: true,
     });
 };
+
+export const connectWhatsApp = (companyUrl) => {
+    const params = new URLSearchParams({ companyUrl }).toString();
+    return api.post(`/whatsapp/connect?${params}`, null, { withAuth: true });
+};
+
+export const getWhatsAppQrCode = (companyUrl) => {
+    const params = new URLSearchParams({ companyUrl }).toString();
+    return api.get(`/whatsapp/qrcode?${params}`, { withAuth: true });
+};
+
+export const getWhatsAppStatus = (companyUrl) => {
+    const params = new URLSearchParams({ companyUrl }).toString();
+    return api.get(`/whatsapp/status?${params}`, { withAuth: true });
+};
+
+export const disconnectWhatsApp = (companyUrl) => {
+    const params = new URLSearchParams({ companyUrl }).toString();
+    return api.delete(`/whatsapp/disconnect?${params}`, { withAuth: true });
+};
