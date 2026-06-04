@@ -350,6 +350,7 @@ function Register() {
     });
 
     const [discountInfo, setDiscountInfo] = useState(null);
+    const [discountData, setDiscountData] = useState(null);
     const [discountError, setDiscountError] = useState('');
 
     const [plans, setPlans] = useState([]);
@@ -363,13 +364,30 @@ function Register() {
         return d.toLocaleDateString('pt-BR');
     })();
 
-    const totalAmount = (() => {
-        const planPrice = selectedPlan?.price ?? 0;
+    const { subtotal, discountAmount, totalAmount } = (() => {
+        const planPrice = Number(selectedPlan?.price ?? 0);
         const extrasPrice = selectedExtras.reduce((sum, name) => {
             const f = extraFeatures.find(f => f.name === name);
             return sum + (f ? Number(f.price) : 0);
         }, 0);
-        return (planPrice + extrasPrice).toFixed(2).replace('.', ',');
+        const sub = planPrice + extrasPrice;
+
+        let discount = 0;
+        if (discountData) {
+            const val = Number(discountData.discountValue);
+            if (discountData.discountType === 'PERCENTAGE') {
+                discount = sub * (val / 100);
+            } else if (discountData.discountType === 'FIXED') {
+                discount = Math.min(val, sub);
+            }
+        }
+
+        const fmt = (n) => n.toFixed(2).replace('.', ',');
+        return {
+            subtotal: fmt(sub),
+            discountAmount: fmt(discount),
+            totalAmount: fmt(Math.max(0, sub - discount))
+        };
     })();
 
     const toggleExtra = (name) => {
@@ -383,11 +401,13 @@ function Register() {
     const handleDiscountCodeBlur = async () => {
         const code = companyData.discountCode.trim();
         setDiscountInfo(null);
+        setDiscountData(null);
         setDiscountError('');
         if (!code) return;
         try {
             const res = await validateDiscountCode(code);
             setDiscountInfo(res.data.displayText);
+            setDiscountData(res.data);
         } catch {
             setDiscountError('Código inválido ou expirado');
         }
@@ -410,6 +430,7 @@ function Register() {
                 } catch {
                     setDiscountError('Código inválido ou expirado');
                     setDiscountInfo(null);
+                    setDiscountData(null);
                     return;
                 }
             }
@@ -704,12 +725,33 @@ function Register() {
 
                                 <PriceSummary>
                                     <TrialBadge>🎁 14 dias grátis</TrialBadge>
-                                    <div style={{ color: '#98a1ac', fontSize: '0.82rem', marginBottom: '0.5rem' }}>
+                                    <div style={{ color: '#98a1ac', fontSize: '0.82rem', marginBottom: '0.75rem' }}>
                                         Primeiro pagamento em <strong style={{ color: '#f2f4f7' }}>{trialEndDate}</strong>
                                     </div>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    {discountData && (
+                                        <>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+                                                <span style={{ color: '#98a1ac', fontSize: '0.82rem' }}>Subtotal</span>
+                                                <span style={{ color: '#98a1ac', fontSize: '0.85rem' }}>R$ {subtotal}</span>
+                                            </div>
+                                            <div style={{
+                                                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                                                marginBottom: '0.5rem', padding: '0.45rem 0.6rem',
+                                                background: 'rgba(63,164,135,0.12)', borderRadius: '0.5rem',
+                                                border: '1px solid rgba(63,164,135,0.3)'
+                                            }}>
+                                                <span style={{ color: '#3fa487', fontSize: '0.82rem', fontWeight: 600 }}>
+                                                    🏷️ Desconto ({discountData.name})
+                                                </span>
+                                                <span style={{ color: '#3fa487', fontWeight: 700, fontSize: '1rem' }}>
+                                                    − R$ {discountAmount}
+                                                </span>
+                                            </div>
+                                        </>
+                                    )}
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: discountData ? '1px solid #1e2530' : 'none', paddingTop: discountData ? '0.5rem' : 0 }}>
                                         <span style={{ color: '#98a1ac', fontSize: '0.85rem' }}>Total mensal após o teste</span>
-                                        <span style={{ color: '#f2f4f7', fontWeight: 700, fontSize: '1.1rem' }}>
+                                        <span style={{ color: '#f2f4f7', fontWeight: 700, fontSize: '1.15rem' }}>
                                             R$ {totalAmount}
                                         </span>
                                     </div>
