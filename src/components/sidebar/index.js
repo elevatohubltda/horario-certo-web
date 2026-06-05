@@ -6,8 +6,8 @@ import { isMobile } from "../../util/util"
 import Cookies from "js-cookie"
 import { getFeaturesByCompany } from "../../services/endpoints/plans"
 
-const WHATSAPP_PLUS = "Whatsapp Plus(mensagens ilimitadas)"
-const WHATSAPP_BASICO = "Whatsapp Básico(até 500 mensagens)"
+const hasWhatsAppFeature = (feature) =>
+  feature.name.toLowerCase().includes("whatsapp")
 
 const SidebarContainer = styled.div`
   width: ${(props) => (props.$isOpen ? "220px" : "70px")};
@@ -113,9 +113,7 @@ const Sidebar = ({ children }) => {
       getFeaturesByCompany(companyUrl)
         .then((res) => {
           const features = res.data || [];
-          setHasWhatsApp(features.some(
-            (f) => f.name === WHATSAPP_PLUS || f.name === WHATSAPP_BASICO
-          ));
+          setHasWhatsApp(features.some(hasWhatsAppFeature));
         })
         .catch(() => {});
     }

@@ -14,8 +14,8 @@ import { ToastContainer, toast } from "react-toastify";
 import { getFeaturesByCompany } from "../services/endpoints/plans";
 import { getNotificationSettings, updateNotificationSettings } from "../services/endpoints/notifications";
 
-const WHATSAPP_PLUS = "Whatsapp Plus(mensagens ilimitadas)";
-const WHATSAPP_BASICO = "Whatsapp Básico(até 500 mensagens)";
+const hasWhatsAppFeature = (feature) =>
+  feature.name.toLowerCase().includes("whatsapp");
 
 const Form = styled.form`
   background: transparent;
@@ -111,9 +111,7 @@ export default function Notifications() {
     try {
       const featuresRes = await getFeaturesByCompany(companyUrl);
       const features = featuresRes.data || [];
-      const allowed = features.some(
-        (f) => f.name === WHATSAPP_PLUS || f.name === WHATSAPP_BASICO
-      );
+      const allowed = features.some(hasWhatsAppFeature);
       setHasAccess(allowed);
 
       if (allowed) {
@@ -189,7 +187,7 @@ export default function Notifications() {
               <strong>Acesso restrito</strong>
               <span>
                 Esta funcionalidade está disponível apenas para assinantes do
-                plano <strong>Whatsapp Plus</strong>.
+                plano <strong>Whatsapp Básico</strong> ou <strong>Whatsapp Plus</strong>.
               </span>
               <SaveButton
                 type="button"
