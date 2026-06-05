@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"
 import styled from "styled-components"
-import { Home, Settings, KeyRound, CalendarDays, Banknote, Scissors, BarChart2, FileText, Bell } from "lucide-react"
+import { Home, Settings, KeyRound, CalendarDays, Banknote, Scissors, BarChart2, FileText, Bell, ListOrdered } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { isMobile } from "../../util/util"
 import Cookies from "js-cookie"
@@ -96,6 +96,7 @@ const Sidebar = ({ children }) => {
     { icon: <BarChart2 size={18} />, label: "Análise", url: "/analytics" },
     { icon: <FileText size={18} />, label: "Relatórios", url: "/relatorios" },
     { icon: <Scissors size={18} />, label: "Serviços", url: "/servicos" },
+    { icon: <ListOrdered size={18} />, label: "Lista de Espera", url: "/lista-de-espera" },
     { icon: <Banknote size={18} />, label: "Assinatura", url: "/assinatura" },
     { icon: <Settings size={18} />, label: "Configurações", url: "/configuracoes" },
     { icon: <KeyRound size={18} />, label: "Alterar senha", url: "/alterar-senha" },

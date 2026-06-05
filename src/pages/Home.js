@@ -19,6 +19,7 @@ import Dialog from "../components/dialog";
 import { Title } from "../components/title";
 import { Separator } from "../components/separator/style";
 import { createReservedSchedule, removeReservedSchedule } from "../services/endpoints/reservedSchedule";
+import { addToWaitingQueue } from "../services/endpoints/waitingQueue";
 import { ToastContainer, toast } from "react-toastify";
 import { isMobile, openWhatsApp } from "../util/util";
 import { WhatsApp } from '@mui/icons-material';
@@ -65,6 +66,10 @@ export default function Home() {
   const [available, setAvailable] = React.useState()
   const [code, setCode] = React.useState()
   const [error, setError] = React.useState()
+  const [waitlistOpen, setWaitlistOpen] = React.useState(false);
+  const [waitlistDate, setWaitlistDate] = React.useState('');
+  const [waitlistData, setWaitlistData] = React.useState({ nome: '', telefone: '' });
+  const [waitlistDone, setWaitlistDone] = React.useState(false);
   const filters = [
     { label: "Remover filtro", value: "", color: "" },
     { label: "Disponível", value: "available", color: "#4caf50" }
@@ -273,6 +278,38 @@ export default function Home() {
     }
   };
   
+  const hasFutureSlots = (item) =>
+    item.horarios.some(h => !itsAvailableNow(item.data, h.horario));
+
+  const isFullyBooked = (item) =>
+    hasFutureSlots(item) && !itsAvailableDayByArray(item);
+
+  const openWaitlistDialog = (date) => {
+    setWaitlistDate(date);
+    setWaitlistData({ nome: '', telefone: '' });
+    setWaitlistDone(false);
+    setWaitlistOpen(true);
+  };
+
+  const submitWaitlist = async () => {
+    if (waitlistData.telefone.replace(/\D/g, '').length < 11) {
+      toast.error("Telefone inválido!");
+      return;
+    }
+    const [d, m, y] = waitlistDate.split('/');
+    const isoDate = `${y}-${m}-${d}`;
+    try {
+      await addToWaitingQueue(companyUrl, {
+        name: waitlistData.nome,
+        telephone: waitlistData.telefone.replace(/\D/g, ''),
+        date: isoDate
+      });
+      setWaitlistDone(true);
+    } catch {
+      toast.error("Erro ao entrar na fila de espera. Tente novamente.");
+    }
+  };
+
   const hasAnyAvailableFutureSchedule = (horarios) => {
 
     return horarios.some(day =>
@@ -339,10 +376,19 @@ export default function Home() {
             <Slider {...settings}>
               {!loadingSchedule && horarios.length > 0 && filtered.length > 0 ? 
               filtered.map((item, index) => (
-                itsAvailableDayByArray(item) && (
+                hasFutureSlots(item) && (
                   <div key={index} className="slide">
-                    <h3>{item.data}</h3>
-                    <span>{"("+getWeekDay(item.data)+")"}</span>
+                    <DateHeader>
+                      <div>
+                        <h3 style={{ margin: 0 }}>{item.data}</h3>
+                        <span>{"("+getWeekDay(item.data)+")"}</span>
+                      </div>
+                      {isFullyBooked(item) && (
+                        <WaitlistButton onClick={() => openWaitlistDialog(item.data)}>
+                          Fila de espera
+                        </WaitlistButton>
+                      )}
+                    </DateHeader>
                     <div className="horarios-container">
                       {item.horarios.map((iteminside, i) =>
                         !itsAvailableNow(item.data, iteminside.horario) ? (
@@ -372,10 +418,19 @@ export default function Home() {
                 )
               )) : 
               horarios.map((item, index) => (
-                itsAvailableDayByArray(item) && (
+                hasFutureSlots(item) && (
                   <div key={index} className="slide">
-                    <h3>{item.data}</h3>
-                    <span>{"("+getWeekDay(item.data)+")"}</span>
+                    <DateHeader>
+                      <div>
+                        <h3 style={{ margin: 0 }}>{item.data}</h3>
+                        <span>{"("+getWeekDay(item.data)+")"}</span>
+                      </div>
+                      {isFullyBooked(item) && (
+                        <WaitlistButton onClick={() => openWaitlistDialog(item.data)}>
+                          Fila de espera
+                        </WaitlistButton>
+                      )}
+                    </DateHeader>
                     <div className="horarios-container">
                       {item.horarios.map((iteminside, i) =>
                         !itsAvailableNow(item.data, iteminside.horario) ? (
@@ -671,6 +726,58 @@ export default function Home() {
           </form>
         </Dialog>
       }
+      {/* FILA DE ESPERA — FORMULÁRIO */}
+      <Dialog open={waitlistOpen && !waitlistDone} onClose={() => setWaitlistOpen(false)}>
+        <Title $fontweight="600" $fontsize="1.1rem" $color="var(--color-brown)" $texttransform="uppercase">
+          Entrar na fila de espera
+        </Title>
+        <Separator $width="100%" $bordercolor="var(--color-olive)" $margin="0.75rem 0 2rem 0" $style="dotted" />
+        <form style={{ backgroundColor: "transparent", boxShadow: "none", width: "100%", padding: "0" }}>
+          <Label>Data:</Label>
+          <DialogInput value={waitlistDate} readOnly />
+          <Label>Digite seu nome:</Label>
+          <DialogInput
+            type="text"
+            value={waitlistData.nome}
+            onChange={(e) => setWaitlistData({ ...waitlistData, nome: e.target.value })}
+          />
+          <Label>Digite seu telefone com DDD:</Label>
+          <DialogInput
+            type="text"
+            value={formataNumeroTelefone(waitlistData.telefone || "")}
+            onChange={(e) => setWaitlistData({ ...waitlistData, telefone: formataNumeroTelefone(e.target.value) })}
+          />
+          <Container
+            $width="auto" $display="flex" $alignitems="flex-end" $justifycontent="space-between"
+            $margin="0" $backgroundcolor="transparent" $boxshadow="none"
+          >
+            <Button variant="link" type="button" onClick={() => setWaitlistOpen(false)}>Voltar</Button>
+            <Button
+              type="button"
+              variant={!waitlistData.nome || !waitlistData.telefone ? "disabled" : "confirm"}
+              onClick={submitWaitlist}
+            >
+              Confirmar
+            </Button>
+          </Container>
+        </form>
+      </Dialog>
+      {/* FILA DE ESPERA — CONFIRMAÇÃO */}
+      <Dialog open={waitlistOpen && waitlistDone} onClose={() => setWaitlistOpen(false)}>
+        <Title $fontweight="600" $fontsize="1.1rem" $color="var(--color-brown)" $texttransform="uppercase">
+          Você está na fila!
+        </Title>
+        <Separator $width="100%" $bordercolor="#ccc" $margin="1rem 0 3rem 0" $style="dotted" />
+        <form style={{ backgroundColor: "transparent", boxShadow: "none", width: "100%", padding: "0", textAlign: "center" }}>
+          <span>Te avisamos caso um horário abra no dia <strong>{waitlistDate}</strong>.</span>
+          <Container
+            $width="auto" $display="flex" $alignitems="center" $justifycontent="center"
+            $margin="2rem 0 0 0" $backgroundcolor="transparent" $boxshadow="none"
+          >
+            <Button variant="confirm" type="button" onClick={() => setWaitlistOpen(false)}>OK</Button>
+          </Container>
+        </form>
+      </Dialog>
       {/* LOADING */}
       {loading && companyInfo === undefined &&
         <Container 
@@ -692,6 +799,31 @@ export default function Home() {
     </>
   );
 }
+
+export const DateHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  margin-bottom: 0.5rem;
+`;
+
+export const WaitlistButton = styled.button`
+  font-size: 11px;
+  padding: 4px 10px;
+  background-color: transparent;
+  border: 1px solid var(--color-sage);
+  color: var(--color-sage);
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  &:hover {
+    background-color: var(--color-sage);
+    color: #fff;
+  }
+`;
 
 export const DialogInput = styled.input`
   width: 100%;

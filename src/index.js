@@ -21,6 +21,7 @@ import Analytics from './pages/Analytics';
 import Reports from './pages/Reports';
 import Notifications from './pages/Notifications';
 import TermosDeUso from './pages/TermosDeUso';
+import WaitingList from './pages/WaitingList';
 
 const router = createBrowserRouter(
   [
@@ -41,6 +42,7 @@ const router = createBrowserRouter(
     { path: '/analytics',         element: <Analytics /> },
     { path: '/relatorios',        element: <Reports /> },
     { path: '/notificacoes',      element: <Notifications /> },
+    { path: '/lista-de-espera',   element: <WaitingList /> },
   ],
   {
     future: {
