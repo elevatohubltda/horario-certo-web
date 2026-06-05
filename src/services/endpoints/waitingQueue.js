@@ -7,8 +7,9 @@ export const addToWaitingQueue = (companyUrl, data) => {
   });
 };
 
-export const getWaitingQueue = () => {
-  return api.get("/waiting-queue", { withAuth: true });
+export const getWaitingQueue = (startDate, endDate) => {
+  const params = new URLSearchParams({ startDate, endDate }).toString();
+  return api.get(`/waiting-queue?${params}`, { withAuth: true });
 };
 
 export const deleteWaitingQueueEntry = (id) => {

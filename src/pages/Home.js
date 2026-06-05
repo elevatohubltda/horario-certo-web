@@ -803,9 +803,10 @@ export default function Home() {
 export const DateHeader = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   padding: 0 1.5rem;
   margin-bottom: 0.5rem;
+  margin-top: 1rem;
 `;
 
 export const WaitlistButton = styled.button`
@@ -818,6 +819,7 @@ export const WaitlistButton = styled.button`
   cursor: pointer;
   white-space: nowrap;
   flex-shrink: 0;
+  margin-left: 3rem;
 
   &:hover {
     background-color: var(--color-sage);
