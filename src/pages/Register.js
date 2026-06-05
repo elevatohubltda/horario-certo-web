@@ -424,7 +424,7 @@ function Register() {
     };
 
     const isValidEmail = (email) =>
-        /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/.test(email);
+        /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
 
     const calcCpfDigit = (digits, len) => {
         let sum = 0;
