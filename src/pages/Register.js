@@ -317,6 +317,14 @@ const PriceSummary = styled.div`
     border: 1px solid rgba(63, 164, 135, 0.25);
 `;
 
+const ErrorHint = styled.span`
+    font-size: 0.76rem;
+    color: #ef4444;
+    margin-top: -0.45rem;
+    margin-bottom: 0.9rem;
+    display: block;
+`;
+
 const TrialBadge = styled.div`
     display: inline-flex;
     align-items: center;
@@ -346,8 +354,12 @@ function Register() {
         url: '',
         whatsapp: '',
         instagram: '',
-        discountCode: ''
+        discountCode: '',
+        email: '',
+        cpfCnpj: ''
     });
+    const [emailError, setEmailError] = useState('');
+    const [cpfCnpjError, setCpfCnpjError] = useState('');
 
     const [discountInfo, setDiscountInfo] = useState(null);
     const [discountData, setDiscountData] = useState(null);
@@ -396,6 +408,57 @@ function Register() {
         );
     };
 
+    const formatCpfCnpj = (value) => {
+        const digits = value.replace(/\D/g, '').slice(0, 14);
+        if (digits.length <= 11) {
+            return digits
+                .replace(/(\d{3})(\d)/, '$1.$2')
+                .replace(/(\d{3})(\d)/, '$1.$2')
+                .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+        }
+        return digits
+            .replace(/(\d{2})(\d)/, '$1.$2')
+            .replace(/(\d{3})(\d)/, '$1.$2')
+            .replace(/(\d{3})(\d)/, '$1/$2')
+            .replace(/(\d{4})(\d{1,2})$/, '$1-$2');
+    };
+
+    const isValidEmail = (email) =>
+        /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/.test(email);
+
+    const calcCpfDigit = (digits, len) => {
+        let sum = 0;
+        for (let i = 0; i < len; i++) sum += parseInt(digits[i]) * (len + 1 - i);
+        const rem = sum % 11;
+        return rem < 2 ? 0 : 11 - rem;
+    };
+
+    const isValidCpf = (value) => {
+        const d = value.replace(/\D/g, '');
+        if (d.length !== 11 || /^(\d)\1+$/.test(d)) return false;
+        return calcCpfDigit(d, 9) === parseInt(d[9]) && calcCpfDigit(d, 10) === parseInt(d[10]);
+    };
+
+    const isValidCnpj = (value) => {
+        const d = value.replace(/\D/g, '');
+        if (d.length !== 14 || /^(\d)\1+$/.test(d)) return false;
+        const w1 = [5,4,3,2,9,8,7,6,5,4,3,2];
+        const w2 = [6,5,4,3,2,9,8,7,6,5,4,3,2];
+        const calc = (digits, weights) => {
+            const sum = weights.reduce((acc, w, i) => acc + parseInt(digits[i]) * w, 0);
+            const rem = sum % 11;
+            return rem < 2 ? 0 : 11 - rem;
+        };
+        const d1 = calc(d, w1);
+        const d2 = calc(d.slice(0,12) + d1, w2);
+        return parseInt(d[12]) === d1 && parseInt(d[13]) === d2;
+    };
+
+    const isValidCpfOrCnpj = (value) => {
+        const digits = value.replace(/\D/g, '');
+        return digits.length === 11 ? isValidCpf(digits) : digits.length === 14 ? isValidCnpj(digits) : false;
+    };
+
     const handleError = (error) => toast.error(error);
 
     const handleDiscountCodeBlur = async () => {
@@ -419,6 +482,18 @@ function Register() {
                 handleError("Preencha os dados da empresa!");
                 return;
             }
+            if (!companyData.email || !isValidEmail(companyData.email)) {
+                setEmailError('Informe um e-mail válido');
+                handleError("Informe um e-mail válido");
+                return;
+            }
+            if (!companyData.cpfCnpj || !isValidCpfOrCnpj(companyData.cpfCnpj)) {
+                setCpfCnpjError('CPF ou CNPJ inválido');
+                handleError("Informe um CPF ou CNPJ válido");
+                return;
+            }
+            setEmailError('');
+            setCpfCnpjError('');
             setStep(1);
         } else if (step === 1) {
             const code = companyData.discountCode.trim();
@@ -628,6 +703,44 @@ function Register() {
                                 <Hint>
                                     horariocerto.elevatohub.com.br/{companyData.url}
                                 </Hint>
+
+                                <Label htmlFor="company-email">E-mail para cobrança</Label>
+                                <Input
+                                    id="company-email"
+                                    type="email"
+                                    placeholder="contato@empresa.com"
+                                    value={companyData.email}
+                                    onChange={(e) => {
+                                        setEmailError('');
+                                        setCompanyData(prev => ({ ...prev, email: e.target.value }));
+                                    }}
+                                    onBlur={() => {
+                                        if (companyData.email && !isValidEmail(companyData.email)) {
+                                            setEmailError('Informe um e-mail válido');
+                                        }
+                                    }}
+                                    style={emailError ? { borderColor: '#ef4444' } : {}}
+                                />
+                                {emailError && <ErrorHint>{emailError}</ErrorHint>}
+
+                                <Label htmlFor="company-cpfcnpj">CPF / CNPJ</Label>
+                                <Input
+                                    id="company-cpfcnpj"
+                                    placeholder="000.000.000-00 ou 00.000.000/0001-00"
+                                    value={formatCpfCnpj(companyData.cpfCnpj)}
+                                    onChange={(e) => {
+                                        setCpfCnpjError('');
+                                        const digits = e.target.value.replace(/\D/g, '').slice(0, 14);
+                                        setCompanyData(prev => ({ ...prev, cpfCnpj: digits }));
+                                    }}
+                                    onBlur={() => {
+                                        if (companyData.cpfCnpj && !isValidCpfOrCnpj(companyData.cpfCnpj)) {
+                                            setCpfCnpjError('CPF ou CNPJ inválido');
+                                        }
+                                    }}
+                                    style={cpfCnpjError ? { borderColor: '#ef4444' } : {}}
+                                />
+                                {cpfCnpjError && <ErrorHint>{cpfCnpjError}</ErrorHint>}
                             </>
                         )}
 
