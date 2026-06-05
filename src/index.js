@@ -19,6 +19,7 @@ import ChangeSubscription from './pages/ChangeSubscription';
 import Services from './pages/Services';
 import Analytics from './pages/Analytics';
 import Reports from './pages/Reports';
+import Notifications from './pages/Notifications';
 
 const router = createBrowserRouter(
   [
@@ -81,6 +82,10 @@ const router = createBrowserRouter(
     {
       path: '/relatorios',
       element: <Reports />,
+    },
+    {
+      path: '/notificacoes',
+      element: <Notifications />,
     },
   ],
   {

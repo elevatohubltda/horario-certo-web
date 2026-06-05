@@ -1,8 +1,13 @@
 import React, { useEffect, useState } from "react"
 import styled from "styled-components"
-import { Home, Settings, KeyRound, CalendarDays, Banknote, Scissors, BarChart2, FileText } from "lucide-react"
+import { Home, Settings, KeyRound, CalendarDays, Banknote, Scissors, BarChart2, FileText, Bell } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { isMobile } from "../../util/util"
+import Cookies from "js-cookie"
+import { getFeaturesByCompany } from "../../services/endpoints/plans"
+
+const WHATSAPP_PLUS = "Whatsapp Plus(mensagens ilimitadas)"
+const WHATSAPP_BASICO = "Whatsapp Básico(até 500 mensagens)"
 
 const SidebarContainer = styled.div`
   width: ${(props) => (props.$isOpen ? "220px" : "70px")};
@@ -81,11 +86,12 @@ const Layout = styled.div`
 const Sidebar = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false)
   const [mobile, setMobile] = useState();
+  const [hasWhatsApp, setHasWhatsApp] = useState(false);
   const location = useLocation();
   const currentPage = location.pathname.split('/').filter(Boolean)[0];
   const navigate = useNavigate();
 
-  const menuItems = [
+  const baseMenuItems = [
     { icon: <Home size={18} />, label: "Dashboard", url: "/dashboard" },
     { icon: <CalendarDays size={18} />, label: "Agendamentos", url: "/agendamentos" },
     { icon: <BarChart2 size={18} />, label: "Análise", url: "/analytics" },
@@ -96,8 +102,23 @@ const Sidebar = ({ children }) => {
     { icon: <KeyRound size={18} />, label: "Alterar senha", url: "/alterar-senha" },
   ]
 
+  const menuItems = hasWhatsApp
+    ? [...baseMenuItems.slice(0, 7), { icon: <Bell size={18} />, label: "Notificações", url: "/notificacoes" }, baseMenuItems[7]]
+    : baseMenuItems;
+
   useEffect(() => {
-    setMobile(isMobile());  
+    setMobile(isMobile());
+    const companyUrl = Cookies.get("companyUrl");
+    if (companyUrl) {
+      getFeaturesByCompany(companyUrl)
+        .then((res) => {
+          const features = res.data || [];
+          setHasWhatsApp(features.some(
+            (f) => f.name === WHATSAPP_PLUS || f.name === WHATSAPP_BASICO
+          ));
+        })
+        .catch(() => {});
+    }
   },  []);
 
   if (mobile) return <>{children}</>;
