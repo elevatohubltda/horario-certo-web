@@ -20,73 +20,27 @@ import Services from './pages/Services';
 import Analytics from './pages/Analytics';
 import Reports from './pages/Reports';
 import Notifications from './pages/Notifications';
+import TermosDeUso from './pages/TermosDeUso';
 
 const router = createBrowserRouter(
   [
-    {
-      path: '/',
-      element: <Landing />,
-    },
-    {
-      path: '/login',
-      element: <Login />,
-    },
-    {
-      path: '/esqueci-senha',
-      element: <ForgotPassword />,
-    },
-    {
-      path: '/:companyUrl',
-      element: <Home />,
-    },
-    {
-      path: '/dashboard',
-      element: <Dashboard />,
-    },
-    {
-      path: '/agendamentos',
-      element: <MyAppointments />,
-    },
-    {
-      path: '/configuracoes',
-      element: <Config />,
-    },
-    {
-      path: '/alterar-senha',
-      element: <ChangePassword />,
-    },
-    {
-      path: '/registro',
-      element: <Register />,
-    },
-    {
-      path: '/criar-agendamentos',
-      element: <MySchedule />,
-    },
-    {
-      path: '/assinatura',
-      element: <Payment />,
-    },
-    {
-      path: '/mudar-assinatura',
-      element: <ChangeSubscription />,
-    },
-    {
-      path: '/servicos',
-      element: <Services />,
-    },
-    {
-      path: '/analytics',
-      element: <Analytics />,
-    },
-    {
-      path: '/relatorios',
-      element: <Reports />,
-    },
-    {
-      path: '/notificacoes',
-      element: <Notifications />,
-    },
+    { path: '/',                  element: <Landing /> },
+    { path: '/login',             element: <Login /> },
+    { path: '/esqueci-senha',     element: <ForgotPassword /> },
+    { path: '/registro',          element: <Register /> },
+    { path: '/termos-de-uso',     element: <TermosDeUso /> },
+    { path: '/:companyUrl',       element: <Home /> },
+    { path: '/dashboard',         element: <Dashboard /> },
+    { path: '/agendamentos',      element: <MyAppointments /> },
+    { path: '/configuracoes',     element: <Config /> },
+    { path: '/alterar-senha',     element: <ChangePassword /> },
+    { path: '/criar-agendamentos',element: <MySchedule /> },
+    { path: '/assinatura',        element: <Payment /> },
+    { path: '/mudar-assinatura',  element: <ChangeSubscription /> },
+    { path: '/servicos',          element: <Services /> },
+    { path: '/analytics',         element: <Analytics /> },
+    { path: '/relatorios',        element: <Reports /> },
+    { path: '/notificacoes',      element: <Notifications /> },
   ],
   {
     future: {

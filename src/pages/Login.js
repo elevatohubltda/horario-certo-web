@@ -9,6 +9,7 @@ import { isAvailableLogin } from '../util/auth';
 import { expiresAt } from '../util/date';
 import styled from 'styled-components';
 import { format, parse } from 'date-fns';
+import CookieConsent, { hasConsented } from '../components/cookie-consent';
 
 const Page = styled.main`
   min-height: 100vh;
@@ -240,6 +241,7 @@ const IllustrationText = styled.p`
 function Login() {
   const navigate = useNavigate();
   const [isMobileViewport, setIsMobileViewport] = useState(window.innerWidth <= 768);
+  const [showConsent, setShowConsent] = useState(false);
   const [userData, setUserData] = useState({
     username: '',
     password: ''
@@ -296,7 +298,11 @@ function Login() {
             Cookies.set("companyFeatures", "[]", { expires: expiresAt });
           }
 
-          navigate('/dashboard');
+          if (hasConsented()) {
+            navigate('/dashboard');
+          } else {
+            setShowConsent(true);
+          }
         }
       })
       .catch(err => {
@@ -323,6 +329,10 @@ function Login() {
   }, []);
 
   return (
+    <>
+    {showConsent && (
+      <CookieConsent onAccept={() => navigate('/dashboard')} />
+    )}
     <Page>
       <LoginShell>
         <FormPanel>
@@ -389,6 +399,7 @@ function Login() {
         style={isMobileViewport ? { margin: '0 5% 1rem 5%', width: '90%' } : undefined}
       />
     </Page>
+    </>
   );
 }
 
