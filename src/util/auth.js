@@ -11,6 +11,7 @@ export function isAvailableLogin(){
     Cookies.remove("expirationDate");
     Cookies.remove("companyInfo");
     Cookies.remove("companyProperties");
+    Cookies.remove("companyFeatures");
     return false;
 }
 
@@ -19,4 +20,5 @@ export function logout(){
     Cookies.remove("expirationDate");
     Cookies.remove("companyInfo");
     Cookies.remove("companyProperties");
+    Cookies.remove("companyFeatures");
 }

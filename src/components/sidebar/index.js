@@ -4,7 +4,6 @@ import { Home, Settings, KeyRound, CalendarDays, Banknote, Scissors, BarChart2, 
 import { useLocation, useNavigate } from "react-router-dom"
 import { isMobile } from "../../util/util"
 import Cookies from "js-cookie"
-import { getFeaturesByCompany } from "../../services/endpoints/plans"
 
 const hasWhatsAppFeature = (feature) =>
   feature.name.toLowerCase().includes("whatsapp")
@@ -108,16 +107,14 @@ const Sidebar = ({ children }) => {
 
   useEffect(() => {
     setMobile(isMobile());
-    const companyUrl = Cookies.get("companyUrl");
-    if (companyUrl) {
-      getFeaturesByCompany(companyUrl)
-        .then((res) => {
-          const features = res.data || [];
-          setHasWhatsApp(features.some(hasWhatsAppFeature));
-        })
-        .catch(() => {});
-    }
-  },  []);
+    try {
+      const stored = Cookies.get("companyFeatures");
+      if (stored) {
+        const features = JSON.parse(stored);
+        setHasWhatsApp(features.some(hasWhatsAppFeature));
+      }
+    } catch {}
+  }, []);
 
   if (mobile) return <>{children}</>;
   return (

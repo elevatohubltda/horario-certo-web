@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { login } from '../services/endpoints/auth';
+import { getFeaturesByCompany } from '../services/endpoints/plans';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -260,7 +261,7 @@ function Login() {
       return;
     }
     login(userData)
-      .then(res => {
+      .then(async res => {
         const token = res.data.token;
         const expirationDate = parse(res.data.expirationDate, 'HH:mm:ss dd/MM/yyyy', new Date());
         const companyUrl = res.data.companyUrl;
@@ -281,6 +282,20 @@ function Login() {
             secure: true,
             sameSite: "Strict",
           });
+
+          try {
+            const featuresRes = await getFeaturesByCompany(companyUrl);
+            if (featuresRes.status === 200) {
+              Cookies.set("companyFeatures", JSON.stringify(featuresRes.data), {
+                expires: expiresAt,
+                secure: true,
+                sameSite: "Strict",
+              });
+            }
+          } catch {
+            Cookies.set("companyFeatures", "[]", { expires: expiresAt });
+          }
+
           navigate('/dashboard');
         }
       })

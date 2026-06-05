@@ -10,8 +10,7 @@ import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { isAvailableLogin } from "../util/auth";
 import { isMobile } from "../util/util";
-import { ToastContainer, toast } from "react-toastify";
-import { getFeaturesByCompany } from "../services/endpoints/plans";
+import { toast } from "react-toastify";
 import { getNotificationSettings, updateNotificationSettings } from "../services/endpoints/notifications";
 
 const hasWhatsAppFeature = (feature) =>
@@ -60,9 +59,7 @@ const ToggleSlider = styled.span`
 const Card = styled.div`
   border: 1px solid ${({ $on }) => ($on ? "var(--color-sage)" : "#e0e0e0")};
   border-radius: 12px;
-  overflow: hidden;
   transition: border-color 0.25s;
-  max-width: 540px;
   margin-bottom: 1rem;
 `;
 
@@ -73,7 +70,8 @@ const CardHeader = styled.div`
   padding: 1rem 1.2rem;
   cursor: pointer;
   background: ${({ $on }) => ($on ? "rgba(142,168,142,0.08)" : "#fafafa")};
-  transition: background 0.25s;
+  border-radius: ${({ $open }) => ($open ? "12px 12px 0 0" : "12px")};
+  transition: background 0.25s, border-radius 0.25s;
   user-select: none;
 `;
 
@@ -97,6 +95,7 @@ const CardSubtitle = styled.span`
 const CollapsibleBody = styled.div`
   max-height: ${({ $open }) => ($open ? "400px" : "0")};
   overflow: hidden;
+  border-radius: 0 0 12px 12px;
   transition: max-height 0.3s ease;
 `;
 
@@ -104,6 +103,7 @@ const CardBody = styled.div`
   padding: 1.2rem;
   border-top: 1px solid #eee;
   background: #fff;
+  border-radius: 0 0 12px 12px;
 `;
 
 /* ── Campo com tooltip ───────────────────────────── */
@@ -140,7 +140,7 @@ const TooltipBubble = styled.span`
   border-radius: 6px;
   padding: 8px 10px;
   position: absolute;
-  bottom: calc(100% + 6px);
+  top: calc(100% + 6px);
   left: 0;
   z-index: 200;
   transition: opacity 0.18s;
@@ -150,10 +150,10 @@ const TooltipBubble = styled.span`
   &::after {
     content: "";
     position: absolute;
-    top: 100%;
+    bottom: 100%;
     left: 8px;
     border: 5px solid transparent;
-    border-top-color: #333;
+    border-bottom-color: #333;
   }
 `;
 
@@ -176,7 +176,6 @@ const QuestionBtn = styled.button`
 
 /* ── Input e botão ───────────────────────────────── */
 const NumberInput = styled.input`
-  width: 80px;
   padding: 0.4rem 0.6rem;
   border: 1px solid var(--color-sage);
   border-radius: 6px;
@@ -233,7 +232,7 @@ function Tooltip({ text }) {
 function NotificationCard({ title, subtitle, enabled, onToggle, children }) {
   return (
     <Card $on={enabled}>
-      <CardHeader $on={enabled} onClick={onToggle}>
+      <CardHeader $on={enabled} $open={enabled} onClick={onToggle}>
         <CardHeaderLeft>
           <CardTitle>{title}</CardTitle>
           <CardSubtitle $on={enabled}>{enabled ? "Ativado" : "Desativado"}</CardSubtitle>
@@ -269,6 +268,8 @@ export default function Notifications() {
 
   const [retentionEnabled, setRetentionEnabled] = useState(false);
   const [retentionDays, setRetentionDays] = useState(3);
+  const [reminderEnabled, setReminderEnabled] = useState(false);
+  const [reminderHours, setReminderHours] = useState(2);
 
   useEffect(() => {
     setMobile(isMobile());
@@ -282,8 +283,8 @@ export default function Notifications() {
 
   const loadPage = async () => {
     try {
-      const featuresRes = await getFeaturesByCompany(companyUrl);
-      const features = featuresRes.data || [];
+      const stored = Cookies.get("companyFeatures");
+      const features = stored ? JSON.parse(stored) : [];
       const allowed = features.some(hasWhatsAppFeature);
       setHasAccess(allowed);
 
@@ -292,6 +293,8 @@ export default function Notifications() {
         if (res.status === 200) {
           setRetentionEnabled(res.data.enabled);
           setRetentionDays(res.data.daysBefore);
+          setReminderEnabled(res.data.reminderEnabled);
+          setReminderHours(res.data.reminderHoursBefore);
         }
       }
     } catch (err) {
@@ -300,6 +303,13 @@ export default function Notifications() {
       setLoading(false);
     }
   };
+
+  const buildPayload = () => ({
+    enabled: retentionEnabled,
+    daysBefore: parseInt(retentionDays, 10),
+    reminderEnabled,
+    reminderHoursBefore: parseInt(reminderHours, 10),
+  });
 
   const handleSaveRetention = async (e) => {
     e.preventDefault();
@@ -310,12 +320,31 @@ export default function Notifications() {
     }
     setSaving(true);
     try {
-      const res = await updateNotificationSettings(companyUrl, {
-        enabled: retentionEnabled,
-        daysBefore: days,
-      });
+      const res = await updateNotificationSettings(companyUrl, buildPayload());
       if (res.status === 200) {
-        toast.success("Configurações salvas com sucesso!");
+        toast.success("Preferências de notificações salvas com sucesso!");
+      } else {
+        toast.error("Erro ao salvar configurações");
+      }
+    } catch {
+      toast.error("Erro ao salvar configurações");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSaveReminder = async (e) => {
+    e.preventDefault();
+    const hours = parseInt(reminderHours, 10);
+    if (isNaN(hours) || hours < 1 || hours > 48) {
+      toast.error("Informe um valor entre 1 e 48 horas");
+      return;
+    }
+    setSaving(true);
+    try {
+      const res = await updateNotificationSettings(companyUrl, buildPayload());
+      if (res.status === 200) {
+        toast.success("Preferências de notificações salvas com sucesso!");
       } else {
         toast.error("Erro ao salvar configurações");
       }
@@ -329,7 +358,6 @@ export default function Notifications() {
   return (
     <>
       <Topbar {...companyInfo} loggedIn />
-      <ToastContainer />
 
       <Container
         $width="100%"
@@ -406,6 +434,37 @@ export default function Notifications() {
                       max={30}
                       value={retentionDays}
                       onChange={(e) => setRetentionDays(e.target.value)}
+                    />
+
+                    <div>
+                      <SaveButton type="submit" disabled={saving}>
+                        {saving ? "Salvando..." : "Salvar"}
+                      </SaveButton>
+                    </div>
+                  </form>
+                </NotificationCard>
+
+                <NotificationCard
+                  title="Lembrete de agendamento"
+                  subtitle={reminderEnabled ? "Ativado" : "Desativado"}
+                  enabled={reminderEnabled}
+                  onToggle={() => setReminderEnabled((v) => !v)}
+                >
+                  <form onSubmit={handleSaveReminder}>
+                    <FieldRow>
+                      <Tooltip text="Envia uma mensagem via WhatsApp para o cliente X horas antes do horário agendado. Útil para reduzir faltas e cancelamentos de última hora." />
+                      <FieldLabel htmlFor="reminder-hours">
+                        Horas de antecedência para notificar:
+                      </FieldLabel>
+                    </FieldRow>
+
+                    <NumberInput
+                      id="reminder-hours"
+                      type="number"
+                      min={1}
+                      max={48}
+                      value={reminderHours}
+                      onChange={(e) => setReminderHours(e.target.value)}
                     />
 
                     <div>
