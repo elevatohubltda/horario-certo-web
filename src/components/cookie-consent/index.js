@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
+import { isMobileApp } from '../../services/api';
 
 const CONSENT_KEY = 'hc_cookie_consent';
 
@@ -205,6 +206,11 @@ export default function CookieConsent({ onAccept }) {
   const accept = () => {
     localStorage.setItem(CONSENT_KEY, 'accepted');
     setVisible(false);
+
+    if (isMobileApp() && window.ReactNativeWebView) {
+      window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'TERMS_ACCEPTED' }));
+    }
+
     if (onAccept) onAccept();
   };
 

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react"
 import styled from "styled-components"
-import { Home, Settings, KeyRound, CalendarDays, Banknote, Scissors, BarChart2, FileText, Bell, ListOrdered } from "lucide-react"
+import { Home, Settings, KeyRound, CalendarDays, Banknote, Scissors, BarChart2, FileText, Bell, BellRing, ListOrdered } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { isMobile } from "../../util/util"
+import { isMobileApp } from "../../services/api"
 import Cookies from "js-cookie"
 
 const hasWhatsAppFeature = (feature) =>
@@ -102,9 +103,16 @@ const Sidebar = ({ children }) => {
     { icon: <KeyRound size={18} />, label: "Alterar senha", url: "/alterar-senha" },
   ]
 
-  const menuItems = hasWhatsApp
-    ? [...baseMenuItems.slice(0, 7), { icon: <Bell size={18} />, label: "Notificações", url: "/notificacoes" }, baseMenuItems[7]]
-    : baseMenuItems;
+  const extraItems = [
+    ...(hasWhatsApp ? [{ icon: <Bell size={18} />, label: "Notificações", url: "/notificacoes" }] : []),
+    ...(isMobileApp() ? [{ icon: <BellRing size={18} />, label: "Notificações Push", url: "/notificacoes-push" }] : []),
+  ];
+
+  const menuItems = [
+    ...baseMenuItems.slice(0, 7),
+    ...extraItems,
+    ...baseMenuItems.slice(7),
+  ];
 
   useEffect(() => {
     setMobile(isMobile());

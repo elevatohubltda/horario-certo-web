@@ -10,6 +10,7 @@ import {Separator} from '../separator/style';
 import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import { isMobile, openInstagram, openWhatsApp } from '../../util/util';
+import { isMobileApp } from '../../services/api';
 import Cookies from "js-cookie";
 import Dialog from '../dialog';
 import styled from 'styled-components';
@@ -228,6 +229,11 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
               {hasWhatsApp && (
                 <div className="dropdown-item" onClick={() => handleNavigate('/notificacoes')}>
                   <button>Notificações</button>
+                </div>
+              )}
+              {isMobileApp() && (
+                <div className="dropdown-item" onClick={() => handleNavigate('/notificacoes-push')}>
+                  <button>Notificações Push</button>
                 </div>
               )}
               <div className="dropdown-item" onClick={() => handleNavigate('/alterar-senha')}>

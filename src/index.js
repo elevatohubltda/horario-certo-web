@@ -20,6 +20,7 @@ import Services from './pages/Services';
 import Analytics from './pages/Analytics';
 import Reports from './pages/Reports';
 import Notifications from './pages/Notifications';
+import PushNotifications from './pages/PushNotifications';
 import TermosDeUso from './pages/TermosDeUso';
 import WaitingList from './pages/WaitingList';
 
@@ -42,6 +43,7 @@ const router = createBrowserRouter(
     { path: '/analytics',         element: <Analytics /> },
     { path: '/relatorios',        element: <Reports /> },
     { path: '/notificacoes',      element: <Notifications /> },
+    { path: '/notificacoes-push', element: <PushNotifications /> },
     { path: '/lista-de-espera',   element: <WaitingList /> },
   ],
   {
