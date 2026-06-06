@@ -33,3 +33,8 @@ export const validateDiscountCode = (code) => {
     const params = new URLSearchParams({ code }).toString();
     return api.get(`/discount-code/validate?${params}`, { withAuth: false });
 };
+
+export const generateOverdueInvoice = (companyUrl) => {
+    const params = new URLSearchParams({ companyUrl }).toString();
+    return api.post(`/payment/overdue-invoice?${params}`, {}, { withAuth: true });
+};

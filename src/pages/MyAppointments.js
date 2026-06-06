@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo } from "react";
+import BlockedAccessPage from "../components/blockedAccess";
 import styled from "styled-components";
 import "slick-carousel/slick/slick.css"; 
 import "slick-carousel/slick/slick-theme.css";
@@ -253,12 +254,13 @@ export default function MyAppointments() {
 
   return (
     <>
-      {companyInfo && 
+      {companyInfo && companyInfo.active === false && <BlockedAccessPage variant="owner" />}
+      {companyInfo && companyInfo.active !== false &&
         <>
-            <Topbar 
-                name={companyInfo.name} 
+            <Topbar
+                name={companyInfo.name}
                 imagem={companyInfo.imagem}
-                whatsapp={companyInfo.whatsapp} 
+                whatsapp={companyInfo.whatsapp}
                 instagram={companyInfo.instagram}
                 loggedIn={true}
             />

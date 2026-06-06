@@ -10,7 +10,7 @@ import { Separator } from "../components/separator/style";
 import { Title } from "../components/title";
 import { isMobile } from "../util/util";
 import { useNavigate } from "react-router-dom";
-import { getPayment, validatePayment } from "../services/endpoints/payment";
+import { getPayment, validatePayment, getClientStatus, generateOverdueInvoice } from "../services/endpoints/payment";
 import { toast } from "react-toastify";
 
 /* ================= ANIMATIONS ================= */
@@ -268,9 +268,13 @@ function Payment() {
   const navigate = useNavigate();
 
   const [paymentProps, setPaymentProps] = useState(null);
+  const [clientStatus, setClientStatus] = useState(null);
+  const [isGeneratingOverdue, setIsGeneratingOverdue] = useState(false);
 
   const hasPayment = paymentProps?.status === "paid" || paymentProps?.status === "pending";
   const isPaid = hasPayment && paymentProps?.status === "paid";
+  const isBlocked = clientStatus?.badge === "error";
+  const showOverdueButton = isBlocked && paymentProps?.status !== "pending";
 
   const getRemainingTime = useCallback(() => {
     if (!paymentProps?.dateExpiration) return 0;
@@ -304,14 +308,36 @@ function Payment() {
     }
   }, [companyUrl]);
 
+  const fetchClientStatus = useCallback(async () => {
+    try {
+      const response = await getClientStatus(companyUrl);
+      setClientStatus(response.data);
+    } catch (error) {
+      console.error("Erro ao buscar status do cliente:", error);
+    }
+  }, [companyUrl]);
+
   useEffect(() => {
     const load = async () => {
-      await fetchPaymentData();
+      await Promise.all([fetchPaymentData(), fetchClientStatus()]);
       setLoading(false);
     };
 
     load();
-  }, [fetchPaymentData]);
+  }, [fetchPaymentData, fetchClientStatus]);
+
+  const handleGenerateOverdueInvoice = async () => {
+    if (isGeneratingOverdue) return;
+    try {
+      setIsGeneratingOverdue(true);
+      await generateOverdueInvoice(companyUrl);
+      await Promise.all([fetchPaymentData(), fetchClientStatus()]);
+    } catch (error) {
+      toast.error(error?.response?.data || "Erro ao gerar fatura em atraso");
+    } finally {
+      setIsGeneratingOverdue(false);
+    }
+  };
 
   useEffect(() => {
     const interval = setInterval(() => setTimeLeft(getRemainingTime()), 1000);
@@ -423,18 +449,36 @@ function Payment() {
           <ActionsRow>
             <Button
               variant="confirm"
-              style={{ 
-                fontSize: "0.8rem", 
-                padding: "0.5rem 1rem", 
+              style={{
+                fontSize: "0.8rem",
+                padding: "0.5rem 1rem",
                 borderRadius: "999px",
                 background: "transparent",
                 color: "var(--color-dark)",
-                border: "1px solid var(--color-dark)", 
+                border: "1px solid var(--color-dark)",
               }}
               onClick={() => navigate("/mudar-assinatura")}
             >
               Mudar assinatura
             </Button>
+            {showOverdueButton && (
+              <Button
+                variant="confirm"
+                style={{
+                  fontSize: "0.8rem",
+                  padding: "0.5rem 1rem",
+                  borderRadius: "999px",
+                  background: "#dc2626",
+                  color: "#fff",
+                  border: "none",
+                  opacity: isGeneratingOverdue ? 0.7 : 1,
+                }}
+                onClick={handleGenerateOverdueInvoice}
+                disabled={isGeneratingOverdue}
+              >
+                {isGeneratingOverdue ? "Gerando..." : "Gerar fatura em atraso"}
+              </Button>
+            )}
           </ActionsRow>
 
           <PageGrid>
@@ -511,6 +555,41 @@ function Payment() {
                   >
                     {formatAmount(paymentProps?.amount)}
                   </div>
+
+                  {paymentProps?.lateFeeAmount && (
+                    <div
+                      style={{
+                        marginTop: "0.75rem",
+                        padding: "0.75rem",
+                        background: "#fef2f2",
+                        borderRadius: "0.5rem",
+                        fontSize: "0.85rem",
+                        color: "#991b1b",
+                      }}
+                    >
+                      <div style={{ fontWeight: 600, marginBottom: "0.4rem" }}>
+                        Encargos de mora
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between" }}>
+                        <span>Valor original</span>
+                        <span>
+                          {formatAmount(
+                            Number(paymentProps.amount) -
+                              Number(paymentProps.lateFeeAmount) -
+                              Number(paymentProps.interestAmount)
+                          )}
+                        </span>
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between" }}>
+                        <span>Multa por atraso (2%)</span>
+                        <span>{formatAmount(paymentProps.lateFeeAmount)}</span>
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between" }}>
+                        <span>Juros de mora (1% a.m. pro-rata)</span>
+                        <span>{formatAmount(paymentProps.interestAmount)}</span>
+                      </div>
+                    </div>
+                  )}
 
                   {!isPaid ? (
                     <>

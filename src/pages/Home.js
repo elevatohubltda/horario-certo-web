@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import BlockedAccessPage from "../components/blockedAccess";
 import Slider from "react-slick";
 import { ReactComponent as ArrowLeft } from '../assets/icons/arrow-left.svg?component';
 import { ReactComponent as ArrowRight } from '../assets/icons/arrow-right.svg?component';
@@ -339,12 +340,13 @@ export default function Home() {
 
   return (
     <>
-      {companyInfo && 
+      {companyInfo && companyInfo.active === false && <BlockedAccessPage variant="public" />}
+      {companyInfo && companyInfo.active !== false &&
         <div style={{backgroundColor: 'var(--color-background)', height: '100dvh'}}>
-          <Topbar 
-            name={companyInfo.name} 
+          <Topbar
+            name={companyInfo.name}
             imagem={companyInfo.imagem}
-            whatsapp={companyInfo.whatsapp} 
+            whatsapp={companyInfo.whatsapp}
             instagram={companyInfo.instagram}
           />
           <CustomFilterStyle $width="80%">
