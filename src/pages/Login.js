@@ -6,6 +6,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Cookies from "js-cookie";
 import { isAvailableLogin } from '../util/auth';
+import { isMobileApp } from '../services/api';
 import { expiresAt } from '../util/date';
 import styled from 'styled-components';
 import { format, parse } from 'date-fns';
@@ -269,18 +270,21 @@ function Login() {
         const companyUrl = res.data.companyUrl;
 
         if (res.status === 200) {
+          // No app o token vale 7 dias — o cookie precisa acompanhar essa validade,
+          // caso contrário expiraria em 3h e derrubaria a sessão antes da hora.
+          const cookieExpiry = isMobileApp() ? expirationDate : expiresAt;
           Cookies.set("token", token, {
-            expires: expiresAt,
+            expires: cookieExpiry,
             secure: true,
             sameSite: "Strict",
           });
           Cookies.set("expirationDate", format(expirationDate, "yyyy-MM-dd'T'HH:mm:ss"), {
-            expires: expiresAt,
+            expires: cookieExpiry,
             secure: true,
             sameSite: "Strict",
           });
           Cookies.set("companyUrl", companyUrl, {
-            expires: expiresAt,
+            expires: cookieExpiry,
             secure: true,
             sameSite: "Strict",
           });
@@ -289,13 +293,13 @@ function Login() {
             const featuresRes = await getFeaturesByCompany(companyUrl);
             if (featuresRes.status === 200) {
               Cookies.set("companyFeatures", JSON.stringify(featuresRes.data), {
-                expires: expiresAt,
+                expires: cookieExpiry,
                 secure: true,
                 sameSite: "Strict",
               });
             }
           } catch {
-            Cookies.set("companyFeatures", "[]", { expires: expiresAt });
+            Cookies.set("companyFeatures", "[]", { expires: cookieExpiry });
           }
 
           if (hasConsented()) {

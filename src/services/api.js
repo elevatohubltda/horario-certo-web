@@ -9,6 +9,10 @@ const api = axios.create({
   },
 });
 
+export const isMobileApp = () =>
+  typeof navigator !== "undefined" &&
+  navigator.userAgent.includes("HorarioCertoApp");
+
 api.interceptors.request.use(
   (config) => {
     if (config.withAuth) {
@@ -16,6 +20,9 @@ api.interceptors.request.use(
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
+    }
+    if (isMobileApp() && config.url?.includes("/auth")) {
+      config.headers["X-Client-Type"] = "mobile-app";
     }
     return config;
   },
