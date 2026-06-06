@@ -83,13 +83,22 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
   const menuRef = useRef(null);
   const navigate = useNavigate();
   const [mobile, setMobile] = useState();
+  const [hasWhatsApp, setHasWhatsApp] = useState(false);
   const companyUrl = Cookies.get("companyUrl");
 
   useEffect(() => {
     if(isAvailableLogin()) {
       setIsAuth(true);
     }
-    setMobile(isMobile());  
+    setMobile(isMobile());
+
+    try {
+      const stored = Cookies.get("companyFeatures");
+      if (stored) {
+        const features = JSON.parse(stored);
+        setHasWhatsApp(features.some((feature) => feature.name.toLowerCase().includes("whatsapp")));
+      }
+    } catch {}
   }, []);
 
   useEffect(() => {
@@ -216,6 +225,11 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
               <div className="dropdown-item" onClick={() => handleNavigate('/assinatura')}>
                 <button>Assinatura</button>
               </div>
+              {hasWhatsApp && (
+                <div className="dropdown-item" onClick={() => handleNavigate('/notificacoes')}>
+                  <button>Notificações</button>
+                </div>
+              )}
               <div className="dropdown-item" onClick={() => handleNavigate('/alterar-senha')}>
                 <button>Alterar senha</button>
               </div>
