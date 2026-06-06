@@ -23,6 +23,7 @@ import Notifications from './pages/Notifications';
 import PushNotifications from './pages/PushNotifications';
 import TermosDeUso from './pages/TermosDeUso';
 import WaitingList from './pages/WaitingList';
+import Help from './pages/Help';
 
 const router = createBrowserRouter(
   [
@@ -45,6 +46,7 @@ const router = createBrowserRouter(
     { path: '/notificacoes',      element: <Notifications /> },
     { path: '/notificacoes-push', element: <PushNotifications /> },
     { path: '/lista-de-espera',   element: <WaitingList /> },
+    { path: '/ajuda',             element: <Help /> },
   ],
   {
     future: {

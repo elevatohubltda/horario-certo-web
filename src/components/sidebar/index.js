@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"
 import styled from "styled-components"
-import { Home, Settings, KeyRound, CalendarDays, Banknote, Scissors, BarChart2, FileText, Bell, BellRing, ListOrdered } from "lucide-react"
+import { Home, Settings, KeyRound, CalendarDays, Banknote, Scissors, BarChart2, FileText, Bell, BellRing, ListOrdered, HelpCircle } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { isMobile } from "../../util/util"
 import { isMobileApp } from "../../services/api"
@@ -101,6 +101,7 @@ const Sidebar = ({ children }) => {
     { icon: <Banknote size={18} />, label: "Assinatura", url: "/assinatura" },
     { icon: <Settings size={18} />, label: "Configurações", url: "/configuracoes" },
     { icon: <KeyRound size={18} />, label: "Alterar senha", url: "/alterar-senha" },
+    { icon: <HelpCircle size={18} />, label: "Ajuda", url: "/ajuda" },
   ]
 
   const extraItems = [
