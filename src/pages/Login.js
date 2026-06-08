@@ -83,18 +83,23 @@ const LoginForm = styled.form`
   max-width: 380px;
 `;
 
+const FieldGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin-bottom: 1.25rem;
+`;
+
 const Label = styled.label`
   font-size: 0.83rem;
   font-weight: 600;
   color: #546151;
-  margin-bottom: 0.45rem;
 `;
 
 const Input = styled.input`
   height: 3rem;
   width: 100%;
   box-sizing: border-box;
-  margin: 0 0 1rem;
   padding: 0 1rem;
   border-radius: 999px;
   border: 1px solid #d7dbd4;
@@ -118,6 +123,7 @@ const SubmitButton = styled.button`
   border: none;
   border-radius: 999px;
   height: 3rem;
+  margin-top: 0.5rem;
   background: #111111;
   color: #ffffff;
   font-size: 0.95rem;
@@ -132,7 +138,7 @@ const SubmitButton = styled.button`
 `;
 
 const Divider = styled.div`
-  margin: 1.6rem 0 1.2rem;
+  margin: 2rem 0 1.5rem;
   display: flex;
   align-items: center;
   gap: 0.9rem;
@@ -164,6 +170,23 @@ const RegisterLink = styled.button`
   padding: 0;
 
   &:hover {
+    text-decoration: underline;
+  }
+`;
+
+const ForgotLink = styled.button`
+  border: none;
+  background: transparent;
+  color: #73816d;
+  font-size: 0.83rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  display: block;
+  margin: 0.85rem auto 0;
+
+  &:hover {
+    color: #3f4b3b;
     text-decoration: underline;
   }
 `;
@@ -347,32 +370,33 @@ function Login() {
           </Subheading>
 
           <LoginForm onSubmit={handleLogin}>
-            <Label htmlFor="username">Usuario</Label>
-            <Input
-              id="username"
-              autoComplete="username"
-              placeholder="Digite seu usuario"
-              value={userData.username}
-              onChange={(e) => handleUserData('username', e.target.value)}
-            />
+            <FieldGroup>
+              <Label htmlFor="username">Usuário</Label>
+              <Input
+                id="username"
+                autoComplete="username"
+                placeholder="Digite seu usuário"
+                value={userData.username}
+                onChange={(e) => handleUserData('username', e.target.value)}
+              />
+            </FieldGroup>
 
-            <Label htmlFor="password">Senha</Label>
-            <Input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              placeholder="Digite sua senha"
-              value={userData.password}
-              onChange={(e) => handleUserData('password', e.target.value)}
-            />
-
-            {/* <FormFooter>
-              <ForgotButton type="button" onClick={() => navigate('/esqueci-senha')}>
-                Esqueceu sua senha?
-              </ForgotButton>
-            </FormFooter> */}
+            <FieldGroup>
+              <Label htmlFor="password">Senha</Label>
+              <Input
+                id="password"
+                type="password"
+                autoComplete="current-password"
+                placeholder="Digite sua senha"
+                value={userData.password}
+                onChange={(e) => handleUserData('password', e.target.value)}
+              />
+            </FieldGroup>
 
             <SubmitButton type="submit">Entrar</SubmitButton>
+            <ForgotLink type="button" onClick={() => navigate('/esqueci-senha')}>
+              Esqueceu sua senha?
+            </ForgotLink>
 
             <Divider>Acesso somente por usuario e senha</Divider>
 

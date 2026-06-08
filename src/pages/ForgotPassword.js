@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styled from 'styled-components';
+import { forgotPassword, resetPassword } from '../services/endpoints/user';
 
 const Page = styled.main`
   min-height: 100vh;
@@ -123,9 +124,14 @@ const PrimaryButton = styled.button`
   cursor: pointer;
   transition: transform 0.18s ease, box-shadow 0.18s ease;
 
-  &:hover {
+  &:hover:not(:disabled) {
     transform: translateY(-1px);
     box-shadow: 0 10px 18px rgba(0, 0, 0, 0.16);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
 `;
 
@@ -177,6 +183,19 @@ const LinkButton = styled.button`
   &:hover {
     text-decoration: underline;
   }
+`;
+
+const StepBadge = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  background: #edf2eb;
+  color: #456140;
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
 `;
 
 const IllustrationPanel = styled.div`
@@ -253,87 +272,159 @@ const IllustrationText = styled.p`
 function ForgotPassword() {
   const navigate = useNavigate();
   const [isMobileViewport, setIsMobileViewport] = useState(window.innerWidth <= 768);
-  const [formData, setFormData] = useState({
-    username: '',
-    contact: ''
-  });
+  const [step, setStep] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [username, setUsername] = useState('');
+  const [whatsapp, setWhatsapp] = useState('');
+  const [code, setCode] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobileViewport(window.innerWidth <= 768);
-    };
-
+    const handleResize = () => setIsMobileViewport(window.innerWidth <= 768);
     window.addEventListener('resize', handleResize);
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const handleChange = (field, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value
-    }));
-  };
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-
-    if (!formData.username || !formData.contact) {
-      toast.error('Preencha usuario e whatsapp para continuar.');
+  const handleStep1 = async (e) => {
+    e.preventDefault();
+    if (!username.trim() || !whatsapp.trim()) {
+      toast.error('Preencha o usuário e o WhatsApp para continuar.');
       return;
     }
+    setLoading(true);
+    try {
+      await forgotPassword(username.trim(), whatsapp.trim());
+      toast.success('Código enviado! Verifique o WhatsApp da sua empresa.');
+      setStep(2);
+    } catch {
+      toast.error('Usuário ou WhatsApp não encontrados.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    toast.success('Solicitacao recebida! Em breve entraremos em contato para redefinicao de senha.');
+  const handleStep2 = async (e) => {
+    e.preventDefault();
+    if (!code.trim() || !newPassword || !confirmPassword) {
+      toast.error('Preencha todos os campos.');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error('As senhas não coincidem.');
+      return;
+    }
+    if (newPassword.length < 6) {
+      toast.error('A senha deve ter pelo menos 6 caracteres.');
+      return;
+    }
+    setLoading(true);
+    try {
+      await resetPassword(username.trim(), code.trim(), newPassword);
+      toast.success('Senha redefinida com sucesso!');
+      setTimeout(() => navigate('/login'), 1500);
+    } catch {
+      toast.error('Código inválido ou expirado. Solicite um novo código.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <Page>
       <Shell>
         <FormPanel>
-          <Brand>Horario Certo</Brand>
-          <Heading>Esqueceu sua senha?</Heading>
-          <Subheading>
-            Informe seus dados para abrir uma solicitacao de redefinicao e recuperar o acesso da sua conta.
-          </Subheading>
+          <Brand>Horário Certo</Brand>
 
-          <Form onSubmit={handleSubmit}>
-            <Label htmlFor="username">Usuario</Label>
-            <Input
-              id="username"
-              placeholder="Digite seu usuario"
-              autoComplete="username"
-              value={formData.username}
-              onChange={(e) => handleChange('username', e.target.value)}
-            />
+          {step === 1 ? (
+            <>
+              <Heading>Esqueceu sua senha?</Heading>
+              <Subheading>
+                Informe seu usuário e o WhatsApp cadastrado na sua empresa. Enviaremos um código de verificação.
+              </Subheading>
+              <Form onSubmit={handleStep1}>
+                <Label htmlFor="username">Usuário</Label>
+                <Input
+                  id="username"
+                  placeholder="Digite seu usuário"
+                  autoComplete="username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                />
 
-            <Label htmlFor="contact">Whatsapp da empresa</Label>
-            <Input
-              id="contact"
-              placeholder="(00) 00000-0000"
-              value={formData.contact}
-              onChange={(e) => handleChange('contact', e.target.value)}
-            />
+                <Label htmlFor="whatsapp">WhatsApp da empresa</Label>
+                <Input
+                  id="whatsapp"
+                  placeholder="(00) 00000-0000"
+                  value={whatsapp}
+                  onChange={(e) => setWhatsapp(e.target.value)}
+                />
 
-            <HelperText>
-              Use um numero valido para receber as orientacoes de redefinicao.
-            </HelperText>
+                <HelperText>
+                  Use o número cadastrado nas configurações da sua empresa.
+                </HelperText>
 
-            <PrimaryButton type="submit">Solicitar redefinicao</PrimaryButton>
-            <SecondaryButton type="button" onClick={() => navigate('/login')}>
-              Voltar para login
-            </SecondaryButton>
+                <PrimaryButton type="submit" disabled={loading}>
+                  {loading ? 'Enviando...' : 'Enviar código'}
+                </PrimaryButton>
+                <SecondaryButton type="button" onClick={() => navigate('/login')}>
+                  Voltar para login
+                </SecondaryButton>
 
-            <Divider>Precisa criar uma conta nova?</Divider>
+                <Divider>Precisa criar uma conta nova?</Divider>
 
-            <InfoText>
-              Ainda nao tem cadastro?{' '}
-              <LinkButton type="button" onClick={() => navigate('/registro')}>
-                Registre-se agora
-              </LinkButton>
-            </InfoText>
-          </Form>
+                <InfoText>
+                  Ainda não tem cadastro?{' '}
+                  <LinkButton type="button" onClick={() => navigate('/registro')}>
+                    Registre-se agora
+                  </LinkButton>
+                </InfoText>
+              </Form>
+            </>
+          ) : (
+            <>
+              <StepBadge>Código enviado via WhatsApp</StepBadge>
+              <Heading>Crie uma nova senha</Heading>
+              <Subheading>
+                Digite o código de 6 dígitos que enviamos para o WhatsApp da empresa e escolha sua nova senha.
+              </Subheading>
+              <Form onSubmit={handleStep2}>
+                <Label htmlFor="code">Código de verificação</Label>
+                <Input
+                  id="code"
+                  placeholder="000000"
+                  maxLength={6}
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+                />
+
+                <Label htmlFor="newPassword">Nova senha</Label>
+                <Input
+                  id="newPassword"
+                  type="password"
+                  placeholder="Mínimo 6 caracteres"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                />
+
+                <Label htmlFor="confirmPassword">Confirmar nova senha</Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  placeholder="Repita a nova senha"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+
+                <PrimaryButton type="submit" disabled={loading}>
+                  {loading ? 'Redefinindo...' : 'Redefinir senha'}
+                </PrimaryButton>
+                <SecondaryButton type="button" onClick={() => setStep(1)}>
+                  Não recebi o código
+                </SecondaryButton>
+              </Form>
+            </>
+          )}
         </FormPanel>
 
         <IllustrationPanel>
@@ -343,7 +434,7 @@ function ForgotPassword() {
             <Orbit />
             <Character />
             <IllustrationText>
-              Recupere seu acesso e volte a organizar com o <strong>Horario Certo</strong>
+              Recupere seu acesso e volte a organizar com o <strong>Horário Certo</strong>
             </IllustrationText>
           </IllustrationCard>
         </IllustrationPanel>
