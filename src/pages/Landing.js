@@ -86,9 +86,13 @@ const Brand = styled.button`
 `;
 
 const NavActions = styled.div`
-  display: flex;
+  display: none;
   align-items: center;
   gap: 0.5rem;
+
+  @media (min-width: 768px) {
+    display: flex;
+  }
 `;
 
 const OutlineButton = styled.button`
