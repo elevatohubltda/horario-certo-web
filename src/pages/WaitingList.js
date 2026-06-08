@@ -225,19 +225,22 @@ export default function WaitingList() {
       />
       <Sidebar>
         <Title
-          $padding="1rem"
-          $margin="1rem 0 0 0"
-          $fontweight="600"
-          $color="var(--color-brown)"
-          $width="max-content"
-        >
-          Lista de Espera
-        </Title>
-        <Separator
-          $width="calc(100% - 2rem)"
-          $bordercolor="var(--color-olive)"
-          $margin="0 1rem 0 1rem"
-        />
+            $padding="1rem"
+            $margin="1rem 0 0 0"
+            $fontweight="600"
+            $fontsize="2rem"
+            $color="var(--color-dark)"
+            $width="max-content"
+          >
+            Lista de Espera
+          </Title>
+
+          <Separator
+            $width="calc(100% - 2rem)"
+            $bordercolor="var(--color-olive)"
+            $margin="0 1rem 1rem 1rem"
+            $style="dotted"
+          />
 
         {/* ─── Filtro de data ─── */}
         <CustomFilterStyle $margin="0" $padding="0.75rem 1rem" $width="calc(100% - 2rem)">
