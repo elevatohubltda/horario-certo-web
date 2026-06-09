@@ -229,12 +229,6 @@ const L1Tagline = styled.p`
   margin: 0;
   max-width: 500px;
 `;
-const L1Url = styled.p`
-  font-size: 14px;
-  color: #8a9a88;
-  margin: 0;
-  letter-spacing: 0.02em;
-`;
 const L1Footer = styled.div`
   width: 100%;
   padding: 20px 60px;
