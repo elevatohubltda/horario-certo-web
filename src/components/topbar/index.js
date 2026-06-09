@@ -242,6 +242,9 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
               <div className="dropdown-item" onClick={() => handleNavigate('/configuracoes')}>
                 <button>Configurações</button>
               </div>
+              <div className="dropdown-item" onClick={() => handleNavigate('/divulgacao')}>
+                <button>Divulgação</button>
+              </div>
               <div className="dropdown-item" onClick={() => handleNavigate('/ajuda')}>
                 <button>Ajuda</button>
               </div>

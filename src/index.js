@@ -24,6 +24,7 @@ import PushNotifications from './pages/PushNotifications';
 import TermosDeUso from './pages/TermosDeUso';
 import WaitingList from './pages/WaitingList';
 import Help from './pages/Help';
+import Divulgacao from './pages/Divulgacao';
 
 const router = createBrowserRouter(
   [
@@ -47,6 +48,7 @@ const router = createBrowserRouter(
     { path: '/notificacoes-push', element: <PushNotifications /> },
     { path: '/lista-de-espera',   element: <WaitingList /> },
     { path: '/ajuda',             element: <Help /> },
+    { path: '/divulgacao',        element: <Divulgacao /> },
   ],
   {
     future: {
