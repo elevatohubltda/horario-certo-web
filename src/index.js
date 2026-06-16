@@ -1,10 +1,8 @@
-import React from 'react';
 import ReactDOM from 'react-dom/client';
 import {
   createBrowserRouter,
   RouterProvider,
 } from 'react-router-dom';
-import { AppThemeProvider } from './context/ThemeContext';
 import Landing from './pages/Landing';
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -61,8 +59,4 @@ const router = createBrowserRouter(
 );
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <AppThemeProvider>
-    <RouterProvider router={router} />
-  </AppThemeProvider>
-);
+root.render(<RouterProvider router={router} />);

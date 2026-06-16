@@ -3,7 +3,6 @@ import styled, { keyframes, css, ThemeProvider } from 'styled-components';
 import { ReactComponent as Logo } from '../assets/horario-certo-logo-horizontal.svg?component';
 import { useNavigate } from 'react-router-dom';
 import { getPublicSubscriptionPlans } from '../services/endpoints/payment';
-import { useAppTheme } from '../context/ThemeContext';
 
 /* ── temas ──────────────────────────────────────────────────────────── */
 
@@ -1065,8 +1064,21 @@ function Landing() {
   const [activePlan, setActivePlan] = useState(0);
   const [faqOpen, setFaqOpen] = useState(null);
 
-  const { mode: themeMode, toggle: toggleTheme } = useAppTheme();
+  const getInitialMode = () => {
+    try {
+      const saved = localStorage.getItem('hc-landing-theme');
+      if (saved === 'dark' || saved === 'light') return saved;
+    } catch {}
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  };
+  const [themeMode, setThemeMode] = useState(getInitialMode);
   const theme = themeMode === 'dark' ? darkTheme : lightTheme;
+
+  const toggleTheme = () => {
+    const next = themeMode === 'dark' ? 'light' : 'dark';
+    setThemeMode(next);
+    try { localStorage.setItem('hc-landing-theme', next); } catch {}
+  };
 
   const DEMO_DELAY = 3500;
   const [demoStep, setDemoStep] = useState(1);

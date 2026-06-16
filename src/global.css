@@ -1,6 +1,4 @@
-/* ── Light theme (default) ─────────────────────────── */
-:root,
-[data-theme="light"] {
+:root {
   --color-background:       #EEEDE7;
   --color-sage:             #8E988E;
   --color-olive:            #878B83;
@@ -32,45 +30,4 @@
 
   /* shadows */
   --color-shadow:           rgba(0,0,0,0.08);
-}
-
-/* ── Dark theme ────────────────────────────────────── */
-[data-theme="dark"] {
-  --color-background:       #121212;
-  --color-sage:             #c9a84c;
-  --color-olive:            #a08c60;
-  --color-brown:            #c9a87a;
-  --color-earth:            #b0a080;
-  --color-dark:             #f5f0e8;
-  --color-muted:            #6a6a6a;
-
-  /* surfaces */
-  --color-surface:          #1e1e1e;
-  --color-surface-2:        #252525;
-
-  /* borders */
-  --color-border:           #333333;
-  --color-separator:        #444444;
-
-  /* text */
-  --color-text:             #f5f0e8;
-  --color-text-secondary:   rgba(245,240,232,0.7);
-  --color-text-muted:       rgba(245,240,232,0.4);
-
-  /* topbar / dropdown */
-  --color-topbar-bg:        #1a1a1a;
-  --color-dropdown-bg:      #1e1e1e;
-  --color-hover-bg:         rgba(201,168,76,0.10);
-
-  /* inputs */
-  --color-input-bg:         #2a2a2a;
-
-  /* shadows */
-  --color-shadow:           rgba(0,0,0,0.5);
-}
-
-/* ── Global transitions ────────────────────────────── */
-body,
-body * {
-  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
