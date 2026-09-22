@@ -11,7 +11,7 @@ import { getCompany, getCompanySchedulesAuth } from "../services/endpoints/compa
 import DateRangeSelector from "../components/dateRangeSelector";
 import Cookies from "js-cookie";
 import Sidebar from "../components/sidebar";
-import { isAvailableLogin } from "../util/auth";
+import { isAvailableLogin, setSecureCookie } from "../util/auth";
 import { useNavigate } from "react-router-dom";
 import SortedTable from "../components/sortedTable";
 import { isMobile } from "../util/util";
@@ -222,10 +222,8 @@ export default function MyAppointments() {
   const getCompanyInfo = async () => {
       try {
         var response = await getCompany(companyUrl);
-        Cookies.set("companyInfo", JSON.stringify(response.data), {
+        setSecureCookie("companyInfo", JSON.stringify(response.data), {
           expires: expiresAt,
-          secure: true,
-          sameSite: "Strict",
         });
         setCompanyInfo(response.data);
       } catch (error) {

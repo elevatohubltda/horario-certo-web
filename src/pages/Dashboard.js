@@ -6,7 +6,7 @@ import Sidebar from "../components/sidebar";
 import { Container } from "../components/container/style";
 import { Title } from "../components/title";
 import Alert from "../components/alert";
-import { isAvailableLogin } from "../util/auth";
+import { isAvailableLogin, setSecureCookie } from "../util/auth";
 import { isMobile } from "../util/util";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
@@ -316,10 +316,8 @@ export default function Dashboard() {
   const getCompanyInfo = async () => {
       try {
         var response = await getCompany(companyUrl);
-        Cookies.set("companyInfo", JSON.stringify(response.data), {
+        setSecureCookie("companyInfo", JSON.stringify(response.data), {
           expires: expiresAt,
-          secure: true,
-          sameSite: "Strict",
         });
         setCompanyInfo(response.data);
       } catch (error) {

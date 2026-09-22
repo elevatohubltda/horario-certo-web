@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Cookies from 'js-cookie';
+import { setSecureCookie } from '../util/auth';
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from 'react-router-dom';
 import "react-toastify/dist/ReactToastify.css";
@@ -548,10 +548,8 @@ function Register() {
                     password: userData.password.stepOne
                 });
 
-                Cookies.set("token", loginRes.data.token, {
-                    expires: expiresAt,
-                    secure: true,
-                    sameSite: "Strict"
+                setSecureCookie("token", loginRes.data.token, {
+                    expires: expiresAt
                 });
 
                 await createCompany({

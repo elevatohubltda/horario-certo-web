@@ -14,6 +14,7 @@ import { isMobileApp } from '../../services/api';
 import Cookies from "js-cookie";
 import Dialog from '../dialog';
 import styled from 'styled-components';
+import { getCompanyProperties } from '../../services/endpoints/company';
 
 const DialogTitle = styled.h3`
   margin: 0 0 1rem 0;
@@ -85,6 +86,7 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
   const navigate = useNavigate();
   const [mobile, setMobile] = useState();
   const [hasWhatsApp, setHasWhatsApp] = useState(false);
+  const [scheduleMode, setScheduleMode] = useState("PADRAO");
   const companyUrl = Cookies.get("companyUrl");
 
   useEffect(() => {
@@ -100,6 +102,13 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
         setHasWhatsApp(features.some((feature) => feature.name.toLowerCase().includes("whatsapp")));
       }
     } catch {}
+
+    if (companyUrl) {
+      getCompanyProperties(companyUrl)
+        .then((response) => setScheduleMode(response.data?.scheduleMode || "PADRAO"))
+        .catch(() => {});
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -206,11 +215,23 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
             </div>
           )}
 
-          {mobile ? 
+          {mobile ?
             <>
-              <div className="dropdown-item" onClick={() => handleNavigate('/agendamentos')}>
-                <button>Agendamentos</button>
-              </div>
+              {scheduleMode !== "SIMPLES" && (
+                <div className="dropdown-item" onClick={() => handleNavigate('/agendamentos')}>
+                  <button>Agendamentos</button>
+                </div>
+              )}
+              {scheduleMode === "SIMPLES" && (
+                <>
+                  <div className="dropdown-item" onClick={() => handleNavigate('/configurar-horario-semanal')}>
+                    <button>Configuração Horários</button>
+                  </div>
+                  <div className="dropdown-item" onClick={() => handleNavigate('/agenda-semanal')}>
+                    <button>Agenda semanal</button>
+                  </div>
+                </>
+              )}
               <div className="dropdown-item" onClick={() => handleNavigate('/servicos')}>
                 <button>Serviços</button>
               </div>

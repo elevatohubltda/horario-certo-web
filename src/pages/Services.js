@@ -12,13 +12,16 @@ import { Title } from "../components/title";
 import { Separator } from "../components/separator/style";
 import { ToastContainer, toast } from "react-toastify";
 import { Button } from "react-bootstrap";
-import { PlusIcon } from "lucide-react";
+import { PlusIcon, Pencil, Trash2 } from "lucide-react";
 import Dialog from "../components/dialog";
 import {
   getServices,
   createService,
+  updateService,
+  deleteService,
   updateServiceStatus,
 } from "../services/endpoints/service";
+import { SERVICE_COLOR_PALETTE, DEFAULT_SERVICE_COLOR } from "../util/serviceColors";
 
 /* =======================
    Styled Components
@@ -73,8 +76,45 @@ const ServiceRow = styled.div`
 
 const ServiceInfo = styled.div`
   display: flex;
+  align-items: center;
+  gap: 0.65rem;
+`;
+
+const ServiceTexts = styled.div`
+  display: flex;
   flex-direction: column;
   gap: 0.2rem;
+`;
+
+const ColorDot = styled.span`
+  width: 12px;
+  height: 12px;
+  min-width: 12px;
+  border-radius: 50%;
+  background-color: ${({ $color }) => $color || "#4285F4"};
+`;
+
+const ColorSwatchGrid = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+`;
+
+const ColorSwatch = styled.button`
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: ${({ $color }) => $color};
+  border: 2px solid ${({ $selected }) => ($selected ? "var(--color-dark)" : "transparent")};
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.15s ease;
+
+  &:hover {
+    transform: scale(1.1);
+  }
 `;
 
 const ServiceName = styled.span`
@@ -94,6 +134,32 @@ const StatusAction = styled.div`
   display: flex;
   align-items: center;
   gap: 0.6rem;
+`;
+
+const IconButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.06);
+    color: var(--color-dark);
+  }
+`;
+
+const DeleteIconButton = styled(IconButton)`
+  &:hover {
+    background: rgba(217, 83, 79, 0.1);
+    color: #d9534f;
+  }
 `;
 
 const StatusLabel = styled.span`
@@ -211,11 +277,17 @@ export default function Services() {
   const [loading, setLoading] = useState(true);
   const [services, setServices] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [editingService, setEditingService] = useState(null);
   const [newServiceName, setNewServiceName] = useState("");
   const [newServicePrice, setNewServicePrice] = useState("");
+  const [newServiceDuration, setNewServiceDuration] = useState("");
+  const [newServiceColor, setNewServiceColor] = useState(DEFAULT_SERVICE_COLOR);
   const [nameError, setNameError] = useState("");
   const [priceError, setPriceError] = useState("");
+  const [durationError, setDurationError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   const formatCurrency = (value) =>
     Number(value || 0).toLocaleString("pt-BR", {
@@ -264,26 +336,48 @@ export default function Services() {
   }, []);
 
   const openModal = () => {
+    setEditingService(null);
     setNewServiceName("");
     setNewServicePrice("");
+    setNewServiceDuration("");
+    setNewServiceColor(DEFAULT_SERVICE_COLOR);
     setNameError("");
     setPriceError("");
+    setDurationError("");
+    setShowModal(true);
+  };
+
+  const openEditModal = (service) => {
+    setEditingService(service);
+    setNewServiceName(service.name);
+    setNewServicePrice(formatCurrency(service.price));
+    setNewServiceDuration(String(service.durationMinutes || ""));
+    setNewServiceColor(service.color || DEFAULT_SERVICE_COLOR);
+    setNameError("");
+    setPriceError("");
+    setDurationError("");
     setShowModal(true);
   };
 
   const closeModal = () => {
     setShowModal(false);
+    setEditingService(null);
     setNewServiceName("");
     setNewServicePrice("");
+    setNewServiceDuration("");
+    setNewServiceColor(DEFAULT_SERVICE_COLOR);
     setNameError("");
     setPriceError("");
+    setDurationError("");
   };
 
   const handleNameChange = (value) => {
     setNewServiceName(value);
     const trimmed = value.trim().toLowerCase();
     const exists = services.some(
-      (s) => s.name.trim().toLowerCase() === trimmed
+      (s) =>
+        s.name.trim().toLowerCase() === trimmed &&
+        (!editingService || s.id !== editingService.id)
     );
     if (trimmed && exists) {
       setNameError("Esse serviço já está cadastrado.");
@@ -312,6 +406,7 @@ export default function Services() {
   const handleSave = async () => {
     const trimmed = newServiceName.trim();
     const parsedPrice = parsePriceInput(newServicePrice);
+    const parsedDuration = parseInt(newServiceDuration, 10);
     if (!trimmed) {
       setNameError("Digite o nome do serviço.");
       return;
@@ -320,8 +415,14 @@ export default function Services() {
       setPriceError("Digite o valor do serviço.");
       return;
     }
+    if (!newServiceDuration || isNaN(parsedDuration) || parsedDuration <= 0) {
+      setDurationError("Digite a duração do serviço em minutos.");
+      return;
+    }
     const exists = services.some(
-      (s) => s.name.trim().toLowerCase() === trimmed.toLowerCase()
+      (s) =>
+        s.name.trim().toLowerCase() === trimmed.toLowerCase() &&
+        (!editingService || s.id !== editingService.id)
     );
     if (exists) {
       setNameError("Esse serviço já está cadastrado.");
@@ -329,27 +430,67 @@ export default function Services() {
     }
     setSaving(true);
     try {
-      const response = await createService(companyUrl, {
+      const payload = {
         name: trimmed,
         price: parsedPrice,
-      });
+        durationMinutes: parsedDuration,
+        color: newServiceColor,
+      };
+      const response = editingService
+        ? await updateService(companyUrl, editingService.id, payload)
+        : await createService(companyUrl, payload);
       if (response.status === 200 || response.status === 201) {
-        toast.success("Serviço cadastrado com sucesso!", {
-          containerId: TOAST_CONTAINER_ID,
-        });
+        toast.success(
+          editingService
+            ? "Serviço atualizado com sucesso!"
+            : "Serviço cadastrado com sucesso!",
+          { containerId: TOAST_CONTAINER_ID }
+        );
         closeModal();
         fetchServices();
       } else {
-        toast.error("Erro ao cadastrar o serviço", {
+        toast.error(
+          editingService ? "Erro ao atualizar o serviço" : "Erro ao cadastrar o serviço",
+          { containerId: TOAST_CONTAINER_ID }
+        );
+      }
+    } catch (error) {
+      toast.error(
+        editingService ? "Erro ao atualizar o serviço" : "Erro ao cadastrar o serviço",
+        { containerId: TOAST_CONTAINER_ID }
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const openDeleteConfirm = (service) => setDeleteTarget(service);
+  const closeDeleteConfirm = () => setDeleteTarget(null);
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await deleteService(companyUrl, deleteTarget.id);
+      toast.success("Serviço excluído com sucesso!", {
+        containerId: TOAST_CONTAINER_ID,
+      });
+      setServices((prev) => prev.filter((s) => s.id !== deleteTarget.id));
+      setDeleteTarget(null);
+    } catch (error) {
+      if (error?.response?.status === 409) {
+        toast.error(
+          error.response.data ||
+            "Não é possível excluir um serviço que já possui agendamentos. Inative-o em vez de excluir.",
+          { containerId: TOAST_CONTAINER_ID }
+        );
+      } else {
+        toast.error("Erro ao excluir o serviço", {
           containerId: TOAST_CONTAINER_ID,
         });
       }
-    } catch (error) {
-      toast.error("Erro ao cadastrar o serviço", {
-        containerId: TOAST_CONTAINER_ID,
-      });
     } finally {
-      setSaving(false);
+      setDeleting(false);
     }
   };
 
@@ -444,10 +585,13 @@ export default function Services() {
               {services.map((service) => (
                 <ServiceRow key={service.id}>
                   <ServiceInfo>
-                    <ServiceName $active={service.active}>{service.name}</ServiceName>
-                    <ServicePrice $active={service.active}>
-                      {formatCurrency(service.price)}
-                    </ServicePrice>
+                    <ColorDot $color={service.color} />
+                    <ServiceTexts>
+                      <ServiceName $active={service.active}>{service.name}</ServiceName>
+                      <ServicePrice $active={service.active}>
+                        {formatCurrency(service.price)} · {service.durationMinutes} min
+                      </ServicePrice>
+                    </ServiceTexts>
                   </ServiceInfo>
                   <StatusAction>
                     <StatusLabel $active={service.active}>
@@ -464,6 +608,22 @@ export default function Services() {
                     >
                       <SwitchThumb $active={service.active} />
                     </StatusSwitch>
+                    <IconButton
+                      type="button"
+                      title="Editar serviço"
+                      aria-label="Editar serviço"
+                      onClick={() => openEditModal(service)}
+                    >
+                      <Pencil size={16} />
+                    </IconButton>
+                    <DeleteIconButton
+                      type="button"
+                      title="Excluir serviço"
+                      aria-label="Excluir serviço"
+                      onClick={() => openDeleteConfirm(service)}
+                    >
+                      <Trash2 size={16} />
+                    </DeleteIconButton>
                   </StatusAction>
                 </ServiceRow>
               ))}
@@ -488,7 +648,7 @@ export default function Services() {
           $fontsize="1.25rem"
           $color="var(--color-dark)"
         >
-          Novo serviço
+          {editingService ? "Editar serviço" : "Novo serviço"}
         </Title>
 
         <Separator
@@ -526,6 +686,32 @@ export default function Services() {
             />
             {priceError && <ErrorMessage>{priceError}</ErrorMessage>}
 
+            <ModalLabel htmlFor="service-duration">Duração do serviço (minutos)</ModalLabel>
+            <ModalInput
+            id="service-duration"
+            type="number"
+            min="1"
+            placeholder="Ex: 30"
+            value={newServiceDuration}
+            onChange={(e) => { setNewServiceDuration(e.target.value); setDurationError(""); }}
+            />
+            {durationError && <ErrorMessage>{durationError}</ErrorMessage>}
+
+            <ModalLabel>Cor do serviço</ModalLabel>
+            <ColorSwatchGrid>
+              {SERVICE_COLOR_PALETTE.map((color) => (
+                <ColorSwatch
+                  key={color.hex}
+                  type="button"
+                  $color={color.hex}
+                  $selected={newServiceColor === color.hex}
+                  title={color.name}
+                  aria-label={color.name}
+                  onClick={() => setNewServiceColor(color.hex)}
+                />
+              ))}
+            </ColorSwatchGrid>
+
             <ModalActions>
                 <Button 
                     type="button" 
@@ -544,14 +730,52 @@ export default function Services() {
                     disabled={
                       !!nameError ||
                       !!priceError ||
+                      !!durationError ||
                       !newServiceName.trim() ||
                       !newServicePrice ||
+                      !newServiceDuration ||
                       saving
                     }
                 >
-                    {saving ? "Salvando..." : "Salvar"}
+                    {saving ? "Salvando..." : editingService ? "Salvar alterações" : "Salvar"}
                 </Button>
             </ModalActions>
+        </Form>
+      </Dialog>
+
+      <Dialog open={!!deleteTarget} onClose={closeDeleteConfirm} mobile={mobile}>
+        <Title
+          $padding="0"
+          $margin="0 0 0.5rem 0"
+          $fontweight="600"
+          $fontsize="1.25rem"
+          $color="var(--color-dark)"
+        >
+          Excluir serviço
+        </Title>
+        <Separator
+          $width="100%"
+          $bordercolor="var(--color-olive)"
+          $margin="0 0 1rem 0"
+          $style="dotted"
+        />
+        <Form>
+          <p style={{ fontSize: "0.9rem", color: "var(--color-dark)", margin: "0 0 1.5rem 0" }}>
+            Tem certeza que deseja excluir o serviço <strong>{deleteTarget?.name}</strong>? Essa ação não pode ser desfeita.
+          </p>
+          <ModalActions>
+            <Button type="button" variant="link" onClick={closeDeleteConfirm}>
+              Cancelar
+            </Button>
+            <Button
+              type="button"
+              style={{ backgroundColor: "#d9534f", borderColor: "#d9534f" }}
+              onClick={handleDelete}
+              disabled={deleting}
+            >
+              {deleting ? "Excluindo..." : "Excluir"}
+            </Button>
+          </ModalActions>
         </Form>
       </Dialog>
     </>

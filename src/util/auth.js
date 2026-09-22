@@ -1,6 +1,16 @@
 import { format } from 'date-fns';
 import Cookies from "js-cookie";
 
+// Garante que todo cookie de sessão/empresa saia com as mesmas flags de
+// segurança (secure + sameSite=Strict), evitando inconsistência entre telas.
+export function setSecureCookie(name, value, options = {}) {
+    Cookies.set(name, value, {
+        secure: true,
+        sameSite: "Strict",
+        ...options,
+    });
+}
+
 export function isAvailableLogin(){
     const now = format(new Date(), 'yyyy-MM-ddTHH:mm:ss');
     const token = Cookies.get("token");

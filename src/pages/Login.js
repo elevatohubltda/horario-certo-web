@@ -4,8 +4,7 @@ import { getFeaturesByCompany } from '../services/endpoints/plans';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Cookies from "js-cookie";
-import { isAvailableLogin } from '../util/auth';
+import { isAvailableLogin, setSecureCookie } from '../util/auth';
 import { isMobileApp } from '../services/api';
 import { expiresAt } from '../util/date';
 import styled from 'styled-components';
@@ -296,33 +295,17 @@ function Login() {
           // No app o token vale 7 dias — o cookie precisa acompanhar essa validade,
           // caso contrário expiraria em 3h e derrubaria a sessão antes da hora.
           const cookieExpiry = isMobileApp() ? expirationDate : expiresAt;
-          Cookies.set("token", token, {
-            expires: cookieExpiry,
-            secure: true,
-            sameSite: "Strict",
-          });
-          Cookies.set("expirationDate", format(expirationDate, "yyyy-MM-dd'T'HH:mm:ss"), {
-            expires: cookieExpiry,
-            secure: true,
-            sameSite: "Strict",
-          });
-          Cookies.set("companyUrl", companyUrl, {
-            expires: cookieExpiry,
-            secure: true,
-            sameSite: "Strict",
-          });
+          setSecureCookie("token", token, { expires: cookieExpiry });
+          setSecureCookie("expirationDate", format(expirationDate, "yyyy-MM-dd'T'HH:mm:ss"), { expires: cookieExpiry });
+          setSecureCookie("companyUrl", companyUrl, { expires: cookieExpiry });
 
           try {
             const featuresRes = await getFeaturesByCompany(companyUrl);
             if (featuresRes.status === 200) {
-              Cookies.set("companyFeatures", JSON.stringify(featuresRes.data), {
-                expires: cookieExpiry,
-                secure: true,
-                sameSite: "Strict",
-              });
+              setSecureCookie("companyFeatures", JSON.stringify(featuresRes.data), { expires: cookieExpiry });
             }
           } catch {
-            Cookies.set("companyFeatures", "[]", { expires: cookieExpiry });
+            setSecureCookie("companyFeatures", "[]", { expires: cookieExpiry });
           }
 
           if (hasConsented()) {

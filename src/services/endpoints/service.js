@@ -23,6 +23,20 @@ export const updateServiceStatus = (companyUrl, id) => {
             headers: {
                 "Content-Type": "application/json",
             },
-        }  
+        }
     );
+};
+
+export const updateService = (companyUrl, id, serviceData) => {
+  const params = new URLSearchParams({ companyUrl, id }).toString();
+  return api.put(
+    `/service/edit?${params}`,
+    serviceData,
+    { withAuth: true, headers: { "Content-Type": "application/json" } }
+  );
+};
+
+export const deleteService = (companyUrl, id) => {
+  const params = new URLSearchParams({ companyUrl, id }).toString();
+  return api.delete(`/service?${params}`, { withAuth: true });
 };

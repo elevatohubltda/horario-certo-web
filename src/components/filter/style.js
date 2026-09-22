@@ -5,6 +5,7 @@ export const CustomFilterStyle = styled.div`
   display: flex;
   gap: .5rem;
   justify-content: end;
+  align-items: center;
   padding: ${({ $padding = '1rem 1rem 0 0' }) => $padding};
   width: ${({ $width = '100%' }) => $width};
   margin: ${({ $margin = '1rem auto auto auto' }) => $margin};

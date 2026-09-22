@@ -58,11 +58,12 @@ export const removeReservedSchedule = (companyUrl, schedule) => {
 };
 
 export const removeReservedScheduleByOwner = (companyUrl, schedule, onlyUncheck) => {
-  const params = new URLSearchParams({ companyUrl, schedule, onlyUncheck }).toString();
+  const params = new URLSearchParams({ companyUrl }).toString();
 
   return api.delete(
     `/reserved-schedule/owner?${params}`,
     {
+      data: { schedule, onlyUncheck },
       withAuth: true,
       headers: {
         "Content-Type": "application/json",

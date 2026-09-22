@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react"
 import styled from "styled-components"
-import { Home, Settings, KeyRound, CalendarDays, Banknote, Scissors, BarChart2, FileText, Bell, BellRing, ListOrdered, HelpCircle, Megaphone } from "lucide-react"
+import { Home, Settings, KeyRound, CalendarDays, Banknote, Scissors, BarChart2, FileText, Bell, BellRing, ListOrdered, HelpCircle, Megaphone, Clock, CalendarClock } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { isMobile } from "../../util/util"
 import { isMobileApp } from "../../services/api"
+import { getCompanyProperties } from "../../services/endpoints/company"
 import Cookies from "js-cookie"
 
 const hasWhatsAppFeature = (feature) =>
@@ -87,13 +88,18 @@ const Sidebar = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false)
   const [mobile, setMobile] = useState();
   const [hasWhatsApp, setHasWhatsApp] = useState(false);
+  const [scheduleMode, setScheduleMode] = useState("PADRAO");
   const location = useLocation();
   const currentPage = location.pathname.split('/').filter(Boolean)[0];
   const navigate = useNavigate();
 
   const baseMenuItems = [
     { icon: <Home size={18} />, label: "Dashboard", url: "/dashboard" },
-    { icon: <CalendarDays size={18} />, label: "Agendamentos", url: "/agendamentos" },
+    ...(scheduleMode !== "SIMPLES" ? [{ icon: <CalendarDays size={18} />, label: "Agendamentos", url: "/agendamentos" }] : []),
+    ...(scheduleMode === "SIMPLES" ? [
+      { icon: <Clock size={18} />, label: "Configuração Horários", url: "/configurar-horario-semanal" },
+      { icon: <CalendarClock size={18} />, label: "Agenda semanal", url: "/agenda-semanal" },
+    ] : []),
     { icon: <BarChart2 size={18} />, label: "Análise", url: "/analytics" },
     { icon: <FileText size={18} />, label: "Relatórios", url: "/relatorios" },
     { icon: <Scissors size={18} />, label: "Serviços", url: "/servicos" },
@@ -105,15 +111,17 @@ const Sidebar = ({ children }) => {
     { icon: <HelpCircle size={18} />, label: "Ajuda", url: "/ajuda" },
   ]
 
+  const baseCount = scheduleMode !== "SIMPLES" ? 7 : 6;
+
   const extraItems = [
     ...(hasWhatsApp ? [{ icon: <Bell size={18} />, label: "Notificações", url: "/notificacoes" }] : []),
     ...(isMobileApp() ? [{ icon: <BellRing size={18} />, label: "Notificações Push", url: "/notificacoes-push" }] : []),
   ];
 
   const menuItems = [
-    ...baseMenuItems.slice(0, 7),
+    ...baseMenuItems.slice(0, baseCount),
     ...extraItems,
-    ...baseMenuItems.slice(7),
+    ...baseMenuItems.slice(baseCount),
   ];
 
   useEffect(() => {
@@ -125,6 +133,12 @@ const Sidebar = ({ children }) => {
         setHasWhatsApp(features.some(hasWhatsAppFeature));
       }
     } catch {}
+    const companyUrl = Cookies.get("companyUrl");
+    if (companyUrl) {
+      getCompanyProperties(companyUrl)
+        .then((response) => setScheduleMode(response.data?.scheduleMode || "PADRAO"))
+        .catch(() => {});
+    }
   }, []);
 
   if (mobile) return <>{children}</>;

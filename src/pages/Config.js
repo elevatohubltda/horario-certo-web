@@ -10,7 +10,7 @@ import {
 } from "../services/endpoints/company";
 import Cookies from "js-cookie";
 import Sidebar from "../components/sidebar";
-import { isAvailableLogin } from "../util/auth";
+import { isAvailableLogin, setSecureCookie } from "../util/auth";
 import { useNavigate } from "react-router-dom";
 import { isMobile } from "../util/util";
 import { Title } from "../components/title";
@@ -122,7 +122,7 @@ export default function Config() {
       const response = await getCompanyProperties(companyUrl);
       if (response.status === 200) {
         setCompanyProperties(response.data);
-        Cookies.set("companyProperties", JSON.stringify(response.data), {
+        setSecureCookie("companyProperties", JSON.stringify(response.data), {
           expires: expiresAt
         });
       }
@@ -148,7 +148,7 @@ export default function Config() {
         companyProperties
       );
       if (responseCompanyProperties.status === 200) {
-        Cookies.set("companyProperties", JSON.stringify(companyProperties), {
+        setSecureCookie("companyProperties", JSON.stringify(companyProperties), {
           expires: expiresAt
         });
       } else {
@@ -167,7 +167,7 @@ export default function Config() {
         companyUrl
       );
       if (responseCompany.status === 200) {
-        Cookies.set("companyInfo", JSON.stringify(companyInfo), {
+        setSecureCookie("companyInfo", JSON.stringify(companyInfo), {
           expires: expiresAt
         });
       } else {
@@ -182,7 +182,7 @@ export default function Config() {
     try {
       const response = await updateCompany(companyInfo, companyUrl);
       if (response.status === 200) {
-        Cookies.set("companyInfo", JSON.stringify(companyInfo), {
+        setSecureCookie("companyInfo", JSON.stringify(companyInfo), {
           expires: expiresAt
         });
       }
@@ -277,6 +277,33 @@ export default function Config() {
                       )
                     }
                   />
+
+                  <Label>Modo de agenda:</Label>
+                  <select
+                    value={companyProperties.scheduleMode || "PADRAO"}
+                    onChange={e =>
+                      handleCompanyProperties("scheduleMode", e.target.value)
+                    }
+                    style={{
+                      minHeight: "40px",
+                      marginTop: "1rem",
+                      marginBottom: "1rem",
+                      padding: "0.5rem",
+                      borderTop: "1px solid var(--color-sage)",
+                      backgroundColor: "#fff",
+                      color: "var(--color-dark)",
+                      fontSize: "0.85rem"
+                    }}
+                  >
+                    <option value="PADRAO">Padrão (horários fixos)</option>
+                    <option value="SIMPLES">Simples (abertura, fechamento e intervalos)</option>
+                  </select>
+                  {companyProperties.scheduleMode === "SIMPLES" && (
+                    <span style={{ fontSize: "0.75rem", color: "var(--color-muted)", marginBottom: "1rem", display: "block" }}>
+                      Configure os horários de abertura e fechamento em{" "}
+                      <a href="/configurar-horario-semanal">Horário semanal</a>.
+                    </span>
+                  )}
 
                   <Label>Nome da empresa:</Label>
                   <Input

@@ -25,6 +25,8 @@ import TermosDeUso from './pages/TermosDeUso';
 import WaitingList from './pages/WaitingList';
 import Help from './pages/Help';
 import Divulgacao from './pages/Divulgacao';
+import WeeklyScheduleConfig from './pages/WeeklyScheduleConfig';
+import WeeklyCalendarView from './pages/WeeklyCalendarView';
 
 const router = createBrowserRouter(
   [
@@ -49,6 +51,8 @@ const router = createBrowserRouter(
     { path: '/lista-de-espera',   element: <WaitingList /> },
     { path: '/ajuda',             element: <Help /> },
     { path: '/divulgacao',        element: <Divulgacao /> },
+    { path: '/configurar-horario-semanal', element: <WeeklyScheduleConfig /> },
+    { path: '/agenda-semanal',    element: <WeeklyCalendarView /> },
   ],
   {
     future: {
