@@ -352,7 +352,7 @@ const topics = [
       },
       {
         q: 'O que acontece se eu não pagar a fatura no prazo?',
-        a: 'Após o vencimento, há um período de carência de 5 dias. Se a fatura continuar em aberto após esse prazo, sua agenda é bloqueada — clientes não conseguem fazer novos agendamentos e a página pública exibe uma mensagem de indisponibilidade. Para reativar, acesse "Assinatura", gere a fatura em atraso (com multa de 2% e juros de 1% a.m. pro-rata) e efetue o pagamento.'
+        a: 'Após o vencimento, há um período de carência de 3 dias. Se a fatura continuar em aberto após esse prazo, sua agenda é bloqueada — clientes não conseguem fazer novos agendamentos e a página pública exibe uma mensagem de indisponibilidade. A fatura em atraso já é gerada automaticamente com multa de 2% e juros de 1% a.m. pro-rata; basta acessar "Assinatura" e efetuar o pagamento para reativar.'
       },
       {
         q: 'Como adiciono o recurso de WhatsApp ao meu plano?',
