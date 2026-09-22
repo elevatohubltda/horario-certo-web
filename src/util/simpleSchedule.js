@@ -3,8 +3,7 @@ export function computeAvailableSlots({
   closeTime,
   intervals = [],
   bookedSlots = [],
-  durationMinutes,
-  selectedServiceId
+  durationMinutes
 }) {
   if (!openTime || !closeTime || !durationMinutes) return [];
 
@@ -34,10 +33,9 @@ export function computeAvailableSlots({
     }))
     .sort((a, b) => a.start - b.start);
 
-  // Só reservas do MESMO serviço bloqueiam horário — serviços diferentes têm
-  // disponibilidade independente (não competem pelo mesmo espaço na agenda).
+  // Qualquer reserva ocupa o único profissional/recurso disponível, então
+  // bloqueia a agenda independente do serviço reservado.
   const bookedRanges = bookedSlots
-    .filter((slot) => !selectedServiceId || slot.serviceId === selectedServiceId)
     .map((slot) => {
       const start = minutesFromDateTime(slot.start);
       return { start, end: start + (slot.durationMinutes || 30) };
@@ -62,8 +60,9 @@ export function computeAvailableSlots({
       continue;
     }
 
-    // Cursor caiu dentro de uma reserva do mesmo serviço: mostra ela (indisponível,
-    // no horário/duração reais dela) e retoma logo no fim dela — sem grade fixa.
+    // Cursor caiu dentro de uma reserva existente: mostra ela como um único
+    // slot indisponível (no horário/duração reais dela) e retoma logo no fim
+    // dela — sem fragmentar em vários slots da grade do serviço selecionado.
     const booking = findRangeContaining(bookedRanges, cursor);
     if (booking) {
       slots.push({ horario: toTimeStr(booking.start), available: false });
