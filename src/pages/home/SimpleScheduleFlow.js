@@ -157,7 +157,8 @@ export default function SimpleScheduleFlow({ companyUrl, companyInfo, mobile }) 
           closeTime: day.closeTime,
           intervals: day.intervals,
           bookedSlots: day.bookedSlots,
-          durationMinutes: selectedService.durationMinutes
+          durationMinutes: selectedService.durationMinutes,
+          selectedServiceId: selectedService.id
         }).filter((slot) => !itsAvailableNow(data, slot.horario))
       };
     });

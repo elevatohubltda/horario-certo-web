@@ -1,4 +1,11 @@
-export function computeAvailableSlots({ openTime, closeTime, intervals = [], bookedSlots = [], durationMinutes }) {
+export function computeAvailableSlots({
+  openTime,
+  closeTime,
+  intervals = [],
+  bookedSlots = [],
+  durationMinutes,
+  selectedServiceId
+}) {
   if (!openTime || !closeTime || !durationMinutes) return [];
 
   const toMinutes = (timeStr) => {
@@ -19,37 +26,64 @@ export function computeAvailableSlots({ openTime, closeTime, intervals = [], boo
   const closeMins = toMinutes(closeTime);
   const duration = parseInt(durationMinutes, 10);
 
-  const intervalRanges = intervals.map((interval) => ({
-    start: toMinutes(interval.startTime),
-    end: toMinutes(interval.endTime)
-  }));
+  // Pausas (intervalos) sempre criam um vão na agenda, independente do serviço.
+  const intervalRanges = intervals
+    .map((interval) => ({
+      start: toMinutes(interval.startTime),
+      end: toMinutes(interval.endTime)
+    }))
+    .sort((a, b) => a.start - b.start);
 
-  const bookedRanges = bookedSlots.map((slot) => {
-    const start = minutesFromDateTime(slot.start);
-    return { start, end: start + (slot.durationMinutes || 30) };
-  });
+  // Só reservas do MESMO serviço bloqueiam horário — serviços diferentes têm
+  // disponibilidade independente (não competem pelo mesmo espaço na agenda).
+  const bookedRanges = bookedSlots
+    .filter((slot) => !selectedServiceId || slot.serviceId === selectedServiceId)
+    .map((slot) => {
+      const start = minutesFromDateTime(slot.start);
+      return { start, end: start + (slot.durationMinutes || 30) };
+    })
+    .sort((a, b) => a.start - b.start);
+
+  const blockingRanges = [...intervalRanges, ...bookedRanges].sort((a, b) => a.start - b.start);
+
+  const findRangeContaining = (ranges, point) =>
+    ranges.find((range) => point >= range.start && point < range.end);
+  const findNextBoundaryAfter = (ranges, point, limit) =>
+    ranges.find((range) => range.start > point && range.start < limit);
 
   const slots = [];
-  let current = openMins;
-  while (current + duration <= closeMins) {
-    const slotStart = current;
-    const slotEnd = current + duration;
+  let cursor = openMins;
 
-    const overlapsInterval = intervalRanges.some(
-      (range) => slotStart < range.end && range.start < slotEnd
-    );
-
-    if (overlapsInterval) {
-      current += duration;
+  while (cursor < closeMins) {
+    // Cursor caiu dentro de uma pausa: pula pro fim dela, sem gerar slot.
+    const interval = findRangeContaining(intervalRanges, cursor);
+    if (interval) {
+      cursor = interval.end;
       continue;
     }
 
-    const overlapsBooking = bookedRanges.some(
-      (range) => slotStart < range.end && range.start < slotEnd
-    );
+    // Cursor caiu dentro de uma reserva do mesmo serviço: mostra ela (indisponível,
+    // no horário/duração reais dela) e retoma logo no fim dela — sem grade fixa.
+    const booking = findRangeContaining(bookedRanges, cursor);
+    if (booking) {
+      slots.push({ horario: toTimeStr(booking.start), available: false });
+      cursor = booking.end;
+      continue;
+    }
 
-    slots.push({ horario: toTimeStr(slotStart), available: !overlapsBooking });
-    current += duration;
+    const slotEnd = cursor + duration;
+    if (slotEnd > closeMins) break;
+
+    // Um slot livre não pode invadir a próxima pausa/reserva — se invadir,
+    // pula direto pro início dela (sem oferecer um horário parcial).
+    const nextBoundary = findNextBoundaryAfter(blockingRanges, cursor, slotEnd);
+    if (nextBoundary) {
+      cursor = nextBoundary.start;
+      continue;
+    }
+
+    slots.push({ horario: toTimeStr(cursor), available: true });
+    cursor = slotEnd;
   }
 
   return slots;
