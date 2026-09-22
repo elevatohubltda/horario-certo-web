@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { setSecureCookie } from '../util/auth';
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from 'react-router-dom';
 import "react-toastify/dist/ReactToastify.css";
@@ -8,7 +7,6 @@ import { registerUser } from '../services/endpoints/user';
 import { createCompany } from '../services/endpoints/company';
 import { validateDiscountCode, getPublicSubscriptionPlans, updateSubscription } from '../services/endpoints/payment';
 import { formataNumeroTelefone } from '../util/format';
-import { expiresAt } from '../util/date';
 import styled from 'styled-components';
 
 const Page = styled.main`
@@ -543,13 +541,12 @@ function Register() {
             });
 
             if (res.status === 200) {
-                const loginRes = await login({
+                // O login aqui já roda no navegador (não app mobile), então o
+                // backend entrega o token via cookie httpOnly (Set-Cookie) —
+                // não precisamos armazená-lo manualmente.
+                await login({
                     username: userData.username,
                     password: userData.password.stepOne
-                });
-
-                setSecureCookie("token", loginRes.data.token, {
-                    expires: expiresAt
                 });
 
                 await createCompany({

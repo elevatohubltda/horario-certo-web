@@ -4,6 +4,10 @@ import Cookies from "js-cookie";
 const api = axios.create({
   baseURL: process.env.REACT_APP_API_BASE_URL,
   timeout: 10000,
+  // Necessário para o cookie httpOnly de autenticação (setado pelo backend
+  // no login via navegador) ser enviado automaticamente nas chamadas, já que
+  // frontend e backend ficam em domínios diferentes em produção.
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },

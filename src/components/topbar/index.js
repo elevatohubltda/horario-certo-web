@@ -126,12 +126,12 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
     navigate(path);
   }
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
     setOpen(false);
     toast.success("Desconectado com sucesso!");
     setIsAuth(false);
     navigate('/'+companyUrl);
+    await logout();
   }
 
   const shareUrl = `${window.location.origin}/${companyUrl}`;

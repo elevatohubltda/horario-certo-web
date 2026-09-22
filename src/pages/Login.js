@@ -295,7 +295,12 @@ function Login() {
           // No app o token vale 7 dias — o cookie precisa acompanhar essa validade,
           // caso contrário expiraria em 3h e derrubaria a sessão antes da hora.
           const cookieExpiry = isMobileApp() ? expirationDate : expiresAt;
-          setSecureCookie("token", token, { expires: cookieExpiry });
+          // No navegador o token já chegou como cookie httpOnly (Set-Cookie do
+          // backend) — só o app mobile precisa do cookie legível por JS, pois
+          // monta o header Authorization manualmente.
+          if (isMobileApp()) {
+            setSecureCookie("token", token, { expires: cookieExpiry });
+          }
           setSecureCookie("expirationDate", format(expirationDate, "yyyy-MM-dd'T'HH:mm:ss"), { expires: cookieExpiry });
           setSecureCookie("companyUrl", companyUrl, { expires: cookieExpiry });
 
