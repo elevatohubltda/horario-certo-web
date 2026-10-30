@@ -9,8 +9,15 @@ import { Button } from "../components/button";
 import { Separator } from "../components/separator/style";
 import { Title } from "../components/title";
 import { isMobile } from "../util/util";
-import { useNavigate } from "react-router-dom";
-import { getPayment, validatePayment, getClientStatus, generateOverdueInvoice } from "../services/endpoints/payment";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import {
+  getPayment,
+  validatePayment,
+  getClientStatus,
+  generateOverdueInvoice,
+  createCardSubscription,
+  cancelCardSubscription,
+} from "../services/endpoints/payment";
 import { toast } from "react-toastify";
 
 /* ================= ANIMATIONS ================= */
@@ -246,6 +253,36 @@ const ButtonSkeleton = styled.div`
   }
 `;
 
+const CardActionButton = styled.button`
+  width: fit-content;
+  background: ${(props) => (props.$outline ? "transparent" : "#111827")};
+  color: ${(props) => (props.$outline ? "var(--color-dark)" : "#fff")};
+  border: 1px solid ${(props) => (props.$outline ? "var(--color-dark)" : "#111827")};
+  border-radius: 999px;
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: default;
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
+`;
+
+const CardNotice = styled.div`
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  color: #9a3412;
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  font-size: 0.82rem;
+  margin-bottom: 0.75rem;
+`;
+
 const BadgeTrial = styled.div`
   display: inline-block;
   background: #eff6ff;
@@ -270,6 +307,13 @@ function Payment() {
   const [paymentProps, setPaymentProps] = useState(null);
   const [clientStatus, setClientStatus] = useState(null);
   const [isGeneratingOverdue, setIsGeneratingOverdue] = useState(false);
+  const [isUpdatingCard, setIsUpdatingCard] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  // O Mercado Pago devolve o usuário com ?preapproval_id=... após o checkout do cartão
+  const [returnedFromCheckout] = useState(() => searchParams.has("preapproval_id"));
+
+  const cardStatus = paymentProps?.cardSubscriptionStatus;
+  const isCardActive = cardStatus === "authorized";
 
   const hasPayment = paymentProps?.status === "paid" || paymentProps?.status === "pending";
   const isPaid = hasPayment && paymentProps?.status === "paid";
@@ -325,6 +369,39 @@ function Payment() {
 
     load();
   }, [fetchPaymentData, fetchClientStatus]);
+
+  useEffect(() => {
+    if (!returnedFromCheckout) return;
+    toast.info("Recebemos seu cartão! A confirmação do Mercado Pago pode levar alguns minutos.");
+    setSearchParams({}, { replace: true });
+  }, [returnedFromCheckout, setSearchParams]);
+
+  const handleActivateCard = async () => {
+    if (isUpdatingCard) return;
+    try {
+      setIsUpdatingCard(true);
+      const response = await createCardSubscription(companyUrl);
+      window.location.href = response.data.initPoint;
+    } catch (error) {
+      toast.error(error?.response?.data || "Erro ao ativar a cobrança no cartão");
+      setIsUpdatingCard(false);
+    }
+  };
+
+  const handleCancelCard = async () => {
+    if (isUpdatingCard) return;
+    if (!window.confirm("Cancelar a cobrança automática no cartão? As próximas faturas serão geradas via Pix.")) return;
+    try {
+      setIsUpdatingCard(true);
+      await cancelCardSubscription(companyUrl);
+      toast.success("Cobrança no cartão cancelada. As próximas faturas serão via Pix.");
+      await fetchPaymentData();
+    } catch (error) {
+      toast.error(error?.response?.data || "Erro ao cancelar a cobrança no cartão");
+    } finally {
+      setIsUpdatingCard(false);
+    }
+  };
 
   const handleGenerateOverdueInvoice = async () => {
     if (isGeneratingOverdue) return;
@@ -735,6 +812,52 @@ function Payment() {
                 ))
               )}
             </SectionCard>
+
+            <FullWidthCard background="#fff" borderradius="1rem">
+              <Title $fontsize="1.1rem" $margin="0 0 1rem 0">
+                Forma de pagamento
+              </Title>
+              <Separator $margin="0 0 1rem 0" $width="100%" $style="dotted"/>
+
+              {loading ? (
+                <Skeleton height="3rem" width="100%" />
+              ) : isCardActive ? (
+                <>
+                  <BadgeWaiting
+                    style={{ background: "#ecfdf5", color: "#065f46", border: "1px solid #6ee7b7" }}
+                  >
+                    Cobrança automática no cartão ativa
+                  </BadgeWaiting>
+                  <div style={{ fontSize: "0.85rem", color: "#374151", margin: "0.75rem 0" }}>
+                    Sua mensalidade é cobrada todo mês no cartão de crédito. Você não precisa gerar nem pagar faturas.
+                  </div>
+                  <CardActionButton $outline onClick={handleCancelCard} disabled={isUpdatingCard}>
+                    {isUpdatingCard ? "Cancelando..." : "Voltar a pagar via Pix"}
+                  </CardActionButton>
+                </>
+              ) : (
+                <>
+                  {cardStatus === "paused" && (
+                    <CardNotice>
+                      A cobrança no cartão foi pausada pelo Mercado Pago (o cartão pode ter sido recusado).
+                      Cadastre o cartão novamente ou pague a fatura via Pix.
+                    </CardNotice>
+                  )}
+                  {cardStatus === "pending" && returnedFromCheckout && (
+                    <CardNotice>
+                      Estamos aguardando a confirmação do cartão pelo Mercado Pago. Atualize a página em alguns minutos.
+                    </CardNotice>
+                  )}
+                  <div style={{ fontSize: "0.85rem", color: "#374151", marginBottom: "0.75rem" }}>
+                    Hoje você paga via <strong>Pix</strong>, gerando a fatura todo mês. Ative a cobrança automática
+                    no cartão de crédito e esqueça as faturas. O cartão é cadastrado direto no Mercado Pago.
+                  </div>
+                  <CardActionButton onClick={handleActivateCard} disabled={isUpdatingCard}>
+                    {isUpdatingCard ? "Abrindo Mercado Pago..." : "Ativar cobrança automática no cartão"}
+                  </CardActionButton>
+                </>
+              )}
+            </FullWidthCard>
 
             <FullWidthCard background="#fff" borderradius="1rem">
               <Title $fontsize="1.1rem" $margin="0 0 1rem 0">

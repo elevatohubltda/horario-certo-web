@@ -38,3 +38,13 @@ export const generateOverdueInvoice = (companyUrl) => {
     const params = new URLSearchParams({ companyUrl }).toString();
     return api.post(`/payment/overdue-invoice?${params}`, {}, { withAuth: true });
 };
+
+export const createCardSubscription = (companyUrl) => {
+    const params = new URLSearchParams({ companyUrl }).toString();
+    return api.post(`/payment/card-subscription?${params}`, {}, { withAuth: true });
+};
+
+export const cancelCardSubscription = (companyUrl) => {
+    const params = new URLSearchParams({ companyUrl }).toString();
+    return api.delete(`/payment/card-subscription?${params}`, { withAuth: true });
+};
