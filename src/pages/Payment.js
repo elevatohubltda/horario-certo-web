@@ -20,6 +20,9 @@ import {
 } from "../services/endpoints/payment";
 import { toast } from "react-toastify";
 
+// Cobrança automática no cartão fica como "Em breve" até o recebimento migrar para a conta PJ no Mercado Pago
+const CARD_PAYMENT_ENABLED = process.env.REACT_APP_CARD_PAYMENT_ENABLED === "true";
+
 /* ================= ANIMATIONS ================= */
 
 const shimmer = keyframes`
@@ -848,13 +851,28 @@ function Payment() {
                       Estamos aguardando a confirmação do cartão pelo Mercado Pago. Atualize a página em alguns minutos.
                     </CardNotice>
                   )}
-                  <div style={{ fontSize: "0.85rem", color: "#374151", marginBottom: "0.75rem" }}>
-                    Hoje você paga via <strong>Pix</strong>, gerando a fatura todo mês. Ative a cobrança automática
-                    no cartão de crédito e esqueça as faturas. O cartão é cadastrado direto no Mercado Pago.
-                  </div>
-                  <CardActionButton onClick={handleActivateCard} disabled={isUpdatingCard}>
-                    {isUpdatingCard ? "Abrindo Mercado Pago..." : "Ativar cobrança automática no cartão"}
-                  </CardActionButton>
+                  {CARD_PAYMENT_ENABLED ? (
+                    <>
+                      <div style={{ fontSize: "0.85rem", color: "#374151", marginBottom: "0.75rem" }}>
+                        Hoje você paga via <strong>Pix</strong>, gerando a fatura todo mês. Ative a cobrança automática
+                        no cartão de crédito e esqueça as faturas. O cartão é cadastrado direto no Mercado Pago.
+                      </div>
+                      <CardActionButton onClick={handleActivateCard} disabled={isUpdatingCard}>
+                        {isUpdatingCard ? "Abrindo Mercado Pago..." : "Ativar cobrança automática no cartão"}
+                      </CardActionButton>
+                    </>
+                  ) : (
+                    <>
+                      <div style={{ fontSize: "0.85rem", color: "#374151", marginBottom: "0.75rem" }}>
+                        Hoje você paga via <strong>Pix</strong>, gerando a fatura todo mês. Em breve você poderá
+                        ativar a cobrança automática no cartão de crédito e esquecer as faturas.
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
+                        <CardActionButton disabled>Cobrança automática no cartão</CardActionButton>
+                        <BadgeTrial>Em breve</BadgeTrial>
+                      </div>
+                    </>
+                  )}
                 </>
               )}
             </FullWidthCard>
