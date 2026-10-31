@@ -242,7 +242,28 @@ const ModalInput = styled.input`
   }
 `;
 
-const ModalSelect = styled(ModalInput).attrs({ as: "select" })``;
+const ProfessionalPriceList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 0.25rem;
+`;
+
+const ProfessionalPriceRow = styled.div`
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 120px;
+  align-items: center;
+  gap: 0.5rem;
+
+  label {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.85rem;
+    color: var(--color-dark);
+    cursor: pointer;
+  }
+`;
 
 const ErrorMessage = styled.p`
   color: #ff8555;
@@ -291,11 +312,14 @@ export default function Services() {
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
-  // Com mais de um profissional, o dono vê de quem é cada serviço e escolhe ao cadastrar
+  // Com mais de um profissional, o dono escolhe quem presta o serviço e o valor de cada um
   const [professionals, setProfessionals] = useState([]);
-  const [newServiceProfessionalId, setNewServiceProfessionalId] = useState(null);
+  // { [professionalId]: "R$ 0,00" } — presença na chave = profissional selecionado; vazio = valor padrão
+  const [professionalPrices, setProfessionalPrices] = useState({});
   const multiProfessional = professionals.length > 1;
   const ownerProfessionalId = professionals.find((p) => p.isOwner)?.id ?? null;
+  // Profissional da equipe num serviço compartilhado: só altera o próprio valor
+  const onlyOwnPrice = isProfessional() && editingService?.canEditDetails === false;
 
   const formatCurrency = (value) =>
     Number(value || 0).toLocaleString("pt-BR", {
@@ -356,7 +380,7 @@ export default function Services() {
 
   const openModal = () => {
     setEditingService(null);
-    setNewServiceProfessionalId(ownerProfessionalId);
+    setProfessionalPrices(ownerProfessionalId ? { [ownerProfessionalId]: "" } : {});
     setNewServiceName("");
     setNewServicePrice("");
     setNewServiceDuration("");
@@ -369,6 +393,9 @@ export default function Services() {
 
   const openEditModal = (service) => {
     setEditingService(service);
+    setProfessionalPrices(
+      Object.fromEntries((service.professionals || []).map((p) => [p.professionalId, formatCurrency(p.price)]))
+    );
     setNewServiceName(service.name);
     setNewServicePrice(formatCurrency(service.price));
     setNewServiceDuration(String(service.durationMinutes || ""));
@@ -391,20 +418,21 @@ export default function Services() {
     setDurationError("");
   };
 
-  // Nome repetido só conta entre os serviços do mesmo profissional (dois podem ter "Corte")
-  const targetProfessionalId = () =>
-    editingService ? editingService.professionalId : newServiceProfessionalId ?? ownerProfessionalId;
-
+  // Um mesmo serviço reúne todos os profissionais que o prestam, então o nome não se repete
   const isDuplicateName = (name) => {
     const trimmed = name.trim().toLowerCase();
-    const professionalId = targetProfessionalId();
     return services.some(
-      (s) =>
-        s.name.trim().toLowerCase() === trimmed &&
-        (!editingService || s.id !== editingService.id) &&
-        (!multiProfessional || professionalId == null || s.professionalId === professionalId)
+      (s) => s.name.trim().toLowerCase() === trimmed && (!editingService || s.id !== editingService.id)
     );
   };
+
+  const toggleProfessional = (professionalId) =>
+    setProfessionalPrices((prev) => {
+      const next = { ...prev };
+      if (professionalId in next) delete next[professionalId];
+      else next[professionalId] = "";
+      return next;
+    });
 
   const handleNameChange = (value) => {
     setNewServiceName(value);
@@ -450,9 +478,14 @@ export default function Services() {
       setDurationError("Digite a duração do serviço em minutos.");
       return;
     }
-    const exists = isDuplicateName(trimmed);
+    const exists = !onlyOwnPrice && isDuplicateName(trimmed);
     if (exists) {
       setNameError("Esse serviço já está cadastrado.");
+      return;
+    }
+    const selectedProfessionals = Object.keys(professionalPrices);
+    if (multiProfessional && selectedProfessionals.length === 0) {
+      toast.error("Selecione pelo menos um profissional para o serviço.", { containerId: TOAST_CONTAINER_ID });
       return;
     }
     setSaving(true);
@@ -462,8 +495,14 @@ export default function Services() {
         price: parsedPrice,
         durationMinutes: parsedDuration,
         color: newServiceColor,
-        ...(!editingService && multiProfessional && newServiceProfessionalId
-          ? { professionalId: newServiceProfessionalId }
+        // Valor em branco usa o valor padrão do serviço
+        ...(multiProfessional
+          ? {
+              professionals: selectedProfessionals.map((id) => ({
+                professionalId: Number(id),
+                price: parsePriceInput(professionalPrices[id] || "") || parsedPrice,
+              })),
+            }
           : {}),
       };
       const response = editingService
@@ -502,9 +541,10 @@ export default function Services() {
     setDeleting(true);
     try {
       await deleteService(companyUrl, deleteTarget.id);
-      toast.success("Serviço excluído com sucesso!", {
-        containerId: TOAST_CONTAINER_ID,
-      });
+      toast.success(
+        deleteTarget.canEditDetails === false ? "Você saiu do serviço." : "Serviço excluído com sucesso!",
+        { containerId: TOAST_CONTAINER_ID }
+      );
       setServices((prev) => prev.filter((s) => s.id !== deleteTarget.id));
       setDeleteTarget(null);
     } catch (error) {
@@ -619,8 +659,12 @@ export default function Services() {
                     <ServiceTexts>
                       <ServiceName $active={service.active}>{service.name}</ServiceName>
                       <ServicePrice $active={service.active}>
-                        {formatCurrency(service.price)} · {service.durationMinutes} min
-                        {multiProfessional && service.professionalName ? ` · ${service.professionalName}` : ""}
+                        {multiProfessional && service.professionals?.length > 0
+                          ? `${service.durationMinutes} min · ${service.professionals
+                              .map((p) => `${p.professionalName} ${formatCurrency(p.price)}`)
+                              .join(" · ")}`
+                          : `${formatCurrency(service.price)} · ${service.durationMinutes} min`}
+                        {isProfessional() && service.canEditDetails === false ? " · compartilhado" : ""}
                       </ServicePrice>
                     </ServiceTexts>
                   </ServiceInfo>
@@ -634,7 +678,12 @@ export default function Services() {
                       aria-checked={service.active !== false}
                       aria-label={service.active === false ? "Ativar serviço" : "Inativar serviço"}
                       $active={service.active}
-                      title={service.active === false ? "Ativar serviço" : "Inativar serviço"}
+                      title={
+                        service.canEditDetails === false
+                          ? "Só o dono ativa ou inativa um serviço compartilhado"
+                          : service.active === false ? "Ativar serviço" : "Inativar serviço"
+                      }
+                      disabled={service.canEditDetails === false}
                       onClick={() => handleToggleStatus(service)}
                     >
                       <SwitchThumb $active={service.active} />
@@ -649,8 +698,8 @@ export default function Services() {
                     </IconButton>
                     <DeleteIconButton
                       type="button"
-                      title="Excluir serviço"
-                      aria-label="Excluir serviço"
+                      title={service.canEditDetails === false ? "Sair do serviço" : "Excluir serviço"}
+                      aria-label={service.canEditDetails === false ? "Sair do serviço" : "Excluir serviço"}
                       onClick={() => openDeleteConfirm(service)}
                     >
                       <Trash2 size={16} />
@@ -689,28 +738,10 @@ export default function Services() {
           $style="dotted"
         />
         <Form>
-            {multiProfessional && (
-              <>
-                <ModalLabel htmlFor="service-professional">Profissional</ModalLabel>
-                {editingService ? (
-                  <ModalInput id="service-professional" type="text" value={editingService.professionalName || ""} disabled />
-                ) : (
-                  <ModalSelect
-                    id="service-professional"
-                    value={newServiceProfessionalId ?? ""}
-                    onChange={(e) => {
-                      setNewServiceProfessionalId(Number(e.target.value));
-                      setNameError("");
-                    }}
-                  >
-                    {professionals.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.name}{p.isOwner ? " (você)" : ""}
-                      </option>
-                    ))}
-                  </ModalSelect>
-                )}
-              </>
+            {onlyOwnPrice && (
+              <ErrorMessage style={{ color: "#6b7280" }}>
+                Este serviço é compartilhado com outros profissionais: você pode alterar só o seu valor.
+              </ErrorMessage>
             )}
             <ModalLabel htmlFor="service-name">Nome do serviço</ModalLabel>
             <ModalInput
@@ -718,6 +749,7 @@ export default function Services() {
             type="text"
             placeholder="Ex: Corte de cabelo"
             value={newServiceName}
+            disabled={onlyOwnPrice}
             onChange={(e) => handleNameChange(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !nameError) {
@@ -729,7 +761,9 @@ export default function Services() {
             />
             {nameError && <ErrorMessage>{nameError}</ErrorMessage>}
 
-            <ModalLabel htmlFor="service-price">Valor do serviço em R$</ModalLabel>
+            <ModalLabel htmlFor="service-price">
+              {onlyOwnPrice ? "Seu valor em R$" : multiProfessional ? "Valor padrão em R$" : "Valor do serviço em R$"}
+            </ModalLabel>
             <ModalInput
             id="service-price"
             type="text"
@@ -740,6 +774,38 @@ export default function Services() {
             />
             {priceError && <ErrorMessage>{priceError}</ErrorMessage>}
 
+            {multiProfessional && (
+              <>
+                <ModalLabel>Profissionais e valores</ModalLabel>
+                <ProfessionalPriceList>
+                  {professionals.map((p) => {
+                    const selected = p.id in professionalPrices;
+                    return (
+                      <ProfessionalPriceRow key={p.id}>
+                        <label>
+                          <input type="checkbox" checked={selected} onChange={() => toggleProfessional(p.id)} />
+                          {p.name}{p.isOwner ? " (você)" : ""}
+                        </label>
+                        <ModalInput
+                          type="text"
+                          inputMode="numeric"
+                          placeholder={newServicePrice || "Valor padrão"}
+                          value={professionalPrices[p.id] || ""}
+                          disabled={!selected}
+                          onChange={(e) =>
+                            setProfessionalPrices((prev) => ({ ...prev, [p.id]: formatPriceInput(e.target.value) }))
+                          }
+                        />
+                      </ProfessionalPriceRow>
+                    );
+                  })}
+                </ProfessionalPriceList>
+                <ErrorMessage style={{ color: "#6b7280", marginTop: 0 }}>
+                  Deixe o valor em branco para usar o valor padrão.
+                </ErrorMessage>
+              </>
+            )}
+
             <ModalLabel htmlFor="service-duration">Duração do serviço (minutos)</ModalLabel>
             <ModalInput
             id="service-duration"
@@ -747,12 +813,13 @@ export default function Services() {
             min="1"
             placeholder="Ex: 30"
             value={newServiceDuration}
+            disabled={onlyOwnPrice}
             onChange={(e) => { setNewServiceDuration(e.target.value); setDurationError(""); }}
             />
             {durationError && <ErrorMessage>{durationError}</ErrorMessage>}
 
-            <ModalLabel>Cor do serviço</ModalLabel>
-            <ColorSwatchGrid>
+            {!onlyOwnPrice && <ModalLabel>Cor do serviço</ModalLabel>}
+            {!onlyOwnPrice && <ColorSwatchGrid>
               {SERVICE_COLOR_PALETTE.map((color) => (
                 <ColorSwatch
                   key={color.hex}
@@ -764,7 +831,7 @@ export default function Services() {
                   onClick={() => setNewServiceColor(color.hex)}
                 />
               ))}
-            </ColorSwatchGrid>
+            </ColorSwatchGrid>}
 
             <ModalActions>
                 <Button 
@@ -805,7 +872,7 @@ export default function Services() {
           $fontsize="1.25rem"
           $color="var(--color-dark)"
         >
-          Excluir serviço
+          {deleteTarget?.canEditDetails === false ? "Sair do serviço" : "Excluir serviço"}
         </Title>
         <Separator
           $width="100%"
@@ -815,7 +882,11 @@ export default function Services() {
         />
         <Form>
           <p style={{ fontSize: "0.9rem", color: "var(--color-dark)", margin: "0 0 1.5rem 0" }}>
-            Tem certeza que deseja excluir o serviço <strong>{deleteTarget?.name}</strong>? Essa ação não pode ser desfeita.
+            {deleteTarget?.canEditDetails === false ? (
+              <>Deixar de prestar o serviço <strong>{deleteTarget?.name}</strong>? Ele continua disponível com os outros profissionais.</>
+            ) : (
+              <>Tem certeza que deseja excluir o serviço <strong>{deleteTarget?.name}</strong>? Essa ação não pode ser desfeita.</>
+            )}
           </p>
           <ModalActions>
             <Button type="button" variant="link" onClick={closeDeleteConfirm}>

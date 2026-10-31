@@ -88,26 +88,19 @@ export default function SimpleScheduleFlow({ companyUrl, companyInfo, mobile }) 
 
   // Serviços disponíveis para a escolha atual de profissional
   const visibleServices = useMemo(() => {
-    if (!multiProfessional) return services;
-    if (!anyProfessional) return services.filter((s) => s.professionalId === selectedProfessional?.id);
-    // Sem preferência: agrupa pelo nome o mesmo serviço oferecido por profissionais diferentes
-    const groups = new Map();
-    services.forEach((service) => {
-      const key = service.name.trim().toLowerCase();
-      if (!groups.has(key)) groups.set(key, { id: key, name: service.name, options: [] });
-      groups.get(key).options.push(service);
-    });
-    return [...groups.values()].map((group) => {
-      const durations = group.options.map((o) => o.durationMinutes);
-      return { ...group, minDuration: Math.min(...durations), maxDuration: Math.max(...durations) };
-    });
+    if (!multiProfessional || anyProfessional) return services;
+    return services.filter((s) => (s.professionals || []).some((p) => p.professionalId === selectedProfessional?.id));
   }, [services, multiProfessional, anyProfessional, selectedProfessional]);
 
-  // Opções de agendamento do serviço escolhido: uma por profissional que o oferece
+  // Opções de agendamento do serviço escolhido: uma por profissional que o presta (com o valor dele)
   const bookingOptions = useMemo(() => {
     if (!selectedService) return [];
-    return selectedService.options || [selectedService];
-  }, [selectedService]);
+    const base = { id: selectedService.id, durationMinutes: selectedService.durationMinutes };
+    if (!multiProfessional) return [{ ...base, price: selectedService.price }];
+    return (selectedService.professionals || [])
+      .filter((p) => anyProfessional || p.professionalId === selectedProfessional?.id)
+      .map((p) => ({ ...base, professionalId: p.professionalId, professionalName: p.professionalName, price: p.price }));
+  }, [selectedService, multiProfessional, anyProfessional, selectedProfessional]);
 
   const fetchAvailability = async () => {
     setLoadingAvailability(true);
@@ -366,10 +359,7 @@ export default function SimpleScheduleFlow({ companyUrl, companyInfo, mobile }) 
                   className="horario-btn"
                   onClick={() => setSelectedService(service)}
                 >
-                  {service.name} (
-                  {service.options && service.minDuration !== service.maxDuration
-                    ? `${service.minDuration}-${service.maxDuration}`
-                    : service.options ? service.minDuration : service.durationMinutes} min)
+                  {service.name} ({service.durationMinutes} min)
                 </button>
               ))}
             </div>
@@ -475,6 +465,15 @@ export default function SimpleScheduleFlow({ companyUrl, companyInfo, mobile }) 
             <>
               <Label>Profissional:</Label>
               <DialogInput value={selectedOption.professionalName} readOnly />
+            </>
+          )}
+          {selectedOption?.price != null && (
+            <>
+              <Label>Valor:</Label>
+              <DialogInput
+                value={Number(selectedOption.price).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                readOnly
+              />
             </>
           )}
           <Label>Digite seu nome:</Label>
