@@ -27,12 +27,23 @@ export function isAvailableLogin(){
     return false;
 }
 
+// Só controla o que o menu mostra; as permissões de admin são sempre checadas no backend
+export function isAdmin(){
+    return Cookies.get("userRole") === "ADMIN";
+}
+
+// Tela inicial após o login: admin não tem empresa nem painel próprio
+export function homePath(){
+    return isAdmin() ? "/admin/clientes" : "/dashboard";
+}
+
 function clearSessionCookies(){
     Cookies.remove("token");
     Cookies.remove("expirationDate");
     Cookies.remove("companyInfo");
     Cookies.remove("companyProperties");
     Cookies.remove("companyFeatures");
+    Cookies.remove("userRole");
 }
 
 export async function logout(){

@@ -5,7 +5,7 @@ import Topbar from "../components/topbar";
 import Sidebar from "../components/sidebar";
 import { Container } from "../components/container/style";
 import { Title } from "../components/title";
-import { isAvailableLogin } from "../util/auth";
+import { isAdmin, isAvailableLogin } from "../util/auth";
 import { isMobile } from "../util/util";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
@@ -388,8 +388,9 @@ const topics = [
 export default function Help() {
   const navigate = useNavigate();
   const companyUrl = Cookies.get("companyUrl");
+  // Admin não tem empresa: usa um objeto vazio para a página renderizar mesmo assim
   const [companyInfo] = useState(
-    Cookies.get("companyInfo") ? JSON.parse(Cookies.get("companyInfo")) : undefined
+    Cookies.get("companyInfo") ? JSON.parse(Cookies.get("companyInfo")) : (isAdmin() ? {} : undefined)
   );
   const [mobile, setMobile] = useState(false);
   const [activeTopicId, setActiveTopicId] = useState(topics[0].id);
@@ -400,7 +401,7 @@ export default function Help() {
     if (isAvailableLogin()) {
       setMobile(isMobile());
     } else {
-      navigate("/" + companyUrl);
+      navigate(companyUrl ? "/" + companyUrl : "/login");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

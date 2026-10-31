@@ -1,11 +1,21 @@
 import React, { useEffect, useState } from "react"
 import styled from "styled-components"
-import { Home, Settings, KeyRound, CalendarDays, Banknote, Scissors, BarChart2, FileText, Bell, BellRing, ListOrdered, HelpCircle, Megaphone, Clock, CalendarClock } from "lucide-react"
+import { Home, Settings, KeyRound, CalendarDays, Banknote, Scissors, BarChart2, FileText, Bell, BellRing, ListOrdered, HelpCircle, Megaphone, Clock, CalendarClock, MessageCircle, Users, Layers, TicketPercent } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { isMobile } from "../../util/util"
 import { isMobileApp } from "../../services/api"
 import { getCompanyProperties } from "../../services/endpoints/company"
+import { isAdmin } from "../../util/auth"
 import Cookies from "js-cookie"
+
+export const ADMIN_MENU_ITEMS = [
+  { label: "Clientes", url: "/admin/clientes", icon: Users },
+  { label: "Planos", url: "/admin/planos", icon: Layers },
+  { label: "Cupons de desconto", url: "/admin/cupons", icon: TicketPercent },
+  { label: "Uso WhatsApp", url: "/admin/whatsapp", icon: MessageCircle },
+  { label: "Alterar senha", url: "/alterar-senha", icon: KeyRound },
+  { label: "Ajuda", url: "/ajuda", icon: HelpCircle },
+]
 
 const hasWhatsAppFeature = (feature) =>
   feature.name.toLowerCase().includes("whatsapp")
@@ -90,8 +100,9 @@ const Sidebar = ({ children }) => {
   const [hasWhatsApp, setHasWhatsApp] = useState(false);
   const [scheduleMode, setScheduleMode] = useState("PADRAO");
   const location = useLocation();
-  const currentPage = location.pathname.split('/').filter(Boolean)[0];
+  const currentPath = location.pathname.toLowerCase().replace(/\/+$/, "");
   const navigate = useNavigate();
+  const admin = isAdmin();
 
   const baseMenuItems = [
     { icon: <Home size={18} />, label: "Dashboard", url: "/dashboard" },
@@ -118,14 +129,17 @@ const Sidebar = ({ children }) => {
     ...(isMobileApp() ? [{ icon: <BellRing size={18} />, label: "Notificações Push", url: "/notificacoes-push" }] : []),
   ];
 
-  const menuItems = [
-    ...baseMenuItems.slice(0, baseCount),
-    ...extraItems,
-    ...baseMenuItems.slice(baseCount),
-  ];
+  const menuItems = admin
+    ? ADMIN_MENU_ITEMS.map(({ icon: Icon, ...item }) => ({ ...item, icon: <Icon size={18} /> }))
+    : [
+        ...baseMenuItems.slice(0, baseCount),
+        ...extraItems,
+        ...baseMenuItems.slice(baseCount),
+      ];
 
   useEffect(() => {
     setMobile(isMobile());
+    if (isAdmin()) return;
     try {
       const stored = Cookies.get("companyFeatures");
       if (stored) {
@@ -150,17 +164,20 @@ const Sidebar = ({ children }) => {
         onMouseLeave={() => setIsOpen(false)}
       >
         <MenuList>
-          {menuItems.map((item, index) => (
-            <MenuItem 
-              key={index}
-              $isOpen={isOpen}
-              $isActive={currentPage === item.url.toLowerCase().replace('/', '')}
-              onClick={() => navigate(item.url)}
-            >
-              {item.icon}
-              <Label $isVisible={isOpen} $isActive={currentPage === item.url.toLowerCase().replace('/', '')}>{item.label}</Label>
-            </MenuItem>
-          ))}
+          {menuItems.map((item, index) => {
+            const isActive = currentPath === item.url.toLowerCase();
+            return (
+              <MenuItem
+                key={index}
+                $isOpen={isOpen}
+                $isActive={isActive}
+                onClick={() => navigate(item.url)}
+              >
+                {item.icon}
+                <Label $isVisible={isOpen} $isActive={isActive}>{item.label}</Label>
+              </MenuItem>
+            );
+          })}
         </MenuList>
       </SidebarContainer>
 

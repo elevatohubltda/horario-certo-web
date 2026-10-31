@@ -59,7 +59,8 @@ const Actions = styled(Container)`
 
 export default function ChangePassword() {
   const companyUrl = Cookies.get("companyUrl");
-  const companyInfo = JSON.parse(Cookies.get("companyInfo"));
+  // Admin não tem empresa: sem companyInfo, o topo aparece sem os dados do estabelecimento
+  const companyInfo = Cookies.get("companyInfo") ? JSON.parse(Cookies.get("companyInfo")) : {};
   const [loading, setLoading] = React.useState(true);
   const [mobile, setMobile] = React.useState();
   const navigate = useNavigate();
@@ -102,7 +103,7 @@ export default function ChangePassword() {
       setMobile(isMobile());
       setLoading(false);
     } else {
-      navigate("/" + companyUrl);
+      navigate(companyUrl ? "/" + companyUrl : "/login");
     }
   }, [companyUrl, navigate]);
 

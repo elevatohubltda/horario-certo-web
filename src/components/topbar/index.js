@@ -5,7 +5,8 @@ import { ReactComponent as Logo } from '../../assets/horario-certo-logo-horizont
 import { TopbarStyle } from './style';
 import { Instagram, WhatsApp } from '@mui/icons-material';
 import businessLogo from '../../assets/images/corporate-building.png';
-import { isAvailableLogin, logout } from '../../util/auth';
+import { isAdmin, isAvailableLogin, logout } from '../../util/auth';
+import { ADMIN_MENU_ITEMS } from '../sidebar';
 import {Separator} from '../separator/style';
 import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
@@ -103,7 +104,7 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
       }
     } catch {}
 
-    if (companyUrl) {
+    if (companyUrl && !isAdmin()) {
       getCompanyProperties(companyUrl)
         .then((response) => setScheduleMode(response.data?.scheduleMode || "PADRAO"))
         .catch(() => {});
@@ -130,7 +131,7 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
     setOpen(false);
     toast.success("Desconectado com sucesso!");
     setIsAuth(false);
-    navigate('/'+companyUrl);
+    navigate(companyUrl ? '/'+companyUrl : '/login');
     await logout();
   }
 
@@ -200,7 +201,20 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
       >
         {mobile ? <MenuLogo /> : <UserLogo />}
       </button>
-      {open && (
+      {open && isAdmin() && (
+        <div className="user-dropdown">
+          {mobile && ADMIN_MENU_ITEMS.map((item) => (
+            <div key={item.url} className="dropdown-item" onClick={() => handleNavigate(item.url)}>
+              <button>{item.label}</button>
+            </div>
+          ))}
+          {mobile && <Separator $width="100%" $bordercolor="#ccc" $margin="0" $style="dotted" />}
+          <div className="dropdown-item">
+            <button onClick={handleLogout}>Sair</button>
+          </div>
+        </div>
+      )}
+      {open && !isAdmin() && (
         <div className="user-dropdown">
           <div className="dropdown-item" onClick={() => handleNavigate('/dashboard')}>
             <button>Meu painel</button>

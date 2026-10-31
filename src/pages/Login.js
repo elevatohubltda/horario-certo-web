@@ -4,7 +4,7 @@ import { getFeaturesByCompany } from '../services/endpoints/plans';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { isAvailableLogin, setSecureCookie } from '../util/auth';
+import { homePath, isAvailableLogin, setSecureCookie } from '../util/auth';
 import { isMobileApp } from '../services/api';
 import { expiresAt } from '../util/date';
 import styled from 'styled-components';
@@ -302,19 +302,22 @@ function Login() {
             setSecureCookie("token", token, { expires: cookieExpiry });
           }
           setSecureCookie("expirationDate", format(expirationDate, "yyyy-MM-dd'T'HH:mm:ss"), { expires: cookieExpiry });
-          setSecureCookie("companyUrl", companyUrl, { expires: cookieExpiry });
+          setSecureCookie("userRole", res.data.role || "USER", { expires: cookieExpiry });
 
-          try {
-            const featuresRes = await getFeaturesByCompany(companyUrl);
-            if (featuresRes.status === 200) {
-              setSecureCookie("companyFeatures", JSON.stringify(featuresRes.data), { expires: cookieExpiry });
+          if (companyUrl) {
+            setSecureCookie("companyUrl", companyUrl, { expires: cookieExpiry });
+            try {
+              const featuresRes = await getFeaturesByCompany(companyUrl);
+              if (featuresRes.status === 200) {
+                setSecureCookie("companyFeatures", JSON.stringify(featuresRes.data), { expires: cookieExpiry });
+              }
+            } catch {
+              setSecureCookie("companyFeatures", "[]", { expires: cookieExpiry });
             }
-          } catch {
-            setSecureCookie("companyFeatures", "[]", { expires: cookieExpiry });
           }
 
           if (hasConsented()) {
-            navigate('/dashboard');
+            navigate(homePath());
           } else {
             setShowConsent(true);
           }
@@ -327,7 +330,7 @@ function Login() {
 
   useEffect(() => {
     if(isAvailableLogin()) {
-      navigate('/dashboard');
+      navigate(homePath());
     }
   }, [navigate]);
 
@@ -346,7 +349,7 @@ function Login() {
   return (
     <>
     {showConsent && (
-      <CookieConsent onAccept={() => navigate('/dashboard')} />
+      <CookieConsent onAccept={() => navigate(homePath())} />
     )}
     <Page>
       <LoginShell>

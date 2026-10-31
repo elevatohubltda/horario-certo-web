@@ -28,6 +28,9 @@ import Divulgacao from './pages/Divulgacao';
 import WeeklyScheduleConfig from './pages/WeeklyScheduleConfig';
 import WeeklyCalendarView from './pages/WeeklyCalendarView';
 import AdminWhatsAppUsage from './pages/AdminWhatsAppUsage';
+import AdminClients from './pages/AdminClients';
+import AdminPlans from './pages/AdminPlans';
+import AdminDiscountCodes from './pages/AdminDiscountCodes';
 
 const router = createBrowserRouter(
   [
@@ -55,6 +58,9 @@ const router = createBrowserRouter(
     { path: '/configurar-horario-semanal', element: <WeeklyScheduleConfig /> },
     { path: '/agenda-semanal',    element: <WeeklyCalendarView /> },
     { path: '/admin/whatsapp',    element: <AdminWhatsAppUsage /> },
+    { path: '/admin/clientes',    element: <AdminClients /> },
+    { path: '/admin/planos',      element: <AdminPlans /> },
+    { path: '/admin/cupons',      element: <AdminDiscountCodes /> },
   ],
   {
     future: {
