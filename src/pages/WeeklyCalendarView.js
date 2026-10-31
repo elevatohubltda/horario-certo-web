@@ -24,7 +24,7 @@ import { useNavigate } from "react-router-dom";
 import { isMobile, openWhatsApp } from "../util/util";
 import { formataNumeroTelefone, maskTime, paraHoraSemSegundos } from "../util/format";
 import { ToastContainer, toast } from "react-toastify";
-import { getSimpleAvailability } from "../services/endpoints/weeklyScheduleRule";
+import { getPublicProfessionals, getSimpleAvailability } from "../services/endpoints/weeklyScheduleRule";
 import { removeReservedScheduleByOwner, updateSchedule } from "../services/endpoints/reservedSchedule";
 import Dialog from "../components/dialog";
 import ConfirmDialog from "../components/confirmDialog";
@@ -374,6 +374,24 @@ const LoadingWrapper = styled.div`
   height: 100%;
 `;
 
+const ProfessionalFilter = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
+  color: #374151;
+
+  select {
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.85rem;
+    background: #fff;
+    min-width: 200px;
+  }
+`;
+
 const ConfigBanner = styled.div`
   display: flex;
   align-items: center;
@@ -682,7 +700,16 @@ export default function WeeklyCalendarView() {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [editSchedule, setEditSchedule] = useState({ date: "", time: "" });
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  // Filtro por profissional (com equipe): dono começa em "Todos", profissional na própria agenda
+  const [professionals, setProfessionals] = useState([]);
+  const [professionalFilter, setProfessionalFilter] = useState(() => (isProfessional() ? myProfessionalId() || "" : ""));
   const navigate = useNavigate();
+
+  useEffect(() => {
+    getPublicProfessionals(companyUrl)
+      .then((response) => setProfessionals(response.data || []))
+      .catch(() => setProfessionals([]));
+  }, [companyUrl]);
 
   const toIsoDate = (date) => {
     const y = date.getFullYear();
@@ -700,7 +727,8 @@ export default function WeeklyCalendarView() {
         companyUrl,
         toIsoDate(range.start),
         toIsoDate(endDate),
-        true
+        true,
+        professionalFilter || undefined
       );
       const days = response.data || [];
       const builtEvents = [];
@@ -781,7 +809,7 @@ export default function WeeklyCalendarView() {
       navigate("/" + companyUrl);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [companyUrl, navigate, range]);
+  }, [companyUrl, navigate, range, professionalFilter]);
 
   const eventPropGetter = useMemo(
     () => (event) => ({
@@ -916,6 +944,23 @@ export default function WeeklyCalendarView() {
               </MiniCalendarPanel>
             )}
             <MainColumn>
+              {professionals.length > 1 && (
+                <ProfessionalFilter>
+                  <label htmlFor="agenda-professional">Agenda de</label>
+                  <select
+                    id="agenda-professional"
+                    value={professionalFilter}
+                    onChange={(e) => setProfessionalFilter(e.target.value)}
+                  >
+                    <option value="">Todos os profissionais</option>
+                    {professionals.map((p) => (
+                      <option key={p.id} value={String(p.id)}>
+                        {p.name}{isProfessional() && String(p.id) === String(myProfessionalId()) ? " (você)" : ""}
+                      </option>
+                    ))}
+                  </select>
+                </ProfessionalFilter>
+              )}
               {!loading && !hasAnyOpenDay && (
                 <ConfigBanner>
                   <span>

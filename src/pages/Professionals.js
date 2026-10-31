@@ -226,9 +226,9 @@ function Professionals() {
             </Notice>
           ) : (
             <Notice>
-              Cada profissional terá os próprios serviços, horários e agendamentos, e só poderá alterar os
-              agendamentos dele. Você já pode cadastrar a equipe e gerar os acessos; a entrada dos profissionais no
-              sistema será liberada na próxima atualização.
+              Cada profissional tem os próprios serviços, horários e agendamentos, e só pode alterar os
+              agendamentos dele. Seus clientes escolhem com quem agendar (ou "sem preferência"). Configure os
+              horários de cada um em "Configuração Horários" e os serviços em "Serviços".
             </Notice>
           )}
 

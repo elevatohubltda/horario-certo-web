@@ -13,8 +13,18 @@ export const saveWeeklyScheduleRules = (companyUrl, rules, professionalId) =>
     headers: { "Content-Type": "application/json" }
   });
 
-export const getSimpleAvailability = (companyUrl, startDate, endDate, withAuth = false) =>
+// professionalId opcional: sem ele, a agenda da empresa toda (com equipe, de todos os profissionais)
+export const getSimpleAvailability = (companyUrl, startDate, endDate, withAuth = false, professionalId) =>
   api.get(
-    `/company-schedule/simple-availability?companyUrl=${companyUrl}&startDate=${startDate}&endDate=${endDate}`,
+    `/company-schedule/simple-availability?${new URLSearchParams({
+      companyUrl,
+      startDate,
+      endDate,
+      ...(professionalId ? { professionalId } : {}),
+    }).toString()}`,
     { withAuth }
   );
+
+// Profissionais ativos da empresa (público), para o cliente escolher com quem agendar
+export const getPublicProfessionals = (companyUrl) =>
+  api.get(`/company-schedule/professionals?companyUrl=${companyUrl}`, { withAuth: false });

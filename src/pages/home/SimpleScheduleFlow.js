@@ -20,11 +20,13 @@ import {
   Label
 } from "../../components/scheduleDialogs/style";
 import { getServicesPublic } from "../../services/endpoints/service";
-import { getSimpleAvailability } from "../../services/endpoints/weeklyScheduleRule";
+import { getPublicProfessionals, getSimpleAvailability } from "../../services/endpoints/weeklyScheduleRule";
 import { createReservedSchedule, removeReservedSchedule } from "../../services/endpoints/reservedSchedule";
 import { formataNumeroTelefone, formatSchedulesToISO } from "../../util/format";
 import { computeAvailableSlots } from "../../util/simpleSchedule";
 import { getWeekDay } from "../../util/date";
+
+const ANY_PROFESSIONAL = "ANY";
 
 const sliderSettings = {
   dots: false,
@@ -45,9 +47,17 @@ export default function SimpleScheduleFlow({ companyUrl, companyInfo, mobile }) 
   });
   const [services, setServices] = useState([]);
   const [loadingServices, setLoadingServices] = useState(true);
+  // Serviço escolhido; em "sem preferência" é um grupo { name, options } com o mesmo serviço de cada profissional
   const [selectedService, setSelectedService] = useState(null);
-  const [availabilityDays, setAvailabilityDays] = useState([]);
+  // Disponibilidade por opção de agendamento (um item por profissional consultado)
+  const [availabilityByOption, setAvailabilityByOption] = useState([]);
   const [loadingAvailability, setLoadingAvailability] = useState(true);
+  // Profissionais ativos; com mais de um, o cliente escolhe com quem (ou "sem preferência")
+  const [professionals, setProfessionals] = useState([]);
+  const [selectedProfessional, setSelectedProfessional] = useState(null);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const multiProfessional = professionals.length > 1;
+  const anyProfessional = selectedProfessional === ANY_PROFESSIONAL;
 
   const [open, setOpen] = useState(false);
   const [available, setAvailable] = useState();
@@ -63,8 +73,12 @@ export default function SimpleScheduleFlow({ companyUrl, companyInfo, mobile }) 
   const fetchServices = async () => {
     setLoadingServices(true);
     try {
-      const response = await getServicesPublic(companyUrl);
-      setServices(response.data || []);
+      const [servicesResponse, professionalsResponse] = await Promise.all([
+        getServicesPublic(companyUrl),
+        getPublicProfessionals(companyUrl).catch(() => ({ data: [] })),
+      ]);
+      setServices(servicesResponse.data || []);
+      setProfessionals(professionalsResponse.data || []);
     } catch (error) {
       toast.error("Erro ao buscar os serviços da empresa.");
     } finally {
@@ -72,11 +86,41 @@ export default function SimpleScheduleFlow({ companyUrl, companyInfo, mobile }) 
     }
   };
 
+  // Serviços disponíveis para a escolha atual de profissional
+  const visibleServices = useMemo(() => {
+    if (!multiProfessional) return services;
+    if (!anyProfessional) return services.filter((s) => s.professionalId === selectedProfessional?.id);
+    // Sem preferência: agrupa pelo nome o mesmo serviço oferecido por profissionais diferentes
+    const groups = new Map();
+    services.forEach((service) => {
+      const key = service.name.trim().toLowerCase();
+      if (!groups.has(key)) groups.set(key, { id: key, name: service.name, options: [] });
+      groups.get(key).options.push(service);
+    });
+    return [...groups.values()].map((group) => {
+      const durations = group.options.map((o) => o.durationMinutes);
+      return { ...group, minDuration: Math.min(...durations), maxDuration: Math.max(...durations) };
+    });
+  }, [services, multiProfessional, anyProfessional, selectedProfessional]);
+
+  // Opções de agendamento do serviço escolhido: uma por profissional que o oferece
+  const bookingOptions = useMemo(() => {
+    if (!selectedService) return [];
+    return selectedService.options || [selectedService];
+  }, [selectedService]);
+
   const fetchAvailability = async () => {
     setLoadingAvailability(true);
     try {
-      const response = await getSimpleAvailability(companyUrl, filter.startDate, filter.endDate);
-      setAvailabilityDays(response.data || []);
+      const responses = await Promise.all(
+        bookingOptions.map((option) =>
+          getSimpleAvailability(
+            companyUrl, filter.startDate, filter.endDate, false,
+            multiProfessional ? option.professionalId : undefined
+          )
+        )
+      );
+      setAvailabilityByOption(responses.map((response) => response.data || []));
     } catch (error) {
       toast.error("Erro ao buscar os horários disponíveis.");
     } finally {
@@ -146,22 +190,38 @@ export default function SimpleScheduleFlow({ companyUrl, companyInfo, mobile }) 
     return isoLike <= now;
   };
 
+  // Junta os horários de todas as opções: um horário está livre se algum profissional estiver livre,
+  // e guarda qual opção (profissional + serviço dele) será usada ao agendar
   const daysWithSlots = useMemo(() => {
-    if (!selectedService) return [];
-    return availabilityDays.map((day) => {
-      const data = formatDatePtBr(day.date);
-      return {
-        data,
-        slots: computeAvailableSlots({
+    if (!selectedService || availabilityByOption.length === 0) return [];
+    const baseDays = availabilityByOption[0] || [];
+    return baseDays.map((baseDay, dayIndex) => {
+      const data = formatDatePtBr(baseDay.date);
+      const merged = new Map();
+      bookingOptions.forEach((option, optionIndex) => {
+        const day = availabilityByOption[optionIndex]?.[dayIndex];
+        if (!day) return;
+        computeAvailableSlots({
           openTime: day.openTime,
           closeTime: day.closeTime,
           intervals: day.intervals,
           bookedSlots: day.bookedSlots,
-          durationMinutes: selectedService.durationMinutes
-        }).filter((slot) => !itsAvailableNow(data, slot.horario))
+          durationMinutes: option.durationMinutes
+        }).forEach((slot) => {
+          const current = merged.get(slot.horario);
+          if (!current || (!current.available && slot.available)) {
+            merged.set(slot.horario, { horario: slot.horario, available: slot.available, option });
+          }
+        });
+      });
+      return {
+        data,
+        slots: [...merged.values()]
+          .sort((a, b) => a.horario.localeCompare(b.horario))
+          .filter((slot) => !itsAvailableNow(data, slot.horario))
       };
     });
-  }, [availabilityDays, selectedService]);
+  }, [availabilityByOption, bookingOptions, selectedService]);
 
   const handleRestartProps = () => {
     setSelectedSchedule({ data: "", horario: "", nome: "", telefone: "" });
@@ -170,8 +230,9 @@ export default function SimpleScheduleFlow({ companyUrl, companyInfo, mobile }) 
     setError();
   };
 
-  const selectSchedule = (data, horario, isAvailable) => {
+  const selectSchedule = (data, horario, isAvailable, option) => {
     setAvailable(isAvailable);
+    setSelectedOption(option || null);
     setSelectedSchedule({ data, horario, nome: "", telefone: "" });
     setCode("");
     setOpen(true);
@@ -183,11 +244,13 @@ export default function SimpleScheduleFlow({ companyUrl, companyInfo, mobile }) 
       return;
     }
     const scheduleISOFormat = formatSchedulesToISO({ date: selectedSchedule.data, schedules: [selectedSchedule.horario] });
+    const option = selectedOption || bookingOptions[0];
     const reservedSchedule = {
       name: selectedSchedule.nome,
       telephone: selectedSchedule.telefone.replace(/\D/g, ""),
       schedule: scheduleISOFormat[0],
-      service: selectedService.id
+      service: option.id,
+      ...(multiProfessional ? { professionalId: option.professionalId } : {})
     };
     try {
       const response = await createReservedSchedule(companyUrl, reservedSchedule);
@@ -237,10 +300,46 @@ export default function SimpleScheduleFlow({ companyUrl, companyInfo, mobile }) 
         instagram={companyInfo.instagram}
       />
 
-      {!selectedService && (
+      {multiProfessional && !selectedProfessional && (
+        <Container $width="80%" $padding="1.5rem 0" $backgroundcolor="#fff" $borderRadius="1rem">
+          <Title $fontweight="600" $fontsize="1.2rem" $color="var(--color-brown)" $padding="0 1.5rem">
+            Escolha o profissional
+          </Title>
+          <Separator $width="calc(100% - 3rem)" $bordercolor="#e8e8e8" $margin="0.75rem 1.5rem 1.5rem 1.5rem" $style="solid" />
+          <div className="horarios-container" style={{ padding: "0 1.5rem" }}>
+            {professionals.map((professional) => (
+              <button
+                key={professional.id}
+                className="horario-btn"
+                onClick={() => setSelectedProfessional(professional)}
+              >
+                {professional.name}
+              </button>
+            ))}
+            <button className="horario-btn" onClick={() => setSelectedProfessional(ANY_PROFESSIONAL)}>
+              Sem preferência
+            </button>
+          </div>
+        </Container>
+      )}
+
+      {(!multiProfessional || selectedProfessional) && !selectedService && (
         <Container $width="80%" $padding="1.5rem 0" $backgroundcolor="#fff" $borderRadius="1rem">
           <Title $fontweight="600" $fontsize="1.2rem" $color="var(--color-brown)" $padding="0 1.5rem">
             Escolha o serviço
+            {multiProfessional && (
+              <span style={{ display: "block", fontSize: "0.8rem", fontWeight: 400, color: "var(--color-olive)", marginTop: "0.25rem" }}>
+                {anyProfessional ? "Com qualquer profissional disponível" : `Com ${selectedProfessional.name}`}
+                {" · "}
+                <button
+                  type="button"
+                  onClick={() => setSelectedProfessional(null)}
+                  style={{ background: "none", border: "none", padding: 0, color: "inherit", textDecoration: "underline", cursor: "pointer" }}
+                >
+                  trocar
+                </button>
+              </span>
+            )}
           </Title>
           <Separator $width="calc(100% - 3rem)" $bordercolor="#e8e8e8" $margin="0.75rem 1.5rem 1.5rem 1.5rem" $style="solid" />
           {loadingServices && (
@@ -249,21 +348,28 @@ export default function SimpleScheduleFlow({ companyUrl, companyInfo, mobile }) 
               <p>Buscando serviços...</p>
             </div>
           )}
-          {!loadingServices && services.length === 0 && (
+          {!loadingServices && visibleServices.length === 0 && (
             <div className="slide no-schedules">
               <h3>Nenhum serviço cadastrado</h3>
-              <p>Essa empresa ainda não cadastrou serviços.</p>
+              <p>
+                {multiProfessional && !anyProfessional
+                  ? "Esse profissional ainda não cadastrou serviços."
+                  : "Essa empresa ainda não cadastrou serviços."}
+              </p>
             </div>
           )}
-          {!loadingServices && services.length > 0 && (
+          {!loadingServices && visibleServices.length > 0 && (
             <div className="horarios-container" style={{ padding: "0 1.5rem" }}>
-              {services.map((service) => (
+              {visibleServices.map((service) => (
                 <button
                   key={service.id}
                   className="horario-btn"
                   onClick={() => setSelectedService(service)}
                 >
-                  {service.name} ({service.durationMinutes} min)
+                  {service.name} (
+                  {service.options && service.minDuration !== service.maxDuration
+                    ? `${service.minDuration}-${service.maxDuration}`
+                    : service.options ? service.minDuration : service.durationMinutes} min)
                 </button>
               ))}
             </div>
@@ -276,10 +382,24 @@ export default function SimpleScheduleFlow({ companyUrl, companyInfo, mobile }) 
           <CustomFilterStyle $width="80%">
             <span style={{ fontSize: "0.85rem", color: "var(--color-olive)" }}>
               Serviço: <strong>{selectedService.name}</strong>
+              {multiProfessional && (
+                <> · {anyProfessional ? "Sem preferência" : selectedProfessional.name}</>
+              )}
             </span>
             <button className="filter-button" onClick={() => setSelectedService(null)}>
               Trocar serviço
             </button>
+            {multiProfessional && (
+              <button
+                className="filter-button"
+                onClick={() => {
+                  setSelectedService(null);
+                  setSelectedProfessional(null);
+                }}
+              >
+                Trocar profissional
+              </button>
+            )}
             <button className={filter.indexActive === 0 ? "active filter-button" : "filter-button"} onClick={() => handleFilter("3 dias", 0)}>
               3 dias
             </button>
@@ -312,7 +432,7 @@ export default function SimpleScheduleFlow({ companyUrl, companyInfo, mobile }) 
                             <button
                               key={i}
                               className={slot.available ? "horario-btn" : "horario-btn horario-btn-unavailable"}
-                              onClick={() => selectSchedule(day.data, slot.horario, slot.available)}
+                              onClick={() => selectSchedule(day.data, slot.horario, slot.available, slot.option)}
                             >
                               {slot.horario}
                             </button>
@@ -351,6 +471,12 @@ export default function SimpleScheduleFlow({ companyUrl, companyInfo, mobile }) 
           <DialogInput value={selectedSchedule.horario} readOnly />
           <Label>Serviço:</Label>
           <DialogInput value={selectedService?.name || ""} readOnly />
+          {multiProfessional && selectedOption?.professionalName && (
+            <>
+              <Label>Profissional:</Label>
+              <DialogInput value={selectedOption.professionalName} readOnly />
+            </>
+          )}
           <Label>Digite seu nome:</Label>
           <DialogInput
             type="text"

@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { getClientStatus } from "../services/endpoints/payment";
 import { Clock, CalendarDays, Check, Filter } from "lucide-react";
-import { getCompany, getCompanySchedules } from "../services/endpoints/company";
+import { getCompany, getCompanySchedules, getCompanySchedulesAuth } from "../services/endpoints/company";
 import { expiresAt } from "../util/date";
 
 
@@ -259,7 +259,10 @@ export default function Dashboard() {
     const { startDate, endDate } = getDateRangeByPeriod(selectedPeriod);
 
     try {
-      const response = await getCompanySchedules(companyUrl, startDate, endDate);
+      // Profissional da equipe vê só os próprios agendamentos (o backend filtra pela sessão)
+      const response = isProfessional()
+        ? await getCompanySchedulesAuth(companyUrl, startDate, endDate)
+        : await getCompanySchedules(companyUrl, startDate, endDate);
       setSchedules(response.data || []);
     } catch (error) {
       console.error("Erro ao buscar os agendamentos do dashboard:", error);
