@@ -324,7 +324,8 @@ function Login() {
         }
       })
       .catch(err => {
-        handleError(err?.response?.data?.message || 'Nao foi possivel realizar o login.');
+        const data = err?.response?.data;
+        handleError((typeof data === 'string' && data) || data?.message || 'Nao foi possivel realizar o login.');
       });
   }
 

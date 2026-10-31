@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react"
 import styled from "styled-components"
-import { Home, Settings, KeyRound, CalendarDays, Banknote, Scissors, BarChart2, FileText, Bell, BellRing, ListOrdered, HelpCircle, Megaphone, Clock, CalendarClock, MessageCircle, Users, Layers, TicketPercent } from "lucide-react"
+import { Home, Settings, KeyRound, CalendarDays, Banknote, Scissors, BarChart2, FileText, Bell, BellRing, ListOrdered, HelpCircle, Megaphone, Clock, CalendarClock, MessageCircle, Users, Layers, TicketPercent, UserCog } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { isMobile } from "../../util/util"
 import { isMobileApp } from "../../services/api"
 import { getCompanyProperties } from "../../services/endpoints/company"
+import { fetchMaxProfessionals } from "../../services/endpoints/professional"
 import { isAdmin } from "../../util/auth"
 import Cookies from "js-cookie"
 
@@ -99,6 +100,7 @@ const Sidebar = ({ children }) => {
   const [mobile, setMobile] = useState();
   const [hasWhatsApp, setHasWhatsApp] = useState(false);
   const [scheduleMode, setScheduleMode] = useState("PADRAO");
+  const [maxProfessionals, setMaxProfessionals] = useState(1);
   const location = useLocation();
   const currentPath = location.pathname.toLowerCase().replace(/\/+$/, "");
   const navigate = useNavigate();
@@ -125,6 +127,7 @@ const Sidebar = ({ children }) => {
   const baseCount = scheduleMode !== "SIMPLES" ? 7 : 6;
 
   const extraItems = [
+    ...(maxProfessionals > 1 ? [{ icon: <UserCog size={18} />, label: "Profissionais", url: "/profissionais" }] : []),
     ...(hasWhatsApp ? [{ icon: <Bell size={18} />, label: "Notificações", url: "/notificacoes" }] : []),
     ...(isMobileApp() ? [{ icon: <BellRing size={18} />, label: "Notificações Push", url: "/notificacoes-push" }] : []),
   ];
@@ -152,6 +155,7 @@ const Sidebar = ({ children }) => {
       getCompanyProperties(companyUrl)
         .then((response) => setScheduleMode(response.data?.scheduleMode || "PADRAO"))
         .catch(() => {});
+      fetchMaxProfessionals(companyUrl).then(setMaxProfessionals);
     }
   }, []);
 

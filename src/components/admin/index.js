@@ -11,8 +11,9 @@ import { isMobile } from "../../util/util";
 
 /* ================= LAYOUT ================= */
 
-// Estrutura comum das telas de admin: topo, menu lateral e cabeçalho da página
-export function AdminLayout({ title, subtitle, actions, children }) {
+// Estrutura comum das telas de gestão: topo, menu lateral e cabeçalho da página.
+// requireAdmin=false para telas do dono da empresa que reaproveitam o mesmo visual.
+export function AdminLayout({ title, subtitle, actions, children, requireAdmin = true }) {
   const navigate = useNavigate();
   const [mobile, setMobile] = useState(false);
   const companyInfo = Cookies.get("companyInfo") ? JSON.parse(Cookies.get("companyInfo")) : {};
@@ -47,7 +48,7 @@ export function AdminLayout({ title, subtitle, actions, children }) {
               </div>
               {actions && <HeaderActions>{actions}</HeaderActions>}
             </Header>
-            {isAdmin() ? children : <Message>Acesso restrito a administradores.</Message>}
+            {!requireAdmin || isAdmin() ? children : <Message>Acesso restrito a administradores.</Message>}
           </Page>
         </Sidebar>
       </Container>

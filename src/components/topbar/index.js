@@ -16,6 +16,7 @@ import Cookies from "js-cookie";
 import Dialog from '../dialog';
 import styled from 'styled-components';
 import { getCompanyProperties } from '../../services/endpoints/company';
+import { fetchMaxProfessionals } from '../../services/endpoints/professional';
 
 const DialogTitle = styled.h3`
   margin: 0 0 1rem 0;
@@ -88,6 +89,7 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
   const [mobile, setMobile] = useState();
   const [hasWhatsApp, setHasWhatsApp] = useState(false);
   const [scheduleMode, setScheduleMode] = useState("PADRAO");
+  const [maxProfessionals, setMaxProfessionals] = useState(1);
   const companyUrl = Cookies.get("companyUrl");
 
   useEffect(() => {
@@ -104,10 +106,11 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
       }
     } catch {}
 
-    if (companyUrl && !isAdmin()) {
+    if (companyUrl && !isAdmin() && isAvailableLogin()) {
       getCompanyProperties(companyUrl)
         .then((response) => setScheduleMode(response.data?.scheduleMode || "PADRAO"))
         .catch(() => {});
+      fetchMaxProfessionals(companyUrl).then(setMaxProfessionals);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -258,6 +261,11 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
               <div className="dropdown-item" onClick={() => handleNavigate('/lista-de-espera')}>
                 <button>Lista de Espera</button>
               </div>
+              {maxProfessionals > 1 && (
+                <div className="dropdown-item" onClick={() => handleNavigate('/profissionais')}>
+                  <button>Profissionais</button>
+                </div>
+              )}
               <div className="dropdown-item" onClick={() => handleNavigate('/assinatura')}>
                 <button>Assinatura</button>
               </div>

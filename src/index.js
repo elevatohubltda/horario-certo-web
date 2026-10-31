@@ -31,6 +31,7 @@ import AdminWhatsAppUsage from './pages/AdminWhatsAppUsage';
 import AdminClients from './pages/AdminClients';
 import AdminPlans from './pages/AdminPlans';
 import AdminDiscountCodes from './pages/AdminDiscountCodes';
+import Professionals from './pages/Professionals';
 
 const router = createBrowserRouter(
   [
@@ -57,6 +58,7 @@ const router = createBrowserRouter(
     { path: '/divulgacao',        element: <Divulgacao /> },
     { path: '/configurar-horario-semanal', element: <WeeklyScheduleConfig /> },
     { path: '/agenda-semanal',    element: <WeeklyCalendarView /> },
+    { path: '/profissionais',     element: <Professionals /> },
     { path: '/admin/whatsapp',    element: <AdminWhatsAppUsage /> },
     { path: '/admin/clientes',    element: <AdminClients /> },
     { path: '/admin/planos',      element: <AdminPlans /> },

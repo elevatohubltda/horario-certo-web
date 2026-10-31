@@ -94,7 +94,7 @@ const FeatureOptions = styled.div`
   }
 `;
 
-const EMPTY_FORM = { id: null, name: "", price: "", expectedWhatsappMessages: "700", featureIds: [] };
+const EMPTY_FORM = { id: null, name: "", price: "", expectedWhatsappMessages: "700", maxProfessionals: "1", featureIds: [] };
 
 function AdminPlans() {
   const [data, setData] = useState({ plans: [], features: [] });
@@ -127,6 +127,7 @@ function AdminPlans() {
       name: plan.name,
       price: String(plan.price),
       expectedWhatsappMessages: String(plan.expectedWhatsappMessages),
+      maxProfessionals: String(plan.maxProfessionals ?? 1),
       featureIds: plan.features.map((f) => f.id),
       clients: plan.clients,
     });
@@ -152,6 +153,7 @@ function AdminPlans() {
       name: form.name.trim(),
       price,
       expectedWhatsappMessages: Number(form.expectedWhatsappMessages) || 0,
+      maxProfessionals: Math.max(Number(form.maxProfessionals) || 1, 1),
       featureIds: form.featureIds,
     };
 
@@ -208,6 +210,9 @@ function AdminPlans() {
                 {formatMoney(plan.price)}
                 <span style={{ fontSize: "0.8rem", fontWeight: 400, color: "#6b7280" }}>/mês</span>
               </Price>
+              <Muted>
+                {plan.maxProfessionals > 1 ? `Até ${plan.maxProfessionals} profissionais` : "1 profissional"}
+              </Muted>
               <Muted>
                 {plan.expectedWhatsappMessages > 0
                   ? `${formatNumber(plan.expectedWhatsappMessages)} mensagens WhatsApp esperadas/mês`
@@ -269,6 +274,17 @@ function AdminPlans() {
                   min="0"
                   value={form.expectedWhatsappMessages}
                   onChange={(e) => setForm({ ...form, expectedWhatsappMessages: e.target.value })}
+                />
+              </Field>
+            </FormRow>
+            <FormRow>
+              <Field>
+                Máx. de profissionais
+                <Input
+                  type="number"
+                  min="1"
+                  value={form.maxProfessionals}
+                  onChange={(e) => setForm({ ...form, maxProfessionals: e.target.value })}
                 />
               </Field>
             </FormRow>
