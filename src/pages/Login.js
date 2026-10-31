@@ -4,6 +4,7 @@ import { getFeaturesByCompany } from '../services/endpoints/plans';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Cookies from 'js-cookie';
 import { homePath, isAvailableLogin, setSecureCookie } from '../util/auth';
 import { isMobileApp } from '../services/api';
 import { expiresAt } from '../util/date';
@@ -303,6 +304,11 @@ function Login() {
           }
           setSecureCookie("expirationDate", format(expirationDate, "yyyy-MM-dd'T'HH:mm:ss"), { expires: cookieExpiry });
           setSecureCookie("userRole", res.data.role || "USER", { expires: cookieExpiry });
+          if (res.data.professionalId) {
+            setSecureCookie("professionalId", String(res.data.professionalId), { expires: cookieExpiry });
+          } else {
+            Cookies.remove("professionalId");
+          }
 
           if (companyUrl) {
             setSecureCookie("companyUrl", companyUrl, { expires: cookieExpiry });

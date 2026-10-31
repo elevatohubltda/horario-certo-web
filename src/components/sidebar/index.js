@@ -6,7 +6,7 @@ import { isMobile } from "../../util/util"
 import { isMobileApp } from "../../services/api"
 import { getCompanyProperties } from "../../services/endpoints/company"
 import { fetchMaxProfessionals } from "../../services/endpoints/professional"
-import { isAdmin } from "../../util/auth"
+import { isAdmin, isProfessional } from "../../util/auth"
 import Cookies from "js-cookie"
 
 export const ADMIN_MENU_ITEMS = [
@@ -14,6 +14,19 @@ export const ADMIN_MENU_ITEMS = [
   { label: "Planos", url: "/admin/planos", icon: Layers },
   { label: "Cupons de desconto", url: "/admin/cupons", icon: TicketPercent },
   { label: "Uso WhatsApp", url: "/admin/whatsapp", icon: MessageCircle },
+  { label: "Alterar senha", url: "/alterar-senha", icon: KeyRound },
+  { label: "Ajuda", url: "/ajuda", icon: HelpCircle },
+]
+
+// Menu do profissional da equipe: "Agendamentos" leva à agenda do modo de agenda da empresa
+export const professionalMenuItems = (scheduleMode) => [
+  { label: "Dashboard", url: "/dashboard", icon: Home },
+  scheduleMode === "SIMPLES"
+    ? { label: "Agendamentos", url: "/agenda-semanal", icon: CalendarClock }
+    : { label: "Agendamentos", url: "/agendamentos", icon: CalendarDays },
+  { label: "Serviços", url: "/servicos", icon: Scissors },
+  { label: "Lista de Espera", url: "/lista-de-espera", icon: ListOrdered },
+  { label: "Divulgação", url: "/divulgacao", icon: Megaphone },
   { label: "Alterar senha", url: "/alterar-senha", icon: KeyRound },
   { label: "Ajuda", url: "/ajuda", icon: HelpCircle },
 ]
@@ -105,6 +118,7 @@ const Sidebar = ({ children }) => {
   const currentPath = location.pathname.toLowerCase().replace(/\/+$/, "");
   const navigate = useNavigate();
   const admin = isAdmin();
+  const professional = isProfessional();
 
   const baseMenuItems = [
     { icon: <Home size={18} />, label: "Dashboard", url: "/dashboard" },
@@ -132,8 +146,11 @@ const Sidebar = ({ children }) => {
     ...(isMobileApp() ? [{ icon: <BellRing size={18} />, label: "Notificações Push", url: "/notificacoes-push" }] : []),
   ];
 
+  const withIcons = (items) => items.map(({ icon: Icon, ...item }) => ({ ...item, icon: <Icon size={18} /> }));
   const menuItems = admin
-    ? ADMIN_MENU_ITEMS.map(({ icon: Icon, ...item }) => ({ ...item, icon: <Icon size={18} /> }))
+    ? withIcons(ADMIN_MENU_ITEMS)
+    : professional
+    ? withIcons(professionalMenuItems(scheduleMode))
     : [
         ...baseMenuItems.slice(0, baseCount),
         ...extraItems,
@@ -155,7 +172,8 @@ const Sidebar = ({ children }) => {
       getCompanyProperties(companyUrl)
         .then((response) => setScheduleMode(response.data?.scheduleMode || "PADRAO"))
         .catch(() => {});
-      fetchMaxProfessionals(companyUrl).then(setMaxProfessionals);
+      // Gestão de profissionais é só do dono
+      if (!isProfessional()) fetchMaxProfessionals(companyUrl).then(setMaxProfessionals);
     }
   }, []);
 

@@ -19,7 +19,7 @@ import Topbar from "../components/topbar";
 import { Container } from "../components/container/style";
 import Cookies from "js-cookie";
 import Sidebar from "../components/sidebar";
-import { isAvailableLogin } from "../util/auth";
+import { isAvailableLogin, isProfessional, myProfessionalId } from "../util/auth";
 import { useNavigate } from "react-router-dom";
 import { isMobile, openWhatsApp } from "../util/util";
 import { formataNumeroTelefone, maskTime, paraHoraSemSegundos } from "../util/format";
@@ -758,7 +758,9 @@ export default function WeeklyCalendarView() {
             isoStart: slot.start,
             name: slot.name,
             telephone: slot.telephone,
-            serviceName: slot.serviceName
+            serviceName: slot.serviceName,
+            professionalId: slot.professionalId,
+            professionalName: slot.professionalName
           });
         });
       });
@@ -829,6 +831,9 @@ export default function WeeklyCalendarView() {
     setRange({ start: startOfWeek(selected, { locale: ptBR }), days: 7, view: "week" });
   };
 
+  // Profissional da equipe só edita/cancela os próprios agendamentos; o dono, todos
+  const canManageEvent = (event) => !isProfessional() || String(event.professionalId) === String(myProfessionalId());
+
   const handleSelectEvent = (event) => {
     if (event.type !== "booked") return;
     setSelectedEvent(event);
@@ -850,7 +855,8 @@ export default function WeeklyCalendarView() {
     try {
       const response = await updateSchedule(companyUrl, {
         old: selectedEvent.isoStart,
-        new: `${editSchedule.date}T${editSchedule.time}:00`
+        new: `${editSchedule.date}T${editSchedule.time}:00`,
+        professionalId: selectedEvent.professionalId
       });
       if (response.status === 200) {
         toast.success(response.data, { containerId: TOAST_CONTAINER_ID });
@@ -864,7 +870,9 @@ export default function WeeklyCalendarView() {
 
   const handleConfirmDelete = async (onlyUncheck) => {
     try {
-      const response = await removeReservedScheduleByOwner(companyUrl, selectedEvent.isoStart, onlyUncheck);
+      const response = await removeReservedScheduleByOwner(
+        companyUrl, selectedEvent.isoStart, onlyUncheck, selectedEvent.professionalId
+      );
       if (response.status === 200) {
         toast.success(response.data, { containerId: TOAST_CONTAINER_ID });
         fetchAvailability();
@@ -979,6 +987,12 @@ export default function WeeklyCalendarView() {
                     <DetailValue>{selectedEvent.serviceName}</DetailValue>
                   </DetailRow>
                 )}
+                {selectedEvent.professionalName && (
+                  <DetailRow>
+                    <DetailLabel>Profissional</DetailLabel>
+                    <DetailValue>{selectedEvent.professionalName}</DetailValue>
+                  </DetailRow>
+                )}
                 <DetailRow>
                   <DetailLabel>Data</DetailLabel>
                   <DetailValue>{format(selectedEvent.start, "dd/MM/yyyy")}</DetailValue>
@@ -1001,13 +1015,24 @@ export default function WeeklyCalendarView() {
                         <PhoneIcon color="green" size={18} />
                       </DetailIconButton>
                     )}
-                    <DetailIconButton type="button" title="Editar horário" onClick={openEditDialog}>
-                      <ClipboardPenLineIcon color="#007bff" size={18} />
-                    </DetailIconButton>
-                    <DetailIconButton type="button" title="Cancelar agendamento" onClick={() => setShowConfirmDelete(true)}>
-                      <CircleXIcon color="red" size={18} />
-                    </DetailIconButton>
+                    {canManageEvent(selectedEvent) && (
+                      <>
+                        <DetailIconButton type="button" title="Editar horário" onClick={openEditDialog}>
+                          <ClipboardPenLineIcon color="#007bff" size={18} />
+                        </DetailIconButton>
+                        <DetailIconButton type="button" title="Cancelar agendamento" onClick={() => setShowConfirmDelete(true)}>
+                          <CircleXIcon color="red" size={18} />
+                        </DetailIconButton>
+                      </>
+                    )}
                   </DetailActions>
+                )}
+                {isEventScheduled(selectedEvent) && !canManageEvent(selectedEvent) && (
+                  <DetailRow>
+                    <DetailValue style={{ color: "#6b7280", fontSize: "0.8rem" }}>
+                      Agendamento de outro profissional: somente visualização.
+                    </DetailValue>
+                  </DetailRow>
                 )}
               </>
             )}

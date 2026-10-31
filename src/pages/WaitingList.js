@@ -8,7 +8,7 @@ import { CustomFilterStyle } from "../components/filter/style";
 import DateRangeSelector from "../components/dateRangeSelector";
 import { getWaitingQueue, deleteWaitingQueueEntry } from "../services/endpoints/waitingQueue";
 import { getCompany } from "../services/endpoints/company";
-import { isAvailableLogin } from "../util/auth";
+import { isAvailableLogin, isProfessional } from "../util/auth";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { Phone, MessageCircle, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
@@ -295,7 +295,12 @@ export default function WaitingList() {
                         {entry.position}º
                       </Td>
                       <Td style={{ whiteSpace: "nowrap" }}>{entry.date}</Td>
-                      <Td>{entry.name}</Td>
+                      <Td>
+                        {entry.name}
+                        {!isProfessional() && entry.professionalName && (
+                          <div style={{ fontSize: "0.72rem", color: "#9ca3af" }}>com {entry.professionalName}</div>
+                        )}
+                      </Td>
                       <Td>
                         <Actions>
                           <IconButton

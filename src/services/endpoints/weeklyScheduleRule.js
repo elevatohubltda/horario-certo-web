@@ -1,10 +1,14 @@
 import api from "../api";
 
-export const getWeeklyScheduleRules = (companyUrl) =>
-  api.get(`/weekly-schedule-rule?companyUrl=${companyUrl}`, { withAuth: true });
+// professionalId opcional: sem ele, vale o horário do dono
+const ruleParams = (companyUrl, professionalId) =>
+  new URLSearchParams(professionalId ? { companyUrl, professionalId } : { companyUrl }).toString();
 
-export const saveWeeklyScheduleRules = (companyUrl, rules) =>
-  api.put(`/weekly-schedule-rule?companyUrl=${companyUrl}`, rules, {
+export const getWeeklyScheduleRules = (companyUrl, professionalId) =>
+  api.get(`/weekly-schedule-rule?${ruleParams(companyUrl, professionalId)}`, { withAuth: true });
+
+export const saveWeeklyScheduleRules = (companyUrl, rules, professionalId) =>
+  api.put(`/weekly-schedule-rule?${ruleParams(companyUrl, professionalId)}`, rules, {
     withAuth: true,
     headers: { "Content-Type": "application/json" }
   });

@@ -6,7 +6,7 @@ import Sidebar from "../components/sidebar";
 import { Container } from "../components/container/style";
 import { Title } from "../components/title";
 import Alert from "../components/alert";
-import { isAvailableLogin, setSecureCookie } from "../util/auth";
+import { isAvailableLogin, isProfessional, setSecureCookie } from "../util/auth";
 import { isMobile } from "../util/util";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
@@ -330,7 +330,8 @@ export default function Dashboard() {
       if(companyInfo === undefined || companyInfo === null) {
         getCompanyInfo();
       }
-      getClientStatusInfo();
+      // Situação da assinatura é assunto do dono, não do profissional da equipe
+      if (!isProfessional()) getClientStatusInfo();
       setMobile(isMobile());
     } else {
       navigate("/" + companyUrl);

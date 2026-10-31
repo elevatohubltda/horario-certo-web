@@ -57,13 +57,14 @@ export const removeReservedSchedule = (companyUrl, schedule) => {
   );
 };
 
-export const removeReservedScheduleByOwner = (companyUrl, schedule, onlyUncheck) => {
+// professionalId: de quem é o agendamento (com mais de um profissional, horários podem coincidir)
+export const removeReservedScheduleByOwner = (companyUrl, schedule, onlyUncheck, professionalId) => {
   const params = new URLSearchParams({ companyUrl }).toString();
 
   return api.delete(
     `/reserved-schedule/owner?${params}`,
     {
-      data: { schedule, onlyUncheck },
+      data: { schedule, onlyUncheck, professionalId },
       withAuth: true,
       headers: {
         "Content-Type": "application/json",

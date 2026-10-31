@@ -32,6 +32,15 @@ export function isAdmin(){
     return Cookies.get("userRole") === "ADMIN";
 }
 
+// Profissional da equipe (não é dono): menu reduzido e ações só nos próprios agendamentos
+export function isProfessional(){
+    return Cookies.get("userRole") === "PROFESSIONAL";
+}
+
+export function myProfessionalId(){
+    return Cookies.get("professionalId");
+}
+
 // Tela inicial após o login: admin não tem empresa nem painel próprio
 export function homePath(){
     return isAdmin() ? "/admin/clientes" : "/dashboard";
@@ -44,6 +53,7 @@ function clearSessionCookies(){
     Cookies.remove("companyProperties");
     Cookies.remove("companyFeatures");
     Cookies.remove("userRole");
+    Cookies.remove("professionalId");
 }
 
 export async function logout(){

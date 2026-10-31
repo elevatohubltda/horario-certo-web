@@ -18,6 +18,7 @@ import {
   getWeeklyScheduleRules,
   saveWeeklyScheduleRules
 } from "../services/endpoints/weeklyScheduleRule";
+import { getProfessionals } from "../services/endpoints/professional";
 
 const DAYS = [
   { dayOfWeek: 1, label: "Segunda-feira" },
@@ -225,6 +226,24 @@ const SaveButton = styled(Button)`
 
 const TOAST_CONTAINER_ID = "weekly-schedule-config-toast";
 
+const ProfessionalPicker = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 1rem 1.25rem;
+  font-size: 0.9rem;
+  color: #374151;
+
+  select {
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    padding: 0.45rem 0.6rem;
+    font-size: 0.9rem;
+    background: #fff;
+    min-width: 200px;
+  }
+`;
+
 export default function WeeklyScheduleConfig() {
   const companyUrl = Cookies.get("companyUrl");
   const companyInfo = JSON.parse(Cookies.get("companyInfo") || "{}");
@@ -235,10 +254,25 @@ export default function WeeklyScheduleConfig() {
 
   const [rules, setRules] = useState(DAYS.map((d) => defaultRule(d.dayOfWeek)));
   const [intervalDraft, setIntervalDraft] = useState({});
+  // Com mais de um profissional ativo, o dono escolhe de quem é o horário (padrão: o dele)
+  const [professionals, setProfessionals] = useState([]);
+  const [professionalId, setProfessionalId] = useState(null);
 
-  const fetchRules = async () => {
+  const fetchProfessionals = async () => {
     try {
-      const response = await getWeeklyScheduleRules(companyUrl);
+      const response = await getProfessionals(companyUrl);
+      const active = (response.data?.professionals || []).filter((p) => p.active);
+      setProfessionals(active);
+      const owner = active.find((p) => p.isOwner) || active[0];
+      if (owner) setProfessionalId(owner.id);
+    } catch {
+      setProfessionals([]);
+    }
+  };
+
+  const fetchRules = async (selectedProfessionalId = professionalId) => {
+    try {
+      const response = await getWeeklyScheduleRules(companyUrl, selectedProfessionalId);
       const loaded = response.data || [];
       setRules(
         DAYS.map((d) => {
@@ -267,6 +301,7 @@ export default function WeeklyScheduleConfig() {
     if (isAvailableLogin()) {
       setMobile(isMobile());
       fetchRules();
+      fetchProfessionals();
     } else {
       navigate("/" + companyUrl);
     }
@@ -321,7 +356,7 @@ export default function WeeklyScheduleConfig() {
           endTime: `${i.endTime}:00`
         }))
       }));
-      const response = await saveWeeklyScheduleRules(companyUrl, payload);
+      const response = await saveWeeklyScheduleRules(companyUrl, payload, professionalId);
       if (response.status === 200) {
         toast.success("Horário semanal salvo com sucesso!", { containerId: TOAST_CONTAINER_ID });
       }
@@ -380,6 +415,27 @@ export default function WeeklyScheduleConfig() {
                 $margin="0.75rem 1rem 1.5rem 1rem"
                 $style="solid"
               />
+              {professionals.length > 1 && (
+                <ProfessionalPicker>
+                  <label htmlFor="weekly-professional">Horário de</label>
+                  <select
+                    id="weekly-professional"
+                    value={professionalId ?? ""}
+                    onChange={(e) => {
+                      const id = Number(e.target.value);
+                      setProfessionalId(id);
+                      setLoading(true);
+                      fetchRules(id);
+                    }}
+                  >
+                    {professionals.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}{p.isOwner ? " (você)" : ""}
+                      </option>
+                    ))}
+                  </select>
+                </ProfessionalPicker>
+              )}
               <Form>
                 {DAYS.map(({ dayOfWeek, label }) => {
                   const rule = rules.find((r) => r.dayOfWeek === dayOfWeek);

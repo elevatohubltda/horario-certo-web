@@ -5,8 +5,8 @@ import { ReactComponent as Logo } from '../../assets/horario-certo-logo-horizont
 import { TopbarStyle } from './style';
 import { Instagram, WhatsApp } from '@mui/icons-material';
 import businessLogo from '../../assets/images/corporate-building.png';
-import { isAdmin, isAvailableLogin, logout } from '../../util/auth';
-import { ADMIN_MENU_ITEMS } from '../sidebar';
+import { isAdmin, isAvailableLogin, isProfessional, logout } from '../../util/auth';
+import { ADMIN_MENU_ITEMS, professionalMenuItems } from '../sidebar';
 import {Separator} from '../separator/style';
 import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
@@ -110,7 +110,7 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
       getCompanyProperties(companyUrl)
         .then((response) => setScheduleMode(response.data?.scheduleMode || "PADRAO"))
         .catch(() => {});
-      fetchMaxProfessionals(companyUrl).then(setMaxProfessionals);
+      if (!isProfessional()) fetchMaxProfessionals(companyUrl).then(setMaxProfessionals);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -217,7 +217,20 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
           </div>
         </div>
       )}
-      {open && !isAdmin() && (
+      {open && isProfessional() && (
+        <div className="user-dropdown">
+          {mobile && professionalMenuItems(scheduleMode).map((item) => (
+            <div key={item.url} className="dropdown-item" onClick={() => handleNavigate(item.url)}>
+              <button>{item.label}</button>
+            </div>
+          ))}
+          {mobile && <Separator $width="100%" $bordercolor="#ccc" $margin="0" $style="dotted" />}
+          <div className="dropdown-item">
+            <button onClick={handleLogout}>Sair</button>
+          </div>
+        </div>
+      )}
+      {open && !isAdmin() && !isProfessional() && (
         <div className="user-dropdown">
           <div className="dropdown-item" onClick={() => handleNavigate('/dashboard')}>
             <button>Meu painel</button>

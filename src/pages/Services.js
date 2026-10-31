@@ -5,7 +5,8 @@ import Topbar from "../components/topbar";
 import { Container } from "../components/container/style";
 import Cookies from "js-cookie";
 import Sidebar from "../components/sidebar";
-import { isAvailableLogin } from "../util/auth";
+import { isAvailableLogin, isProfessional } from "../util/auth";
+import { getProfessionals } from "../services/endpoints/professional";
 import { useNavigate } from "react-router-dom";
 import { isMobile } from "../util/util";
 import { Title } from "../components/title";
@@ -241,6 +242,8 @@ const ModalInput = styled.input`
   }
 `;
 
+const ModalSelect = styled(ModalInput).attrs({ as: "select" })``;
+
 const ErrorMessage = styled.p`
   color: #ff8555;
   font-size: 0.8rem;
@@ -288,6 +291,11 @@ export default function Services() {
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  // Com mais de um profissional, o dono vê de quem é cada serviço e escolhe ao cadastrar
+  const [professionals, setProfessionals] = useState([]);
+  const [newServiceProfessionalId, setNewServiceProfessionalId] = useState(null);
+  const multiProfessional = professionals.length > 1;
+  const ownerProfessionalId = professionals.find((p) => p.isOwner)?.id ?? null;
 
   const formatCurrency = (value) =>
     Number(value || 0).toLocaleString("pt-BR", {
@@ -324,11 +332,22 @@ export default function Services() {
     }
   };
 
+  const fetchProfessionals = async () => {
+    try {
+      const response = await getProfessionals(companyUrl);
+      setProfessionals((response.data?.professionals || []).filter((p) => p.active));
+    } catch {
+      setProfessionals([]);
+    }
+  };
+
   useEffect(() => {
     if (isAvailableLogin()) {
       setMobile(isMobile());
       setLoading(false);
       fetchServices();
+      // Profissional da equipe só gerencia os próprios serviços: não escolhe profissional
+      if (!isProfessional()) fetchProfessionals();
     } else {
       navigate("/" + companyUrl);
     }
@@ -337,6 +356,7 @@ export default function Services() {
 
   const openModal = () => {
     setEditingService(null);
+    setNewServiceProfessionalId(ownerProfessionalId);
     setNewServiceName("");
     setNewServicePrice("");
     setNewServiceDuration("");
@@ -371,14 +391,25 @@ export default function Services() {
     setDurationError("");
   };
 
+  // Nome repetido só conta entre os serviços do mesmo profissional (dois podem ter "Corte")
+  const targetProfessionalId = () =>
+    editingService ? editingService.professionalId : newServiceProfessionalId ?? ownerProfessionalId;
+
+  const isDuplicateName = (name) => {
+    const trimmed = name.trim().toLowerCase();
+    const professionalId = targetProfessionalId();
+    return services.some(
+      (s) =>
+        s.name.trim().toLowerCase() === trimmed &&
+        (!editingService || s.id !== editingService.id) &&
+        (!multiProfessional || professionalId == null || s.professionalId === professionalId)
+    );
+  };
+
   const handleNameChange = (value) => {
     setNewServiceName(value);
     const trimmed = value.trim().toLowerCase();
-    const exists = services.some(
-      (s) =>
-        s.name.trim().toLowerCase() === trimmed &&
-        (!editingService || s.id !== editingService.id)
-    );
+    const exists = isDuplicateName(value);
     if (trimmed && exists) {
       setNameError("Esse serviço já está cadastrado.");
     } else {
@@ -419,11 +450,7 @@ export default function Services() {
       setDurationError("Digite a duração do serviço em minutos.");
       return;
     }
-    const exists = services.some(
-      (s) =>
-        s.name.trim().toLowerCase() === trimmed.toLowerCase() &&
-        (!editingService || s.id !== editingService.id)
-    );
+    const exists = isDuplicateName(trimmed);
     if (exists) {
       setNameError("Esse serviço já está cadastrado.");
       return;
@@ -435,6 +462,9 @@ export default function Services() {
         price: parsedPrice,
         durationMinutes: parsedDuration,
         color: newServiceColor,
+        ...(!editingService && multiProfessional && newServiceProfessionalId
+          ? { professionalId: newServiceProfessionalId }
+          : {}),
       };
       const response = editingService
         ? await updateService(companyUrl, editingService.id, payload)
@@ -590,6 +620,7 @@ export default function Services() {
                       <ServiceName $active={service.active}>{service.name}</ServiceName>
                       <ServicePrice $active={service.active}>
                         {formatCurrency(service.price)} · {service.durationMinutes} min
+                        {multiProfessional && service.professionalName ? ` · ${service.professionalName}` : ""}
                       </ServicePrice>
                     </ServiceTexts>
                   </ServiceInfo>
@@ -658,6 +689,29 @@ export default function Services() {
           $style="dotted"
         />
         <Form>
+            {multiProfessional && (
+              <>
+                <ModalLabel htmlFor="service-professional">Profissional</ModalLabel>
+                {editingService ? (
+                  <ModalInput id="service-professional" type="text" value={editingService.professionalName || ""} disabled />
+                ) : (
+                  <ModalSelect
+                    id="service-professional"
+                    value={newServiceProfessionalId ?? ""}
+                    onChange={(e) => {
+                      setNewServiceProfessionalId(Number(e.target.value));
+                      setNameError("");
+                    }}
+                  >
+                    {professionals.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}{p.isOwner ? " (você)" : ""}
+                      </option>
+                    ))}
+                  </ModalSelect>
+                )}
+              </>
+            )}
             <ModalLabel htmlFor="service-name">Nome do serviço</ModalLabel>
             <ModalInput
             id="service-name"
