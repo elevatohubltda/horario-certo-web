@@ -556,10 +556,13 @@ function Register() {
                     discountCode: companyData.discountCode.trim() || undefined
                 });
 
-                await updateSubscription(companyData.url, {
-                    plan: selectedPlan?.name ?? 'Padrão',
-                    extras: selectedExtras
-                });
+                // Sem plano escolhido (lista de planos não carregou), fica o plano padrão definido no cadastro do usuário
+                if (selectedPlan) {
+                    await updateSubscription(companyData.url, {
+                        plan: selectedPlan.name,
+                        extras: selectedExtras
+                    });
+                }
 
                 toast.success("Empresa criada com sucesso!");
                 navigate('/login');

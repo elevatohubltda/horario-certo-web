@@ -27,6 +27,7 @@ import Help from './pages/Help';
 import Divulgacao from './pages/Divulgacao';
 import WeeklyScheduleConfig from './pages/WeeklyScheduleConfig';
 import WeeklyCalendarView from './pages/WeeklyCalendarView';
+import AdminWhatsAppUsage from './pages/AdminWhatsAppUsage';
 
 const router = createBrowserRouter(
   [
@@ -53,6 +54,7 @@ const router = createBrowserRouter(
     { path: '/divulgacao',        element: <Divulgacao /> },
     { path: '/configurar-horario-semanal', element: <WeeklyScheduleConfig /> },
     { path: '/agenda-semanal',    element: <WeeklyCalendarView /> },
+    { path: '/admin/whatsapp',    element: <AdminWhatsAppUsage /> },
   ],
   {
     future: {
