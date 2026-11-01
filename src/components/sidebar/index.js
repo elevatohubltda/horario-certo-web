@@ -94,17 +94,20 @@ const MenuItem = styled.li`
   }
 `;
 
+// A área de conteúdo é quem rola, para a barra ficar na borda da janela e não no meio da página
 const Content = styled.div`
   flex: 1;
-  padding: 2rem;
-  padding-top: 0;
-  max-width: 100%;
+  min-width: 0;
+  height: 100%;
+  overflow-y: auto;
+  padding: 0 2rem;
   box-sizing: border-box;
 `;
 
+// Altura da janela menos o topo (60px)
 const Layout = styled.div`
   display: flex;
-  height: calc(100vh - 80px);
+  height: calc(100vh - 60px);
   width: 100%;
 `;
 

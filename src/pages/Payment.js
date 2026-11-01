@@ -209,6 +209,7 @@ const BadgeWaiting = styled.div`
   font-weight: 600;
   border: 1px solid #fed7aa;
   width: fit-content;
+  align-self: flex-start;
 `;
 
 const Skeleton = styled.div`
@@ -288,6 +289,8 @@ const BadgeTrial = styled.div`
   font-size: 0.7rem;
   font-weight: 600;
   border: 1px solid #bfdbfe;
+  width: fit-content;
+  align-self: flex-start;
 `;
 
 
@@ -631,7 +634,7 @@ function Payment() {
                           Copiar código PIX
                         </CopyButton>
                         {copied && (
-                          <InlineFeedback>Codigo copiado</InlineFeedback>
+                          <InlineFeedback>Código copiado</InlineFeedback>
                         )}
                       </PixCopyBox>
 
@@ -667,10 +670,10 @@ function Payment() {
                 </>
               ) : (
                 <>
-                  <Title $fontsize="1.2rem" $margin="1rem 0">Periodo de teste gratuito</Title>
+                  <Title $fontsize="1.2rem" $margin="1rem 0">Período de teste gratuito</Title>
 
                   <BadgeTrial>
-                    Teste gratis ativo • faltam {trialDaysLeft} dia{trialDaysLeft !== 1 ? "s" : ""}
+                    Teste grátis ativo • faltam {trialDaysLeft} dia{trialDaysLeft !== 1 ? "s" : ""}
                   </BadgeTrial>
 
                   <Separator $margin="1rem 0" $width="100%" $style="dotted" />
@@ -716,7 +719,7 @@ function Payment() {
 
             <SectionCard>
               <Title $fontsize="1.1rem" $margin="0 0 1rem 0">
-                Ultimas faturas
+                Últimas faturas
               </Title>
               <Separator $margin="0 0 1rem 0" $width="100%" $style="dotted"/>
 
@@ -731,7 +734,7 @@ function Payment() {
                     color: "#6b7280",
                   }}
                 >
-                  Nenhuma fatura encontrada ate o momento. Assim que houver cobrancas, o historico sera exibido aqui.
+                  Nenhuma fatura encontrada até o momento. Assim que houver cobranças, o histórico será exibido aqui.
                 </div>
               ) : (
                 latestInvoices.map((invoice) => (
@@ -819,7 +822,7 @@ function Payment() {
 
             <FullWidthCard>
               <Title $fontsize="1.1rem" $margin="0 0 1rem 0">
-                Informacoes do plano
+                Informações do plano
               </Title>
               <Separator $margin="0 0 1rem 0" $width="100%" $style="dotted"/>
               <PlanInfoGrid>

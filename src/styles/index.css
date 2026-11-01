@@ -140,6 +140,7 @@ form{
   background-color: #ffffff;
 
   input{
+      box-sizing: border-box;
       height: 40px;
       font-size: 0.9rem;
       margin: .4rem 0 1rem 0;

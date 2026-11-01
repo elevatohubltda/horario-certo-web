@@ -89,7 +89,7 @@ const isEventScheduled = (event) => {
 const PageWrapper = styled.div`
   display: flex;
   flex-direction: row;
-  height: calc(100vh - 80px);
+  height: calc(100vh - 60px - 2rem);
   background: #fff;
   margin-top: 1rem;
   min-height: 0;

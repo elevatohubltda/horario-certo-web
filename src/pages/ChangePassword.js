@@ -1,28 +1,9 @@
 import React from "react";
-import styled from "styled-components";
 import "../styles/index.css";
 import { ToastContainer, toast } from "react-toastify";
 import { updatePassword } from "../services/endpoints/user";
 import { isMobile } from "../util/util";
-import { Button, Card, Field, Input, PageLayout } from "../components/admin";
-
-/* =======================
-   Styled Components
-======================= */
-
-const FormCard = styled(Card)`
-  max-width: 480px;
-  display: flex;
-  flex-direction: column;
-  gap: 0.9rem;
-  padding: 1.25rem;
-`;
-
-const Actions = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 0.25rem;
-`;
+import { Button, Card, Field, FieldHint, FormActions, FormGrid, FormSection, Input, PageLayout } from "../components/admin";
 
 /* =======================
    Component
@@ -71,34 +52,40 @@ export default function ChangePassword() {
 
   return (
     <PageLayout title="Alterar senha" subtitle="Defina uma nova senha para o seu acesso.">
-      <FormCard>
-        <Field>
-          Nova senha
-          <Input
-            type="password"
-            placeholder="Digite a nova senha"
-            value={password.stepOne}
-            onChange={e => handlePassword("stepOne", e.target.value)}
-          />
-        </Field>
+      <Card $padding="1.5rem">
+        <FormSection>Nova senha</FormSection>
+        <FormGrid>
+          <Field>
+            Nova senha
+            <Input
+              type="password"
+              placeholder="Digite a nova senha"
+              value={password.stepOne}
+              onChange={e => handlePassword("stepOne", e.target.value)}
+            />
+          </Field>
 
-        <Field>
-          Confirme a nova senha
-          <Input
-            type="password"
-            placeholder="Digite a nova senha novamente"
-            value={password.stepTwo}
-            onChange={e => handlePassword("stepTwo", e.target.value)}
-            onKeyDown={e => e.key === "Enter" && update()}
-          />
-        </Field>
+          <Field>
+            Confirme a nova senha
+            <Input
+              type="password"
+              placeholder="Digite a nova senha novamente"
+              value={password.stepTwo}
+              onChange={e => handlePassword("stepTwo", e.target.value)}
+              onKeyDown={e => e.key === "Enter" && update()}
+            />
+            {password.stepTwo && password.stepOne !== password.stepTwo && (
+              <FieldHint style={{ color: "#dc2626" }}>As senhas não conferem.</FieldHint>
+            )}
+          </Field>
+        </FormGrid>
 
-        <Actions>
+        <FormActions>
           <Button onClick={update} disabled={saving}>
             {saving ? "Salvando..." : "Salvar alterações"}
           </Button>
-        </Actions>
-      </FormCard>
+        </FormActions>
+      </Card>
 
       <ToastContainer
         position={mobile ? "bottom-center" : "top-right"}

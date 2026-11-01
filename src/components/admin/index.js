@@ -72,8 +72,6 @@ export function PageHeader({ title, subtitle, actions }) {
 const Page = styled.div`
   padding: 1rem 0 3rem;
   width: 100%;
-  overflow-y: auto;
-  height: 100%;
   box-sizing: border-box;
 `;
 
@@ -259,22 +257,73 @@ export const Field = styled.label`
   font-weight: 500;
 `;
 
-export const Input = styled.input`
+// Altura fixa e margem zerada: não herdam o estilo global de "form input"
+const fieldControl = `
+  box-sizing: border-box;
+  height: 40px;
+  margin: 0;
   border: 1px solid #d1d5db;
   border-radius: 0.5rem;
-  padding: 0.5rem 0.6rem;
-  font-size: 0.85rem;
+  padding: 0 0.75rem;
+  font-size: 0.875rem;
+  color: #111827;
   background: #fff;
   min-width: 0;
+  width: 100%;
+
+  &:focus {
+    outline: none;
+    border-color: #111827;
+  }
+`;
+
+export const Input = styled.input`
+  && {
+    ${fieldControl}
+  }
 `;
 
 export const Select = styled.select`
-  border: 1px solid #d1d5db;
-  border-radius: 0.5rem;
-  padding: 0.5rem 0.6rem;
-  font-size: 0.85rem;
-  background: #fff;
-  min-width: 0;
+  ${fieldControl}
+`;
+
+// Grade de campos de formulário: duas colunas no desktop, uma no celular
+export const FormGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 1.25rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+export const FormSection = styled.h3`
+  margin: 0 0 1rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #111827;
+
+  &:not(:first-child) {
+    margin-top: 1.75rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+  }
+`;
+
+export const FormActions = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+`;
+
+export const FieldHint = styled.span`
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: #6b7280;
 `;
 
 export const FilterBar = styled(Card)`

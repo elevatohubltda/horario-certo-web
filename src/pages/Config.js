@@ -11,7 +11,7 @@ import { isAvailableLogin, setSecureCookie } from "../util/auth";
 import { useNavigate } from "react-router-dom";
 import { isMobile } from "../util/util";
 import { ToastContainer, toast } from "react-toastify";
-import { Button as UiButton, Message, PageLayout } from "../components/admin";
+import { Button as UiButton, Field, FieldHint, FormActions, FormGrid, FormSection, Input, Message, PageLayout, Select } from "../components/admin";
 import {
   formataNumeroTelefone,
   paraHoraCompleta,
@@ -26,88 +26,81 @@ import { expiresAt } from "../util/date";
    Styled Components
 ======================= */
 
-// Formulário num card no padrão do sistema
+// Formulário num card de largura total, no padrão do sistema
 const Form = styled.form`
-  max-width: 640px;
-  background: #fff;
-  border-radius: var(--ui-radius);
-  box-shadow: var(--ui-card-shadow);
-  padding: 1.25rem;
-`;
-
-const Label = styled.label`
-  font-size: 0.78rem;
-  font-weight: 500;
-  color: var(--ui-text-secondary);
-`;
-
-const Input = styled.input`
-  margin-top: 0.3rem;
-  padding: 0.5rem 0.6rem;
-  border: 1px solid var(--ui-input-border);
-  border-radius: var(--ui-radius-sm);
-  background-color: #fff;
-  color: var(--ui-text);
-  font-size: 0.85rem;
-
-  &:focus {
-    outline: none;
-    border-color: var(--ui-primary);
+  && {
+    width: 100%;
+    box-sizing: border-box;
+    background: #fff;
+    border-radius: var(--ui-radius);
+    box-shadow: var(--ui-card-shadow);
+    padding: 1.5rem;
   }
 `;
 
-const Select = styled.select`
-  min-height: 40px;
-  margin: 0.3rem 0 1rem;
-  padding: 0.5rem 0.6rem;
+const LogoRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+`;
+
+const LogoPreview = styled.div`
+  position: relative;
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #f3f4f6 center / cover no-repeat;
+  background-image: ${({ $src }) => ($src ? `url("${$src}")` : "none")};
+  border: 1px solid var(--ui-border);
+`;
+
+const RemoveLogo = styled.button`
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--ui-border);
+  background: #fff;
+  color: var(--ui-danger);
+  cursor: pointer;
+`;
+
+// O input de arquivo fica escondido; o rótulo faz o papel de botão
+const UploadButton = styled.label`
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  height: 36px;
+  padding: 0 1rem;
+  border-radius: 999px;
   border: 1px solid var(--ui-input-border);
-  border-radius: var(--ui-radius-sm);
-  background-color: #fff;
+  background: #fff;
   color: var(--ui-text);
   font-size: 0.85rem;
-`;
-
-const UploadWrapper = styled.div`
-  display: flex;
-  gap: 1rem;
-  margin-top: 1rem;
-  align-items: center;
-  flex-direction: ${({ $mobile }) => ($mobile ? "column" : "row")};
-  width: 100%;
-`;
-
-const LogoPreview = styled.img`
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  box-shadow: rgba(0, 0, 0, 0.15) 2px 2px 5px 0px;
-`;
-
-const RemoveLogo = styled(XIcon)`
-  margin-top: 18px;
-  margin-left: 8px;
-  border: 1px solid #ff8555;
-  border-radius: 12px;
-  color: #ff8555;
+  font-weight: 600;
   cursor: pointer;
 
-    &:hover {
-        background-color: #ff8555;
-        color: #fff;
-    }
+  &:hover {
+    background: #f3f4f6;
+  }
+
+  input {
+    display: none;
+  }
 `;
 
-const UploadInfo = styled.span`
-  font-size: 10px;
-  color: var(--color-muted);
-`;
-
-const Actions = styled.div`
+const UploadInfo = styled.div`
   display: flex;
-  justify-content: flex-end;
-  margin-top: 1.25rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--ui-border);
+  flex-direction: column;
+  gap: 0.25rem;
 `;
 
 /* =======================
@@ -229,117 +222,131 @@ export default function Config() {
           {!loading && companyProperties && (
             <>
               <Form>
-                  <Label>Tempo para cancelamento:</Label>
-                  <Input
-                    value={paraHoraSemSegundos(companyProperties.cancelTime)}
-                    onChange={e =>
-                      handleCompanyProperties(
-                        "cancelTime",
-                        paraHoraCompleta(e.target.value)
-                      )
-                    }
-                  />
-
-                  <Label>Modo de agenda:</Label>
-                  <Select
-                    value={companyProperties.scheduleMode || "PADRAO"}
-                    onChange={e =>
-                      handleCompanyProperties("scheduleMode", e.target.value)
-                    }
-                  >
-                    <option value="PADRAO">Padrão (horários fixos)</option>
-                    <option value="SIMPLES">Simples (abertura, fechamento e intervalos)</option>
-                  </Select>
-                  {companyProperties.scheduleMode === "SIMPLES" && (
-                    <span style={{ fontSize: "0.75rem", color: "var(--color-muted)", marginBottom: "1rem", display: "block" }}>
-                      Configure os horários de abertura e fechamento em{" "}
-                      <a href="/configurar-horario-semanal">Horário semanal</a>.
-                    </span>
-                  )}
-
-                  <Label>Nome da empresa:</Label>
-                  <Input
-                    value={companyInfo.name}
-                    onChange={e =>
-                      handleCompanyInfo("name", e.target.value)
-                    }
-                  />
-
-                  <Label>Whatsapp:</Label>
-                  <Input
-                    value={formataNumeroTelefone(companyInfo.whatsapp)}
-                    onChange={e =>
-                      handleCompanyInfo(
-                        "whatsapp",
-                        formataNumeroTelefone(e.target.value)
-                      )
-                    }
-                  />
-
-                  <Label>Instagram:</Label>
-                  <Input
-                      value={companyInfo.instagram}
-                      onChange={(e) => {
-                          let value = e.target.value
-                          .toLowerCase()
-                          .replace(/[^a-z0-9._]/g, '')
-                          .replace(/\.{2,}/g, '.');
-
-                          if (value.startsWith('.')) value = value.slice(1);
-                          if (value.length > 30) value = value.slice(0, 30);
-
-                          handleCompanyInfo("instagram", value);
-                      }}
-                      onKeyDown={(e) => {
-                          if (
-                          e.key.length === 1 &&
-                          !/[a-z0-9._]/i.test(e.key)
-                          ) {
-                          e.preventDefault();
-                          }
-                      }}
-                  />
-
-                  <Label>Logo da empresa:</Label>
-                  <UploadWrapper $mobile={mobile}>
-                    <div>
-                        <LogoPreview
-                            src={
-                                (companyLogo && companyLogo !== "") 
-                                ? URL.createObjectURL(companyLogo)
-                                : companyInfo.imagem
-                            }
-                        />
-                        {companyLogo && (
-                        <RemoveLogo onClick={() => setCompanyLogo("")} />
-                        )}
-                    </div>
-                    <div style={{display: 'flex', flexDirection: 'column'}}>
-                      <input
-                        type="file"
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          boxShadow: 'none',
-                          padding: '0',
-                          margin: '0',
-                          height: 'max-content',
-                          fontSize: '0.8rem'
-                        }}
-                        value={companyLogo ? undefined : ""}
-                        onChange={e => setCompanyLogo(e.target.files[0])}
+                  <FormSection>Agenda</FormSection>
+                  <FormGrid>
+                    <Field>
+                      Tempo mínimo para cancelamento
+                      <Input
+                        placeholder="02:00"
+                        value={paraHoraSemSegundos(companyProperties.cancelTime)}
+                        onChange={e =>
+                          handleCompanyProperties(
+                            "cancelTime",
+                            paraHoraCompleta(e.target.value)
+                          )
+                        }
                       />
-                      <UploadInfo>
-                        Máx 2MB • PNG, JPG, JPEG
-                      </UploadInfo>
-                    </div>
-                  </UploadWrapper>
+                      <FieldHint>Antecedência mínima (hh:mm) para o cliente desmarcar.</FieldHint>
+                    </Field>
 
-                  <Actions>
+                    <Field>
+                      Modo de agenda
+                      <Select
+                        value={companyProperties.scheduleMode || "PADRAO"}
+                        onChange={e =>
+                          handleCompanyProperties("scheduleMode", e.target.value)
+                        }
+                      >
+                        <option value="PADRAO">Padrão (horários fixos)</option>
+                        <option value="SIMPLES">Simples (abertura, fechamento e intervalos)</option>
+                      </Select>
+                      {companyProperties.scheduleMode === "SIMPLES" && (
+                        <FieldHint>
+                          Configure os horários de abertura e fechamento em{" "}
+                          <a href="/configurar-horario-semanal" style={{ color: "var(--ui-text)", fontWeight: 600 }}>Configuração de horários</a>.
+                        </FieldHint>
+                      )}
+                    </Field>
+                  </FormGrid>
+
+                  <FormSection>Dados da empresa</FormSection>
+                  <FormGrid>
+                    <Field>
+                      Nome da empresa
+                      <Input
+                        value={companyInfo.name}
+                        onChange={e =>
+                          handleCompanyInfo("name", e.target.value)
+                        }
+                      />
+                    </Field>
+
+                    <Field>
+                      WhatsApp
+                      <Input
+                        value={formataNumeroTelefone(companyInfo.whatsapp)}
+                        onChange={e =>
+                          handleCompanyInfo(
+                            "whatsapp",
+                            formataNumeroTelefone(e.target.value)
+                          )
+                        }
+                      />
+                    </Field>
+
+                    <Field>
+                      Instagram
+                      <Input
+                          value={companyInfo.instagram}
+                          onChange={(e) => {
+                              let value = e.target.value
+                              .toLowerCase()
+                              .replace(/[^a-z0-9._]/g, '')
+                              .replace(/\.{2,}/g, '.');
+
+                              if (value.startsWith('.')) value = value.slice(1);
+                              if (value.length > 30) value = value.slice(0, 30);
+
+                              handleCompanyInfo("instagram", value);
+                          }}
+                          onKeyDown={(e) => {
+                              if (
+                              e.key.length === 1 &&
+                              !/[a-z0-9._]/i.test(e.key)
+                              ) {
+                              e.preventDefault();
+                              }
+                          }}
+                      />
+                    </Field>
+
+                    <Field as="div">
+                      Logo da empresa
+                      <LogoRow>
+                        <LogoPreview
+                          $src={
+                            (companyLogo && companyLogo !== "")
+                              ? URL.createObjectURL(companyLogo)
+                              : companyInfo.imagem
+                          }
+                        >
+                          {companyLogo && (
+                            <RemoveLogo type="button" title="Remover arquivo" onClick={() => setCompanyLogo("")}>
+                              <XIcon size={12} />
+                            </RemoveLogo>
+                          )}
+                        </LogoPreview>
+                        <UploadInfo>
+                          <UploadButton>
+                            {companyLogo ? "Trocar arquivo" : "Escolher arquivo"}
+                            <input
+                              type="file"
+                              accept="image/png,image/jpeg"
+                              value={companyLogo ? undefined : ""}
+                              onChange={e => setCompanyLogo(e.target.files[0])}
+                            />
+                          </UploadButton>
+                          <FieldHint>{companyLogo ? companyLogo.name : "Máx 2MB • PNG, JPG, JPEG"}</FieldHint>
+                        </UploadInfo>
+                      </LogoRow>
+                    </Field>
+                  </FormGrid>
+
+                  <FormActions>
                     <UiButton type="button" onClick={updateCompanyProps}>
                       Salvar alterações
                     </UiButton>
-                  </Actions>
+                  </FormActions>
               </Form>
 
             </>
