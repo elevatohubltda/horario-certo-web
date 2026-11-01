@@ -364,14 +364,14 @@ export default function Home() {
         <SimpleScheduleFlow companyUrl={companyUrl} companyInfo={companyInfo} mobile={mobile} />
       }
       {companyInfo && companyInfo.active !== false && scheduleMode !== "SIMPLES" &&
-        <div style={{backgroundColor: 'var(--color-background)', height: '100dvh'}}>
+        <div style={{ backgroundColor: 'var(--ui-page-bg)', minHeight: '100dvh', paddingBottom: '2rem' }}>
           <Topbar
             name={companyInfo.name}
             imagem={companyInfo.imagem}
             whatsapp={companyInfo.whatsapp}
             instagram={companyInfo.instagram}
           />
-          <CustomFilterStyle $width="80%">
+          <CustomFilterStyle $width={mobile ? "calc(100% - 2rem)" : "80%"}>
             <FilterDropdown
               filters={filters}
               onChange={(value) => {
@@ -392,10 +392,12 @@ export default function Home() {
             />
           </CustomFilterStyle>
           <Container
-            $width="80%"
+            $width={mobile ? "calc(100% - 2rem)" : "80%"}
             $padding="0 0 1.5em 0"
             $backgroundcolor="#fff"
-            $borderRadius="1rem"
+            $borderRadius="var(--ui-radius)"
+            $border="1px solid var(--ui-border)"
+            $boxshadow="var(--ui-card-shadow)"
           >
             <Slider {...settings}>
               {!loadingSchedule && horarios.length > 0 && filtered.length > 0 ? 
@@ -492,7 +494,7 @@ export default function Home() {
               )}
               {loadingSchedule &&
                 <div className="loading-slide">
-                  <ThreeDots color="var(--color-sage)" height={20} width={60} />
+                  <ThreeDots color="#111827" height={20} width={60} />
                   <p>Buscando horários...</p>
                 </div>
               }
@@ -503,16 +505,14 @@ export default function Home() {
       {/* PREENCHIMENTO DADOS DO AGENDAMENTO */}
       <Dialog open={open && available && !code} onClose={() => {setOpen(false); handleRestartProps()}}>
         <Title
-          $fontweight="600"
-          $fontsize="1.1rem"
-          $color="var(--color-brown)"
-          $texttransform="uppercase"
+          $fontweight="700"
+          $fontsize="1.2rem"
         >
           Confirme seu agendamento
         </Title>
         <Separator 
           $width="100%"
-          $bordercolor="var(--color-olive)"
+          $bordercolor="var(--ui-border)"
           $margin="0.75rem 0 2rem 0"
           $style="dotted"
         />
@@ -578,10 +578,8 @@ export default function Home() {
       {/* CONFIRMAÇÃO AGENDAMENTO + CODIGO CANCELAMENTO */}
       <Dialog open={open && available && code} onClose={() => { setOpen(false); handleCompanySchedules(); handleRestartProps()}}>
         <Title
-          $fontweight="600"
-          $fontsize="1.1rem"
-          $color="var(--color-brown)"
-          $texttransform="uppercase"
+          $fontweight="700"
+          $fontsize="1.2rem"
         >
           Agendamento confirmado!
         </Title>
@@ -618,14 +616,12 @@ export default function Home() {
       {/* PREENCHIMENTO DADOS CANCELAMENTO DO AGENDAMENTO */}
       <Dialog open={open && !available && !error} onClose={() => {setOpen(false); handleRestartProps()}}>
         <Title
-          $fontweight="600"
-          $fontsize="1.1rem"
-          $color="var(--color-brown)"
-          $texttransform="uppercase"
+          $fontweight="700"
+          $fontsize="1.2rem"
         >
           Cancele seu agendamento
         </Title>
-        <Separator $width="100%" $bordercolor="var(--color-dark)" $margin="1rem 0 3rem 0" $style="dotted" />
+        <Separator $width="100%" $bordercolor="var(--ui-border)" $margin="1rem 0 3rem 0" $style="dotted" />
         <form style={{ backgroundColor: "transparent", boxShadow: "none", width: "100%", padding: "0" }}>
           <Label>Data:</Label>
           <DialogInput type="text" value={selectedSchedule.data} readOnly />
@@ -707,10 +703,8 @@ export default function Home() {
       {companyInfo && 
         <Dialog open={open && !available && error} onClose={() => {setOpen(false); handleRestartProps()}}>
           <Title
-            $fontweight="600"
-            $fontsize="1.1rem"
-            $color="var(--color-brown)"
-            $texttransform="uppercase"
+            $fontweight="700"
+            $fontsize="1.2rem"
           >
             Não foi possível cancelar seu agendamento
           </Title>
@@ -752,10 +746,10 @@ export default function Home() {
       }
       {/* FILA DE ESPERA — FORMULÁRIO */}
       <Dialog open={waitlistOpen && !waitlistDone} onClose={() => setWaitlistOpen(false)}>
-        <Title $fontweight="600" $fontsize="1.1rem" $color="var(--color-brown)" $texttransform="uppercase">
+        <Title $fontweight="700" $fontsize="1.2rem">
           Entrar na fila de espera
         </Title>
-        <Separator $width="100%" $bordercolor="var(--color-olive)" $margin="0.75rem 0 2rem 0" $style="dotted" />
+        <Separator $width="100%" $bordercolor="var(--ui-border)" $margin="0.75rem 0 2rem 0" $style="dotted" />
         <form style={{ backgroundColor: "transparent", boxShadow: "none", width: "100%", padding: "0" }}>
           <Label>Data:</Label>
           <DialogInput value={waitlistDate} readOnly />
@@ -788,7 +782,7 @@ export default function Home() {
       </Dialog>
       {/* FILA DE ESPERA — CONFIRMAÇÃO */}
       <Dialog open={waitlistOpen && waitlistDone} onClose={() => setWaitlistOpen(false)}>
-        <Title $fontweight="600" $fontsize="1.1rem" $color="var(--color-brown)" $texttransform="uppercase">
+        <Title $fontweight="700" $fontsize="1.2rem">
           Você está na fila!
         </Title>
         <Separator $width="100%" $bordercolor="#ccc" $margin="1rem 0 3rem 0" $style="dotted" />

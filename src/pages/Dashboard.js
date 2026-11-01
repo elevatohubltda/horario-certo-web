@@ -1,31 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import "../styles/index.css";
-import Topbar from "../components/topbar";
-import Sidebar from "../components/sidebar";
-import { Container } from "../components/container/style";
-import { Title } from "../components/title";
+import { PageLayout } from "../components/admin";
 import Alert from "../components/alert";
 import { isAvailableLogin, isProfessional, setSecureCookie } from "../util/auth";
-import { isMobile } from "../util/util";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { getClientStatus } from "../services/endpoints/payment";
 import { Clock, CalendarDays, Check, Filter, Wallet, Percent, TrendingUp } from "lucide-react";
 import { getCompany, getCompanySchedulesAuth } from "../services/endpoints/company";
 import { fetchMaxProfessionals } from "../services/endpoints/professional";
-import { formatMoney, summarizeRevenue } from "../util/revenue";
+import { formatMoney, summarizeProfessionalRevenue, summarizeRevenue } from "../util/revenue";
 import { expiresAt } from "../util/date";
 
-
-const HeaderSection = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 1rem;
-  flex-wrap: wrap;
-`;
 
 const FilterWrapper = styled.div`
   position: relative;
@@ -77,12 +64,6 @@ const FilterOption = styled.button`
   }
 `;
 
-const Greeting = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-`;
-
 const Subtitle = styled.p`
   margin: 0;
   color: var(--color-dark);
@@ -115,9 +96,10 @@ const CardsGrid = styled.div`
 
 const StatCard = styled.div`
   background: #fff;
-  border-radius: 24px;
+  border-radius: var(--ui-radius);
   padding: 1.25rem;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: none;
+  box-shadow: var(--ui-card-shadow);
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -149,10 +131,10 @@ const SectionGrid = styled.div`
 
 const ContentCard = styled.div`
   background: #fff;
-  border-radius: 24px;
+  border-radius: var(--ui-radius);
   padding: 1.5rem;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.05);
+  border: none;
+  box-shadow: var(--ui-card-shadow);
   width: fill-available;
   min-width: 0;
 `;
@@ -170,7 +152,8 @@ const CardHeader = styled.div`
   margin-bottom: 1rem;
 `;
 
-const CardTitle = styled(Title)`
+const CardTitle = styled.div`
+  color: var(--ui-text);
   margin: 0;
   font-size: 1rem;
   font-weight: 700;
@@ -219,7 +202,6 @@ export default function Dashboard() {
   const companyUrl = Cookies.get("companyUrl");
   const filterRef = useRef(null);
   const [companyInfo, setCompanyInfo] = useState(Cookies.get("companyInfo") ? JSON.parse(Cookies.get("companyInfo")) : undefined);
-  const [mobile, setMobile] = useState();
   const [paymentStatus, setPaymentStatus] = useState();
   const [selectedPeriod, setSelectedPeriod] = useState("essa semana");
   const [openFilterMenu, setOpenFilterMenu] = useState(false);
@@ -291,8 +273,14 @@ export default function Dashboard() {
 
   // Números financeiros são do dono: faturamento dos atendimentos dele, comissão da equipe e o total
   const finance = summarizeRevenue(schedules);
+  // Profissional da equipe: o backend devolve só os agendamentos dele
+  const professionalFinance = summarizeProfessionalRevenue(schedules);
   const financeCards = isProfessional()
-    ? []
+    ? [
+        { title: "Faturamento dos seus atendimentos", value: formatMoney(professionalFinance.gross), icon: <Wallet size={18} />, description: `${selectedPeriod} · valor total cobrado` },
+        { title: "Parte da barbearia", value: formatMoney(professionalFinance.barbershopShare), icon: <Percent size={18} />, description: `${selectedPeriod} · definida pelo dono em cada serviço` },
+        { title: "Seu faturamento líquido", value: formatMoney(professionalFinance.net), icon: <TrendingUp size={18} />, description: "faturamento − parte da barbearia" },
+      ]
     : hasTeam
     ? [
         { title: "Faturamento (seus atendimentos)", value: formatMoney(finance.revenue), icon: <Wallet size={18} />, description: selectedPeriod },
@@ -358,7 +346,6 @@ export default function Dashboard() {
       }
       // Situação da assinatura é assunto do dono, não do profissional da equipe
       if (!isProfessional()) getClientStatusInfo();
-      setMobile(isMobile());
     } else {
       navigate("/" + companyUrl);
     }
@@ -388,42 +375,12 @@ export default function Dashboard() {
   return (
     <>
       {companyInfo && (
-        <>
-          <Topbar
-            name={companyInfo.name}
-            imagem={companyInfo.imagem}
-            whatsapp={companyInfo.whatsapp}
-            instagram={companyInfo.instagram}
-            loggedIn={true}
-          />
-          <Container
-            $width={!mobile ? "100%" : "100%"}
-            $display="flex"
-            $flexdirection="column"
-            $padding={!mobile ? "0" : "1rem"}
-            $margin="0"
-            $backgroundcolor="transparent"
-            $borderRadius="0"
-            $boxshadow="none"
-          >
-            <Sidebar>
-              <Container
-                $width="90%"
-                $borderRadius="0 1rem 2rem 1rem"
-                $padding="0 0 3rem 0"
-                $display="flex"
-                $flexdirection="column"
-                $backgroundcolor="transparent"
-                $boxshadow="none"
-              >
-                {paymentStatus && (
-                  <Alert badge={paymentStatus.badge} message={paymentStatus.message} />
-                )}
-                <HeaderSection>
-                  <Greeting>
-                    <Title $fontsize="2rem">Bem vindo de volta!</Title>
-                    <Subtitle>Gerencie seus próximos agendamentos e acompanhe a situação do seu negócio.</Subtitle>
-                  </Greeting>
+            <PageLayout
+              title="Bem-vindo de volta!"
+              subtitle={isProfessional()
+                ? "Acompanhe seus próximos atendimentos e o seu faturamento."
+                : "Gerencie seus próximos agendamentos e acompanhe a situação do seu negócio."}
+              actions={
                   <FilterWrapper ref={filterRef}>
                     <FilterButton type="button" onClick={() => setOpenFilterMenu((prev) => !prev)}>
                       <Filter size={16} />
@@ -447,7 +404,11 @@ export default function Dashboard() {
                       </FilterMenu>
                     )}
                   </FilterWrapper>
-                </HeaderSection>
+              }
+            >
+                {paymentStatus && (
+                  <Alert badge={paymentStatus.badge} message={paymentStatus.message} />
+                )}
 
                 <CardsGrid>
                   {cards.map((card) => (
@@ -494,10 +455,7 @@ export default function Dashboard() {
                     </ContentCard>
                   </SectionItem>
                 </SectionGrid>
-              </Container>
-            </Sidebar>
-          </Container>
-        </>
+            </PageLayout>
       )}
     </>
   );

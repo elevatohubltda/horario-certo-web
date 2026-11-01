@@ -2,10 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import Cookies from "js-cookie";
 
-import Topbar from "../components/topbar";
-import Sidebar from "../components/sidebar";
 import { Container } from "../components/container/style";
-import { Title } from "../components/title";
+import { PageLayout } from "../components/admin";
 import { Separator } from "../components/separator/style";
 import { Button } from "../components/button";
 import { isMobile } from "../util/util";
@@ -13,8 +11,8 @@ import { getSubscriptionPlans, updateSubscription } from "../services/endpoints/
 import { ToastContainer, toast } from "react-toastify";
 
 const PageContent = styled.div`
-  width: calc(100% - 2rem);
-  margin: 0 1rem 1rem;
+  width: 100%;
+  margin: 0 0 1rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -39,10 +37,10 @@ const Card = styled(Container)`
   margin: 0;
   flex-direction: column;
   background: #fff;
-  border-radius: 1rem;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
-  padding: 1rem;
-  border: ${(props) => (props.$selected ? "2px solid var(--color-sage)" : "1px solid #e5e7eb")};
+  border-radius: var(--ui-radius);
+  box-shadow: var(--ui-card-shadow);
+  padding: 1.25rem;
+  border: ${(props) => (props.$selected ? "2px solid var(--ui-primary)" : "1px solid var(--ui-border)")};
 `;
 
 const PlanCard = styled(Card)`
@@ -102,7 +100,6 @@ const Actions = styled(Container)`
 `;
 
 export default function ChangeSubscription() {
-  const companyInfo = JSON.parse(Cookies.get("companyInfo"));
   const companyUrl = Cookies.get("companyUrl");
   const mobile = isMobile();
 
@@ -189,37 +186,7 @@ export default function ChangeSubscription() {
 
   return (
     <>
-      <Topbar {...companyInfo} loggedIn />
-
-      <Container
-        $width="100%"
-        $display="flex"
-        $flexdirection="column"
-        $padding={!mobile ? "0" : "1rem"}
-        $margin="0"
-        $backgroundcolor="transparent"
-        $borderRadius="0"
-        $boxshadow="0"
-      >
-        <Sidebar>
-          <Title
-            $padding="1rem"
-            $margin="1rem 0 0 0"
-            $fontweight="600"
-            $fontsize="2rem"
-            $color="var(--color-dark)"
-            $width="max-content"
-          >
-            Mudar assinatura
-          </Title>
-
-          <Separator
-            $width="calc(100% - 2rem)"
-            $bordercolor="var(--color-olive)"
-            $margin="0 1rem 1rem 1rem"
-            $style="dotted"
-          />
-
+      <PageLayout title="Mudar assinatura" subtitle="Escolha o plano e os recursos adicionais da sua barbearia.">
           <PageContent>
             <Card>
               <ItemTitle>Escolha seu plano</ItemTitle>
@@ -385,7 +352,7 @@ export default function ChangeSubscription() {
               <Actions>
                 <Button
                   variant="confirm"
-                  style={{ marginTop: "1rem", fontSize: "0.8rem" }}
+                  style={{ marginTop: "1rem" }}
                   onClick={handleSave}
                   disabled={saving}
                 >
@@ -394,12 +361,11 @@ export default function ChangeSubscription() {
               </Actions>
             </Card>
           </PageContent>
-        </Sidebar>
-      </Container>
-      <ToastContainer 
-        containerId="change-subscription" 
-        position={mobile ? "bottom-center" : "top-right"} 
-        autoClose={3000} 
+      </PageLayout>
+      <ToastContainer
+        containerId="change-subscription"
+        position={mobile ? "bottom-center" : "top-right"}
+        autoClose={3000}
         style={mobile ? { margin: '0 5% 1rem 5%', width: '90%' } : undefined}
       />
     </>

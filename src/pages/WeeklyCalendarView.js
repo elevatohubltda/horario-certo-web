@@ -269,15 +269,15 @@ const MiniCalendarStyle = styled.div`
 
   .flatpickr-day.today {
     background: transparent !important;
-    border-color: #1a73e8 !important;
+    border-color: var(--ui-primary) !important;
     color: #3c4043 !important;
   }
 
   .flatpickr-day.selected,
   .flatpickr-day.selected:hover,
   .flatpickr-day.selected.today {
-    background: #1a73e8 !important;
-    border-color: #1a73e8 !important;
+    background: var(--ui-primary) !important;
+    border-color: var(--ui-primary) !important;
     color: #fff !important;
   }
 
@@ -298,13 +298,13 @@ const GCalToolbar = styled.div`
 `;
 
 const TodayButton = styled.button`
-  border: 1px solid #dadce0;
+  border: 1px solid var(--ui-input-border);
   background: #fff;
   color: #3c4043;
-  border-radius: 8px;
+  border-radius: 999px;
   padding: 0.5rem 1rem;
   font-size: 0.85rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: background 0.15s ease;
 
@@ -339,17 +339,17 @@ const ArrowButton = styled.button`
 const ToolbarTitle = styled.h2`
   margin: 0;
   font-size: 1.375rem;
-  font-weight: 500;
+  font-weight: 700;
   color: #3c4043;
   text-transform: capitalize;
 `;
 
 const ViewSelect = styled.select`
   margin-left: auto;
-  border: 1px solid #dadce0;
+  border: 1px solid var(--ui-input-border);
   background: #fff;
   color: #3c4043;
-  border-radius: 8px;
+  border-radius: 999px;
   padding: 0.5rem 0.85rem;
   font-size: 0.85rem;
   font-weight: 500;
@@ -357,7 +357,7 @@ const ViewSelect = styled.select`
 
   &:focus {
     outline: none;
-    border-color: #1a73e8;
+    border-color: var(--ui-primary);
   }
 `;
 
@@ -408,7 +408,7 @@ const ConfigBanner = styled.div`
 `;
 
 const ConfigBannerLink = styled.a`
-  color: #1a73e8;
+  color: var(--ui-primary);
   font-weight: 600;
   text-decoration: none;
   white-space: nowrap;
@@ -444,7 +444,7 @@ const DayNumber = styled.span`
   font-size: 1.35rem;
   font-weight: 400;
   color: ${({ $isToday }) => ($isToday ? "#fff" : "#3c4043")};
-  background: ${({ $isToday }) => ($isToday ? "#1a73e8" : "transparent")};
+  background: ${({ $isToday }) => ($isToday ? "var(--ui-primary)" : "transparent")};
 `;
 
 const EventContent = styled.div`
@@ -480,14 +480,14 @@ const DetailRow = styled.div`
 const DetailLabel = styled.span`
   font-size: 0.7rem;
   font-weight: 600;
-  color: var(--color-olive);
+  color: var(--ui-muted);
   text-transform: uppercase;
   letter-spacing: 0.3px;
 `;
 
 const DetailValue = styled.span`
   font-size: 0.95rem;
-  color: var(--color-dark);
+  color: var(--ui-text);
 `;
 
 const DetailActions = styled.div`
@@ -600,7 +600,7 @@ const CalendarGlobalStyle = styled.div`
   }
 
   .rbc-today {
-    background-color: #e8f0fe;
+    background-color: #f9fafb;
   }
 
   .rbc-current-time-indicator {
@@ -1011,10 +1011,10 @@ export default function WeeklyCalendarView() {
           <Dialog open={!!selectedEvent && !showEditDialog && !showConfirmDelete} onClose={closeEventDetail} mobile={mobile}>
             {selectedEvent && (
               <>
-                <Title $fontweight="600" $fontsize="1.1rem" $color="var(--color-brown)" $texttransform="uppercase">
+                <Title $fontweight="700" $fontsize="1.2rem">
                   Agendamento
                 </Title>
-                <Separator $width="100%" $bordercolor="var(--color-olive)" $margin="0.75rem 0 1.5rem 0" $style="dotted" />
+                <Separator $width="100%" $margin="0.75rem 0 1.25rem 0" />
 
                 <DetailRow>
                   <DetailLabel>Cliente</DetailLabel>
@@ -1085,10 +1085,10 @@ export default function WeeklyCalendarView() {
 
           {/* EDITAR HORÁRIO */}
           <Dialog open={showEditDialog} onClose={() => setShowEditDialog(false)} mobile={mobile}>
-            <Title $fontweight="600" $fontsize="1.1rem" $color="var(--color-brown)" $texttransform="uppercase">
+            <Title $fontweight="700" $fontsize="1.2rem">
               Altere o agendamento
             </Title>
-            <Separator $width="100%" $bordercolor="var(--color-olive)" $margin="0.75rem 0 2rem 0" $style="dotted" />
+            <Separator $width="100%" $margin="0.75rem 0 1.25rem 0" />
 
             <Label>Data:</Label>
             <DialogInput

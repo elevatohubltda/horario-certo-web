@@ -1,15 +1,11 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import "../styles/index.css";
-import Topbar from "../components/topbar";
-import { Container } from "../components/container/style";
 import Cookies from "js-cookie";
-import Sidebar from "../components/sidebar";
+import { PageLayout, Message } from "../components/admin";
 import { isAvailableLogin } from "../util/auth";
 import { useNavigate } from "react-router-dom";
 import { isMobile } from "../util/util";
-import { Title } from "../components/title";
-import { Separator } from "../components/separator/style";
 import { ToastContainer, toast } from "react-toastify";
 import { Button } from "react-bootstrap";
 import { XIcon, Plus, Save, Clock } from "lucide-react";
@@ -43,10 +39,11 @@ const defaultRule = (dayOfWeek) => ({
 ======================= */
 
 const Form = styled.form`
-  width: calc(100% - 2rem);
+  width: 100%;
   background: transparent;
   box-shadow: none;
-  padding: 1rem;
+  border: none;
+  padding: 0;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -54,10 +51,10 @@ const Form = styled.form`
 
 const DayCard = styled.section`
   padding: 1.5rem;
-  background: linear-gradient(135deg, #ffffff 0%, #fafbf9 100%);
-  border-radius: 12px;
-  border: 1px solid #e8e8e8;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  background: #fff;
+  border-radius: var(--ui-radius);
+  border: 1px solid var(--ui-border);
+  box-shadow: var(--ui-card-shadow);
 `;
 
 const DayHeader = styled.div`
@@ -71,7 +68,7 @@ const DayTitle = styled.h3`
   margin: 0;
   font-size: 1rem;
   font-weight: 700;
-  color: #131313;
+  color: var(--ui-text);
 `;
 
 const ActiveSwitch = styled.button`
@@ -83,7 +80,7 @@ const ActiveSwitch = styled.button`
   padding: 0;
   border: none;
   border-radius: 999px;
-  background: ${({ $active }) => ($active ? "#2d8cf0" : "#d6ddd6")};
+  background: ${({ $active }) => ($active ? "var(--ui-primary)" : "#d1d5db")};
   cursor: pointer;
   transition: background-color 0.2s ease;
 `;
@@ -113,26 +110,24 @@ const FormGrid = styled.div`
 `;
 
 const Label = styled.label`
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 600;
-  color: #546151;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
+  color: var(--ui-text-secondary);
 `;
 
 const Input = styled.input`
   width: 100%;
   box-sizing: border-box;
-  padding: 0.55rem;
-  border: 1px solid rgb(243, 243, 243);
-  border-top: 1px solid var(--color-sage);
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--ui-input-border);
+  border-radius: var(--ui-radius-sm);
   background-color: #fff;
-  color: var(--color-dark);
-  font-size: 0.95rem;
+  color: var(--ui-text);
+  font-size: 0.9rem;
 
   &:focus {
     outline: none;
-    border-color: var(--color-sage);
+    border-color: var(--ui-primary);
   }
 `;
 
@@ -147,12 +142,12 @@ const Chip = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: linear-gradient(135deg, #f0f3ed 0%, #e8ebe5 100%);
-  border: 1.5px solid #d7dbd4;
-  border-radius: 20px;
-  padding: 0.5rem 0.85rem;
+  background: #f3f4f6;
+  border: 1px solid var(--ui-border);
+  border-radius: 999px;
+  padding: 0.4rem 0.8rem;
   font-size: 0.8rem;
-  color: #546151;
+  color: var(--ui-text-secondary);
 `;
 
 const RemoveButton = styled.button`
@@ -161,10 +156,10 @@ const RemoveButton = styled.button`
   cursor: pointer;
   display: flex;
   align-items: center;
-  color: #a0a89d;
+  color: var(--ui-muted);
 
   &:hover {
-    color: #d9534f;
+    color: var(--ui-danger);
   }
 `;
 
@@ -192,12 +187,13 @@ const AddIntervalButton = styled(Button)`
   align-items: center !important;
   justify-content: center !important;
   gap: 0.4rem !important;
-  background: var(--color-olive) !important;
-  border: none !important;
-  color: #fff !important;
-  padding: 0.6rem 1rem !important;
-  border-radius: 8px !important;
-  font-size: 0.8rem !important;
+  background: #fff !important;
+  border: 1px solid var(--ui-input-border) !important;
+  color: var(--ui-text) !important;
+  padding: 0.55rem 1rem !important;
+  border-radius: 999px !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
   white-space: nowrap;
   flex-shrink: 0;
 `;
@@ -212,11 +208,11 @@ const SaveButton = styled(Button)`
   display: flex !important;
   align-items: center !important;
   gap: 0.6rem !important;
-  background: var(--color-sage) !important;
-  border: none !important;
+  background: var(--ui-primary) !important;
+  border: 1px solid var(--ui-primary) !important;
   color: #fff !important;
-  padding: 0.75rem 1.5rem !important;
-  border-radius: 8px !important;
+  padding: 0.6rem 1.25rem !important;
+  border-radius: 999px !important;
   font-weight: 600 !important;
 `;
 
@@ -230,7 +226,7 @@ const ProfessionalPicker = styled.div`
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  margin: 0 1rem 1.25rem;
+  margin: 0 0 1.25rem;
   font-size: 0.9rem;
   color: #374151;
 
@@ -246,7 +242,6 @@ const ProfessionalPicker = styled.div`
 
 export default function WeeklyScheduleConfig() {
   const companyUrl = Cookies.get("companyUrl");
-  const companyInfo = JSON.parse(Cookies.get("companyInfo") || "{}");
   const [loading, setLoading] = React.useState(true);
   const [mobile, setMobile] = React.useState();
   const [saving, setSaving] = React.useState(false);
@@ -369,52 +364,10 @@ export default function WeeklyScheduleConfig() {
 
   return (
     <>
-      <Topbar {...companyInfo} loggedIn />
-      <Container
-        $width="100%"
-        $display="flex"
-        $flexdirection="column"
-        $padding={!mobile ? "0" : "1rem"}
-        $margin="0"
-        $backgroundcolor="transparent"
-        $boxshadow="none"
-      >
-        <Sidebar>
-          {loading && (
-            <Container
-              $width="100%"
-              $height="60vh"
-              $margin="0"
-              $padding="0"
-              $backgroundcolor="none"
-              $borderRadius="0"
-              $border="none"
-              $display="flex"
-              $justifycontent="center"
-              $alignitems="center"
-              $boxshadow="none"
-            >
-              <span className="loader" />
-            </Container>
-          )}
+      <PageLayout title="Configuração de horários" subtitle="Defina os dias e horários de atendimento da semana.">
+          {loading && <Message>Carregando...</Message>}
           {!loading && (
             <>
-              <Title
-                $padding="1.5rem 1rem 0.5rem 1rem"
-                $margin="1.5rem 0 0.5rem 0"
-                $fontweight="700"
-                $width="initial"
-                $fontsize="2rem"
-                $color="#131313"
-              >
-                Configuração Horários
-              </Title>
-              <Separator
-                $width="calc(100% - 2rem)"
-                $bordercolor="#e8e8e8"
-                $margin="0.75rem 1rem 1.5rem 1rem"
-                $style="solid"
-              />
               {professionals.length > 1 && (
                 <ProfessionalPicker>
                   <label htmlFor="weekly-professional">Horário de</label>
@@ -539,8 +492,7 @@ export default function WeeklyScheduleConfig() {
             autoClose={3000}
             style={mobile ? { margin: "0 5% 1rem 5%", width: "90%" } : undefined}
           />
-        </Sidebar>
-      </Container>
+      </PageLayout>
     </>
   );
 }

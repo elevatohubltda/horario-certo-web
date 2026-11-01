@@ -30,4 +30,75 @@
 
   /* shadows */
   --color-shadow:           rgba(0,0,0,0.08);
+
+  /* ===== Padrão visual do sistema (cards, botões e campos das telas de gestão) ===== */
+  --ui-page-bg:             #f9fafb;
+  --ui-text:                #111827;
+  --ui-text-secondary:      #374151;
+  --ui-muted:               #6b7280;
+  --ui-border:              #e5e7eb;
+  --ui-input-border:        #d1d5db;
+  --ui-primary:             #111827;
+  --ui-danger:              #dc2626;
+  --ui-radius:              0.75rem;
+  --ui-radius-sm:           0.5rem;
+  --ui-card-shadow:         0 6px 18px rgba(0, 0, 0, 0.06);
+}
+
+body {
+  background: var(--ui-page-bg);
+}
+
+/* Botões do react-bootstrap no mesmo estilo dos botões do sistema (pílula escura / contorno / link) */
+.btn {
+  border-radius: 999px !important;
+  padding: 0.45rem 0.95rem !important;
+  font-size: 0.82rem !important;
+  font-weight: 500 !important;
+  box-shadow: none !important;
+}
+
+.btn-primary,
+.btn-confirm,
+.btn-success {
+  background: var(--ui-primary) !important;
+  border: 1px solid var(--ui-primary) !important;
+  color: #fff !important;
+}
+
+.btn-primary:hover,
+.btn-confirm:hover,
+.btn-success:hover {
+  opacity: 0.9;
+}
+
+.btn-secondary,
+.btn-outline-secondary,
+.btn-light {
+  background: #fff !important;
+  border: 1px solid var(--ui-input-border) !important;
+  color: var(--ui-text) !important;
+}
+
+.btn-danger {
+  background: var(--ui-danger) !important;
+  border: 1px solid var(--ui-danger) !important;
+  color: #fff !important;
+}
+
+.btn-link {
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  color: var(--ui-text-secondary) !important;
+  text-decoration: none !important;
+}
+
+.btn-link:hover {
+  background: #f3f4f6 !important;
+}
+
+.btn:disabled,
+.btn.disabled {
+  opacity: 0.6 !important;
+  cursor: default !important;
 }

@@ -1,53 +1,41 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import Topbar from "../components/topbar";
-import Sidebar from "../components/sidebar";
-import { Title } from "../components/title";
-import { Separator } from "../components/separator/style";
 import { CustomFilterStyle } from "../components/filter/style";
 import DateRangeSelector from "../components/dateRangeSelector";
+import { PageLayout, TableCard } from "../components/admin";
 import { getWaitingQueue, deleteWaitingQueueEntry } from "../services/endpoints/waitingQueue";
-import { getCompany } from "../services/endpoints/company";
 import { isAvailableLogin, isProfessional } from "../util/auth";
 import { useNavigate } from "react-router-dom";
-import Cookies from "js-cookie";
 import { Phone, MessageCircle, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
 
 /* ─── Tabela ─── */
 
-const TableWrapper = styled.div`
-  padding: 0 1rem 1rem;
-  overflow-x: auto;
-`;
-
 const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.875rem;
+  font-size: 0.82rem;
+  min-width: 520px;
 `;
 
 const Th = styled.th`
   text-align: left;
-  padding: 0.6rem 0.75rem;
-  color: var(--color-olive);
+  padding: 0.7rem 0.8rem;
+  color: var(--ui-muted);
   font-weight: 600;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--ui-border);
   white-space: nowrap;
 `;
 
 const Td = styled.td`
-  padding: 0.7rem 0.75rem;
-  color: var(--color-dark);
+  padding: 0.7rem 0.8rem;
+  color: var(--ui-text-secondary);
   border-bottom: 1px solid #f3f4f6;
   vertical-align: middle;
 `;
 
 const Tr = styled.tr`
-  &:hover td { background-color: #fafaf8; }
+  &:last-child td { border-bottom: none; }
 `;
 
 /* ─── Ações ─── */
@@ -57,34 +45,34 @@ const Actions = styled.div`
   gap: 0.4rem;
 `;
 
+// Botões de ação no padrão do sistema: quadrado branco com borda e ícone colorido
 const IconButton = styled.a`
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid var(--ui-border);
+  background: #fff;
   text-decoration: none;
-  background-color: ${({ $color }) => $color || "var(--color-sage)"};
-  color: #fff;
-  transition: opacity 0.2s;
+  color: ${({ $color }) => $color || "var(--ui-text-secondary)"};
   flex-shrink: 0;
-  &:hover { opacity: 0.82; }
+  &:hover { background: #f3f4f6; }
 `;
 
 const DeleteButton = styled.button`
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid var(--ui-border);
+  background: #fff;
   cursor: pointer;
-  background-color: #fee2e2;
-  color: #ef4444;
-  transition: background-color 0.2s;
-  &:hover { background-color: #fecaca; }
+  color: var(--ui-danger);
+  &:hover { background: #f3f4f6; }
 `;
 
 /* ─── Paginação ─── */
@@ -100,7 +88,7 @@ const PaginationRow = styled.div`
 
 const PaginationInfo = styled.span`
   font-size: 0.8rem;
-  color: var(--color-olive);
+  color: var(--ui-muted);
 `;
 
 const PaginationControls = styled.div`
@@ -116,33 +104,33 @@ const PageButton = styled.button`
   width: 30px;
   height: 30px;
   border-radius: 6px;
-  border: 1px solid ${({ $active }) => $active ? "var(--color-sage)" : "#e5e7eb"};
-  background-color: ${({ $active }) => $active ? "var(--color-sage)" : "transparent"};
-  color: ${({ $active }) => $active ? "#fff" : "var(--color-dark)"};
+  border: 1px solid ${({ $active }) => $active ? "var(--ui-primary)" : "var(--ui-border)"};
+  background-color: ${({ $active }) => $active ? "var(--ui-primary)" : "#fff"};
+  color: ${({ $active }) => $active ? "#fff" : "var(--ui-text-secondary)"};
   cursor: ${({ disabled }) => disabled ? "default" : "pointer"};
   opacity: ${({ disabled }) => disabled ? 0.4 : 1};
   font-size: 0.8rem;
   &:hover:not(:disabled) {
-    background-color: ${({ $active }) => $active ? "var(--color-sage)" : "#f3f4f6"};
+    background-color: ${({ $active }) => $active ? "var(--ui-primary)" : "#f3f4f6"};
   }
 `;
 
 const PerPageSelect = styled.select`
   height: 30px;
   padding: 0 0.5rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
+  border: 1px solid var(--ui-input-border);
+  border-radius: var(--ui-radius-sm);
   font-size: 0.8rem;
-  color: var(--color-dark);
-  background: transparent;
+  color: var(--ui-text);
+  background: #fff;
   cursor: pointer;
 `;
 
 const EmptyState = styled.p`
-  color: var(--color-olive);
+  color: var(--ui-muted);
   font-size: 0.9rem;
   text-align: center;
-  margin: 3rem 0;
+  margin: 2rem 0;
 `;
 
 /* ─── helpers de data ─── */
@@ -158,9 +146,6 @@ const addDays = (base, days) => {
 
 export default function WaitingList() {
   const navigate = useNavigate();
-  const companyUrl = Cookies.get("companyUrl");
-
-  const [companyInfo, setCompanyInfo] = useState(null);
   const [entries, setEntries] = useState([]);
 
   const [filter, setFilter] = useState({
@@ -174,7 +159,6 @@ export default function WaitingList() {
 
   useEffect(() => {
     if (!isAvailableLogin()) { navigate("/login"); return; }
-    getCompany(companyUrl).then(r => setCompanyInfo(r.data)).catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -216,34 +200,14 @@ export default function WaitingList() {
   const formatPhone = (raw) => raw.replace(/\D/g, "");
 
   return (
-    <>
-      <Topbar
-        name={companyInfo?.name}
-        imagem={companyInfo?.imagem}
-        whatsapp={companyInfo?.whatsapp}
-        instagram={companyInfo?.instagram}
-      />
-      <Sidebar>
-        <Title
-            $padding="1rem"
-            $margin="1rem 0 0 0"
-            $fontweight="600"
-            $fontsize="2rem"
-            $color="var(--color-dark)"
-            $width="max-content"
-          >
-            Lista de Espera
-          </Title>
-
-          <Separator
-            $width="calc(100% - 2rem)"
-            $bordercolor="var(--color-olive)"
-            $margin="0 1rem 1rem 1rem"
-            $style="dotted"
-          />
-
+    <PageLayout
+      title="Lista de espera"
+      subtitle={isProfessional()
+        ? "Clientes que pediram para ser avisados quando abrir um horário com você."
+        : "Clientes que pediram para ser avisados quando abrir um horário."}
+    >
         {/* ─── Filtro de data ─── */}
-        <CustomFilterStyle $margin="0" $padding="0.75rem 1rem" $width="calc(100% - 2rem)">
+        <CustomFilterStyle $margin="0 0 1rem 0" $padding="0" $width="100%">
           <button
             className={filter.indexActive === 0 ? "active filter-button" : "filter-button"}
             onClick={() => handleFilter(0, today(), addDays(today(), 2))}
@@ -269,7 +233,7 @@ export default function WaitingList() {
         </CustomFilterStyle>
 
         {/* ─── Tabela ─── */}
-        <TableWrapper>
+        <TableCard>
           <Table>
             <thead>
               <tr>
@@ -291,7 +255,7 @@ export default function WaitingList() {
                   const digits = formatPhone(entry.telephone);
                   return (
                     <Tr key={entry.id}>
-                      <Td style={{ color: "var(--color-olive)", fontSize: "0.8rem" }}>
+                      <Td style={{ color: "var(--ui-muted)", fontSize: "0.8rem" }}>
                         {entry.position}º
                       </Td>
                       <Td style={{ whiteSpace: "nowrap" }}>{entry.date}</Td>
@@ -326,7 +290,7 @@ export default function WaitingList() {
               )}
             </tbody>
           </Table>
-        </TableWrapper>
+        </TableCard>
 
         {/* ─── Paginação ─── */}
         {entriesWithPosition.length > 0 && (
@@ -337,7 +301,7 @@ export default function WaitingList() {
             </PaginationInfo>
 
             <PaginationControls>
-              <label style={{ fontSize: "0.8rem", color: "var(--color-olive)" }}>Por página:</label>
+              <label style={{ fontSize: "0.8rem", color: "var(--ui-muted)" }}>Por página:</label>
               <PerPageSelect
                 value={perPage}
                 onChange={e => { setPerPage(Number(e.target.value)); setCurrentPage(1); }}
@@ -357,7 +321,7 @@ export default function WaitingList() {
                 return (
                   <React.Fragment key={p}>
                     {prev && p - prev > 1 && (
-                      <span style={{ fontSize: "0.8rem", color: "var(--color-olive)" }}>…</span>
+                      <span style={{ fontSize: "0.8rem", color: "var(--ui-muted)" }}>…</span>
                     )}
                     <PageButton $active={p === currentPage} onClick={() => setCurrentPage(p)}>
                       {p}
@@ -375,8 +339,7 @@ export default function WaitingList() {
             </PaginationControls>
           </PaginationRow>
         )}
-      </Sidebar>
       <ToastContainer position="top-right" autoClose={3000} closeButton={false} />
-    </>
+    </PageLayout>
   );
 }

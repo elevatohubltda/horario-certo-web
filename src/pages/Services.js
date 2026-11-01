@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import "../styles/index.css";
-import Topbar from "../components/topbar";
-import { Container } from "../components/container/style";
 import Cookies from "js-cookie";
-import Sidebar from "../components/sidebar";
+import { PageLayout, Button as UiButton } from "../components/admin";
 import { isAvailableLogin, isProfessional } from "../util/auth";
 import { getProfessionals } from "../services/endpoints/professional";
 import { useNavigate } from "react-router-dom";
@@ -28,51 +26,25 @@ import { SERVICE_COLOR_PALETTE, DEFAULT_SERVICE_COLOR } from "../util/serviceCol
    Styled Components
 ======================= */
 
-const PageHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: calc(100% - 2rem);
-  margin: 0 1rem 1rem 1rem;
-`;
-
-const AddButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  background-color: var(--color-sage);
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 0.5rem 1rem;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: var(--color-olive);
-  }
-`;
-
 const ServiceList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  width: calc(100% - 2rem);
-  margin: 0 1rem;
+  width: 100%;
 `;
 
 const ServiceRow = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 0.75rem;
   background: #fff;
-  border: 1px solid var(--color-olive);
-  border-radius: 8px;
-  padding: 0.75rem 1rem;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius);
+  box-shadow: var(--ui-card-shadow);
+  padding: 0.85rem 1rem;
   font-size: 0.9rem;
-  color: var(--color-dark);
+  color: var(--ui-text);
 `;
 
 const ServiceInfo = styled.div`
@@ -107,7 +79,7 @@ const ColorSwatch = styled.button`
   height: 28px;
   border-radius: 50%;
   background-color: ${({ $color }) => $color};
-  border: 2px solid ${({ $selected }) => ($selected ? "var(--color-dark)" : "transparent")};
+  border: 2px solid ${({ $selected }) => ($selected ? "var(--ui-primary)" : "transparent")};
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
   cursor: pointer;
   padding: 0;
@@ -121,14 +93,14 @@ const ColorSwatch = styled.button`
 const ServiceName = styled.span`
   font-weight: 500;
   color: ${({ $active }) =>
-    $active === false ? "var(--color-muted)" : "var(--color-dark)"};
+    $active === false ? "var(--ui-muted)" : "var(--ui-text)"};
 `;
 
 const ServicePrice = styled.span`
   font-size: 0.8rem;
   font-weight: 600;
   color: ${({ $active }) =>
-    $active === false ? "var(--color-muted)" : "var(--color-sage)"};
+    $active === false ? "var(--ui-muted)" : "var(--ui-text-secondary)"};
 `;
 
 const StatusAction = styled.div`
@@ -143,23 +115,24 @@ const IconButton = styled.button`
   justify-content: center;
   width: 32px;
   height: 32px;
-  border: none;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--color-muted);
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-sm);
+  background: #fff;
+  color: var(--ui-text-secondary);
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(0, 0, 0, 0.06);
-    color: var(--color-dark);
+    background: #f3f4f6;
+    color: var(--ui-text);
   }
 `;
 
 const DeleteIconButton = styled(IconButton)`
   &:hover {
-    background: rgba(217, 83, 79, 0.1);
-    color: #d9534f;
+    background: #fef2f2;
+    border-color: #fecaca;
+    color: var(--ui-danger);
   }
 `;
 
@@ -167,7 +140,7 @@ const StatusLabel = styled.span`
   font-size: 0.8rem;
   font-weight: 600;
   color: ${({ $active }) =>
-    $active === false ? "var(--color-muted)" : "var(--color-sage)"};
+    $active === false ? "var(--ui-muted)" : "var(--ui-text-secondary)"};
 `;
 
 const StatusSwitch = styled.button`
@@ -180,19 +153,19 @@ const StatusSwitch = styled.button`
   border: none;
   border-radius: 999px;
   background: ${({ $active }) =>
-    $active === false ? "#d6ddd6" : "#2d8cf0"};
+    $active === false ? "#d1d5db" : "var(--ui-primary)"};
   cursor: pointer;
   transition: background-color 0.2s ease;
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.04);
 
   &:hover {
     background: ${({ $active }) =>
-      $active === false ? "#c5d0c5" : "#1976d2"};
+      $active === false ? "#9ca3af" : "#374151"};
   }
 
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(45, 140, 240, 0.18);
+    box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.15);
   }
 `;
 
@@ -209,36 +182,36 @@ const SwitchThumb = styled.span`
 `;
 
 const EmptyState = styled.div`
-  width: initial;
-  margin: 0 1rem;
   padding: 2rem;
-  border: 2px dashed var(--color-olive);
-  border-radius: 8px;
+  background: #fff;
+  border: 1px dashed var(--ui-input-border);
+  border-radius: var(--ui-radius);
   text-align: center;
-  color: var(--color-muted);
+  color: var(--ui-muted);
   font-size: 0.9rem;
 `;
 
 const ModalLabel = styled.label`
   display: block;
   font-size: 0.8rem;
-  color: var(--color-earth);
-  margin-bottom: 0.4rem;
+  font-weight: 600;
+  color: var(--ui-text-secondary);
+  margin-bottom: 0.35rem;
 `;
 
 const ModalInput = styled.input`
   width: 100%;
-  padding: 0.5rem;
-  border: 1px solid var(--color-sage);
-  border-radius: 6px;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--ui-input-border);
+  border-radius: var(--ui-radius-sm);
   background-color: #fff;
-  color: var(--color-dark);
-  font-size: 0.85rem;
+  color: var(--ui-text);
+  font-size: 0.9rem;
   box-sizing: border-box;
 
   &:focus {
     outline: none;
-    border-color: var(--color-dark);
+    border-color: var(--ui-primary);
   }
 `;
 
@@ -260,32 +233,34 @@ const ProfessionalPriceRow = styled.div`
     align-items: center;
     gap: 0.45rem;
     font-size: 0.85rem;
-    color: var(--color-dark);
+    color: var(--ui-text);
     cursor: pointer;
   }
 `;
 
 const ErrorMessage = styled.p`
-  color: #ff8555;
+  color: var(--ui-danger);
   font-size: 0.8rem;
   margin: 0.4rem 0 0 0;
 `;
 
 const Form = styled.form`
-  width: calc(100% - 2rem);
+  width: 100%;
   background: transparent;
   box-shadow: none;
-  padding: 1rem;
+  border: none;
+  padding: 0;
 `;
 
-const ModalActions = styled(Container)`
+const ModalActions = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
   background: transparent;
   margin: 0;
   width: 100%;
-  box-shadow: none;
+  margin-top: 1rem;
+  gap: 0.5rem;
 `;
 
 /* =======================
@@ -295,7 +270,6 @@ const ModalActions = styled(Container)`
 export default function Services() {
   const TOAST_CONTAINER_ID = "services-toast";
   const companyUrl = Cookies.get("companyUrl");
-  const companyInfo = JSON.parse(Cookies.get("companyInfo") || "{}");
   const navigate = useNavigate();
   const [mobile, setMobile] = useState();
   const [loading, setLoading] = useState(true);
@@ -620,54 +594,18 @@ export default function Services() {
 
   return (
     <>
-      <Topbar {...companyInfo} loggedIn />
-
-      <Container
-        $width="100%"
-        $display="flex"
-        $flexdirection="column"
-        $padding={!mobile ? "0" : "1rem"}
-        $margin="0"
-        $backgroundcolor="transparent"
-        $borderRadius="0"
-        $boxshadow="0"
+      <PageLayout
+        title="Serviços"
+        subtitle={loading
+          ? "Carregando..."
+          : `${services.length} serviço${services.length !== 1 ? "s" : ""} cadastrado${services.length !== 1 ? "s" : ""}`}
+        actions={
+          <UiButton onClick={openModal}>
+            <PlusIcon size={16} />
+            Novo serviço
+          </UiButton>
+        }
       >
-        <Sidebar>
-          <Title
-            $padding="1rem"
-            $margin="1rem 0 0 0"
-            $fontweight="600"
-            $fontsize="2rem"
-            $color="var(--color-dark)"
-            $width="max-content"
-          >
-            Serviços
-          </Title>
-
-          <Separator
-            $width="calc(100% - 2rem)"
-            $bordercolor="var(--color-olive)"
-            $margin="0 1rem 1rem 1rem"
-            $style="dotted"
-          />
-
-          <PageHeader>
-            <span
-              style={{
-                fontSize: "0.9rem",
-                color: "var(--color-muted)",
-                fontWeight: 500,
-              }}
-            >
-              {loading
-                ? "Carregando..."
-                : `${services.length} serviço${services.length !== 1 ? "s" : ""} cadastrado${services.length !== 1 ? "s" : ""}`}
-            </span>
-            <AddButton onClick={openModal}>
-              <PlusIcon size={15} />
-              Novo serviço
-            </AddButton>
-          </PageHeader>
 
           {!loading && services.length === 0 && (
             <EmptyState>
@@ -750,9 +688,7 @@ export default function Services() {
             autoClose={3000}
             style={mobile ? { margin: '0 5% 1rem 5%', width: '90%' } : undefined}
           />
-
-        </Sidebar>
-      </Container>
+      </PageLayout>
 
       <Dialog open={showModal} onClose={closeModal} mobile={mobile}>
         <Title
@@ -760,14 +696,14 @@ export default function Services() {
           $margin="0 0 0.5rem 0"
           $fontweight="600"
           $fontsize="1.25rem"
-          $color="var(--color-dark)"
+          $color="var(--ui-text)"
         >
           {editingService ? "Editar serviço" : "Novo serviço"}
         </Title>
 
         <Separator
           $width="100%"
-          $bordercolor="var(--color-olive)"
+          $bordercolor="var(--ui-border)"
           $margin="0 0 1rem 0"
           $style="dotted"
         />
@@ -902,10 +838,7 @@ export default function Services() {
                 </Button>
                 <Button
                   type="button"
-                    style={{
-                        backgroundColor: "var(--color-sage)",
-                        borderColor: "var(--color-sage)"
-                    }}
+                    variant="primary"
                     onClick={handleSave}
                     disabled={
                       !!nameError ||
@@ -929,18 +862,18 @@ export default function Services() {
           $margin="0 0 0.5rem 0"
           $fontweight="600"
           $fontsize="1.25rem"
-          $color="var(--color-dark)"
+          $color="var(--ui-text)"
         >
           {deleteTarget?.canEditDetails === false ? "Sair do serviço" : "Excluir serviço"}
         </Title>
         <Separator
           $width="100%"
-          $bordercolor="var(--color-olive)"
+          $bordercolor="var(--ui-border)"
           $margin="0 0 1rem 0"
           $style="dotted"
         />
         <Form>
-          <p style={{ fontSize: "0.9rem", color: "var(--color-dark)", margin: "0 0 1.5rem 0" }}>
+          <p style={{ fontSize: "0.9rem", color: "var(--ui-text-secondary)", margin: "0 0 1.5rem 0" }}>
             {deleteTarget?.canEditDetails === false ? (
               <>Deixar de prestar o serviço <strong>{deleteTarget?.name}</strong>? Ele continua disponível com os outros profissionais.</>
             ) : (
@@ -953,7 +886,7 @@ export default function Services() {
             </Button>
             <Button
               type="button"
-              style={{ backgroundColor: "#d9534f", borderColor: "#d9534f" }}
+              variant="danger"
               onClick={handleDelete}
               disabled={deleting}
             >

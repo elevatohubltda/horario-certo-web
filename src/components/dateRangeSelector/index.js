@@ -27,9 +27,9 @@ const Modal = styled.div`
   transform: translateX(-50%);
   z-index: 9999;
   background: #fff;
-  border: 1px solid #ccc;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
   max-width: 95vw;
   overflow: hidden;
 
@@ -48,16 +48,16 @@ const Modal = styled.div`
   }
     
   .rdrSelected, .rdrInRange, .rdrStartEdge, .rdrEndEdge {
-    background-color: var(--color-olive) !important;
+    background-color: var(--ui-primary) !important;
     color: white !important;
   }
 
   .rdrDayStartPreview, .rdrDayEndPreview, .rdrDayInPreview {
-    border-color: var(--color-sage) !important;
+    border-color: var(--ui-primary) !important;
   }
-    
+
   .rdrDateDisplayItemActive {
-    border-color: var(--color-sage) !important;
+    border-color: var(--ui-primary) !important;
   }
 `;
 
@@ -69,10 +69,10 @@ const Actions = styled.div`
 const ApplyButton = styled.button`
   padding: 0.4rem 1rem;
   border-radius: 999px;
-  border: 1px solid var(--color-sage);
-  background: var(--color-sage);
+  border: 1px solid var(--ui-primary);
+  background: var(--ui-primary);
   color: #fff;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   cursor: pointer;
 
   &:hover {

@@ -1,12 +1,8 @@
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import "../styles/index.css";
-import Topbar from "../components/topbar";
-import Sidebar from "../components/sidebar";
-import { Container } from "../components/container/style";
-import { Title } from "../components/title";
+import { PageLayout } from "../components/admin";
 import { isAdmin, isAvailableLogin } from "../util/auth";
-import { isMobile } from "../util/util";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import {
@@ -25,19 +21,7 @@ import {
 /* ── Layout ── */
 
 const PageHeader = styled.div`
-  margin-bottom: 1.5rem;
-`;
-
-const PageTitle = styled(Title)`
-  margin: 0 0 0.35rem;
-  font-size: 1.4rem;
-  font-weight: 700;
-`;
-
-const PageSubtitle = styled.p`
-  margin: 0;
-  color: rgba(30, 44, 40, 0.55);
-  font-size: 0.9rem;
+  margin-bottom: 1.25rem;
 `;
 
 const SearchBar = styled.div`
@@ -48,7 +32,7 @@ const SearchBar = styled.div`
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 999px;
   padding: 0.6rem 1rem;
-  margin: 1.25rem 0 0;
+  margin: 0;
   max-width: 440px;
   cursor: text;
 
@@ -392,14 +376,12 @@ export default function Help() {
   const [companyInfo] = useState(
     Cookies.get("companyInfo") ? JSON.parse(Cookies.get("companyInfo")) : (isAdmin() ? {} : undefined)
   );
-  const [mobile, setMobile] = useState(false);
   const [activeTopicId, setActiveTopicId] = useState(topics[0].id);
   const [openItem, setOpenItem] = useState(null);
   const [search, setSearch] = useState("");
 
   useEffect(() => {
     if (isAvailableLogin()) {
-      setMobile(isMobile());
     } else {
       navigate(companyUrl ? "/" + companyUrl : "/login");
     }
@@ -431,39 +413,8 @@ export default function Help() {
   return (
     <>
       {companyInfo && (
-        <>
-          <Topbar
-            name={companyInfo.name}
-            imagem={companyInfo.imagem}
-            whatsapp={companyInfo.whatsapp}
-            instagram={companyInfo.instagram}
-            loggedIn={true}
-          />
-          <Container
-            $width="100%"
-            $display="flex"
-            $flexdirection="column"
-            $padding={mobile ? "1rem" : "0"}
-            $margin="0"
-            $backgroundcolor="transparent"
-            $borderRadius="0"
-            $boxshadow="none"
-          >
-            <Sidebar>
-              <Container
-                $width="90%"
-                $borderRadius="0 1rem 2rem 1rem"
-                $padding="0 0 3rem 0"
-                $display="flex"
-                $flexdirection="column"
-                $backgroundcolor="transparent"
-                $boxshadow="none"
-              >
+            <PageLayout title="Central de ajuda" subtitle="Encontre respostas rápidas sobre como usar o Horário Certo.">
                 <PageHeader>
-                  <PageTitle>Central de Ajuda</PageTitle>
-                  <PageSubtitle>
-                    Encontre respostas rápidas sobre como usar o Horário Certo
-                  </PageSubtitle>
                   <SearchBar>
                     <Search size={15} />
                     <input
@@ -536,10 +487,7 @@ export default function Help() {
                     )}
                   </FaqList>
                 </FaqCard>
-              </Container>
-            </Sidebar>
-          </Container>
-        </>
+            </PageLayout>
       )}
     </>
   );

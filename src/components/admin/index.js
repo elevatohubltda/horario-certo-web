@@ -41,13 +41,7 @@ export function AdminLayout({ title, subtitle, actions, children, requireAdmin =
       >
         <Sidebar>
           <Page>
-            <Header>
-              <div>
-                <PageTitle>{title}</PageTitle>
-                {subtitle && <Subtitle>{subtitle}</Subtitle>}
-              </div>
-              {actions && <HeaderActions>{actions}</HeaderActions>}
-            </Header>
+            {title && <PageHeader title={title} subtitle={subtitle} actions={actions} />}
             {!requireAdmin || isAdmin() ? children : <Message>Acesso restrito a administradores.</Message>}
           </Page>
         </Sidebar>
@@ -56,9 +50,28 @@ export function AdminLayout({ title, subtitle, actions, children, requireAdmin =
   );
 }
 
+// Layout padrão das telas do painel (dono e profissional): igual ao das telas de gestão, sem exigir admin
+export function PageLayout(props) {
+  return <AdminLayout requireAdmin={false} {...props} />;
+}
+
+// Cabeçalho padrão de página: título, subtítulo e ações à direita
+export function PageHeader({ title, subtitle, actions }) {
+  return (
+    <Header>
+      <div>
+        <PageTitle>{title}</PageTitle>
+        {subtitle && <Subtitle>{subtitle}</Subtitle>}
+      </div>
+      {actions && <HeaderActions>{actions}</HeaderActions>}
+    </Header>
+  );
+}
+
+// Ocupa toda a largura disponível ao lado do menu (sem limite fixo), como as demais telas do painel
 const Page = styled.div`
   padding: 1rem 0 3rem;
-  max-width: 1200px;
+  width: 100%;
   overflow-y: auto;
   height: 100%;
   box-sizing: border-box;

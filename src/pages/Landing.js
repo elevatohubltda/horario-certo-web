@@ -955,7 +955,7 @@ const DemoPhoneWrapper = styled.div`
 
 const DemoPhone = styled.div`
   width: 245px; height: 490px; border-radius: 30px;
-  background: #f8f9f6;
+  background: #f9fafb;
   box-shadow: 0 0 0 8px #1a1a1a, 0 0 0 10px #2a2a2a, 0 28px 56px rgba(0,0,0,.65);
   overflow: hidden; position: relative;
   font-family: 'Inter', -apple-system, sans-serif;
@@ -968,7 +968,7 @@ const DemoPhone = styled.div`
 `;
 
 const DemoScreenBase = styled.div`
-  position: absolute; inset: 0; background: #f8f9f6;
+  position: absolute; inset: 0; background: #f9fafb;
   opacity: ${({ $visible }) => ($visible ? 1 : 0)};
   transition: opacity 0.4s ease;
   pointer-events: ${({ $visible }) => ($visible ? 'all' : 'none')};
@@ -1275,15 +1275,15 @@ function Landing() {
               <DemoPhoneWrapper>
                 <DemoPhone>
                   <DemoScreenBase $visible={demoStep <= 2}>
-                    <div style={{ height:54, background:'#fff', borderBottom:'1px solid #e4e8e0', display:'flex', alignItems:'center', padding:'0 12px', gap:10, paddingTop:22 }}>
-                      <div style={{ width:28, height:28, borderRadius:'50%', background:'#2d3b2a', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontSize:9, fontWeight:700, flexShrink:0 }}>EL</div>
+                    <div style={{ height:54, background:'#fff', borderBottom:'1px solid #e5e7eb', display:'flex', alignItems:'center', padding:'0 12px', gap:10, paddingTop:22 }}>
+                      <div style={{ width:28, height:28, borderRadius:'50%', background:'#1f2937', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontSize:9, fontWeight:700, flexShrink:0 }}>EL</div>
                       <div style={{ flex:1 }}>
-                        <div style={{ fontSize:11, fontWeight:700, color:'#1a2118', lineHeight:1.2 }}>Elevato Barbearia</div>
-                        <div style={{ fontSize:8, color:'#8a9488', marginTop:1 }}>horariocerto.elevatohub.com.br/elevatohub</div>
+                        <div style={{ fontSize:11, fontWeight:700, color:'#111827', lineHeight:1.2 }}>Elevato Barbearia</div>
+                        <div style={{ fontSize:8, color:'#6b7280', marginTop:1 }}>horariocerto.elevatohub.com.br/elevatohub</div>
                       </div>
                     </div>
 
-                    <div style={{ padding:'8px 10px 4px', fontSize:8, fontWeight:700, color:'#8a9488', letterSpacing:1, textTransform:'uppercase' }}>Segunda — 16 Jun</div>
+                    <div style={{ padding:'8px 10px 4px', fontSize:8, fontWeight:700, color:'#6b7280', letterSpacing:1, textTransform:'uppercase' }}>Segunda — 16 Jun</div>
                     <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:5, padding:'0 10px' }}>
                       {[
                         { time:'09:00', avail:false },
@@ -1293,60 +1293,60 @@ function Landing() {
                         { time:'15:00', avail:false },
                         { time:'16:00', avail:true },
                       ].map((s) => (
-                        <div key={s.time} style={{ borderRadius:8, border:`1.5px solid ${s.sel?'#1a2118':s.avail?'#8ca085':'#d8ddd4'}`, background:s.sel?'#1a2118':s.avail?'#f0f5ee':'#fff', padding:'6px 4px', textAlign:'center', opacity:s.avail||s.sel?1:0.4 }}>
-                          <div style={{ fontSize:11, fontWeight:700, color:s.sel?'#fff':s.avail?'#2d5a27':'#1a2118' }}>{s.time}</div>
-                          <div style={{ fontSize:7, fontWeight:600, color:s.sel?'rgba(255,255,255,.7)':s.avail?'#5a9e52':'#8a9488', marginTop:2 }}>{s.sel?'Selecionado':s.avail?'Disponível':'Ocupado'}</div>
+                        <div key={s.time} style={{ borderRadius:8, border:`1.5px solid ${s.sel?'#111827':s.avail?'#d1d5db':'#e5e7eb'}`, background:s.sel?'#111827':s.avail?'#f3f4f6':'#fff', padding:'6px 4px', textAlign:'center', opacity:s.avail||s.sel?1:0.4 }}>
+                          <div style={{ fontSize:11, fontWeight:700, color:s.sel?'#fff':s.avail?'#111827':'#111827' }}>{s.time}</div>
+                          <div style={{ fontSize:7, fontWeight:600, color:s.sel?'rgba(255,255,255,.7)':s.avail?'#6b7280':'#6b7280', marginTop:2 }}>{s.sel?'Selecionado':s.avail?'Disponível':'Ocupado'}</div>
                         </div>
                       ))}
                     </div>
 
-                    <div style={{ padding:'8px 10px 4px', fontSize:8, fontWeight:700, color:'#8a9488', letterSpacing:1, textTransform:'uppercase', marginTop:6 }}>Terça — 17 Jun</div>
+                    <div style={{ padding:'8px 10px 4px', fontSize:8, fontWeight:700, color:'#6b7280', letterSpacing:1, textTransform:'uppercase', marginTop:6 }}>Terça — 17 Jun</div>
                     <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:5, padding:'0 10px' }}>
                       {[{ time:'09:00', avail:true },{ time:'10:00', avail:true },{ time:'11:00', avail:false }].map((s) => (
-                        <div key={s.time} style={{ borderRadius:8, border:`1.5px solid ${s.avail?'#8ca085':'#d8ddd4'}`, background:s.avail?'#f0f5ee':'#fff', padding:'6px 4px', textAlign:'center', opacity:s.avail?1:0.4 }}>
-                          <div style={{ fontSize:11, fontWeight:700, color:s.avail?'#2d5a27':'#1a2118' }}>{s.time}</div>
-                          <div style={{ fontSize:7, fontWeight:600, color:s.avail?'#5a9e52':'#8a9488', marginTop:2 }}>{s.avail?'Disponível':'Ocupado'}</div>
+                        <div key={s.time} style={{ borderRadius:8, border:`1.5px solid ${s.avail?'#d1d5db':'#e5e7eb'}`, background:s.avail?'#f3f4f6':'#fff', padding:'6px 4px', textAlign:'center', opacity:s.avail?1:0.4 }}>
+                          <div style={{ fontSize:11, fontWeight:700, color:s.avail?'#111827':'#111827' }}>{s.time}</div>
+                          <div style={{ fontSize:7, fontWeight:600, color:s.avail?'#6b7280':'#6b7280', marginTop:2 }}>{s.avail?'Disponível':'Ocupado'}</div>
                         </div>
                       ))}
                     </div>
 
                     <DemoSheetOverlay $visible={demoStep===2}>
                       <DemoSheet $open={demoStep===2}>
-                        <div style={{ width:30, height:3, borderRadius:999, background:'#d4d9d0', margin:'8px auto 12px' }} />
-                        <div style={{ fontSize:13, fontWeight:800, color:'#1a2118', marginBottom:3 }}>Confirmar agendamento</div>
-                        <div style={{ fontSize:9, color:'#8a9488', marginBottom:12 }}>Preencha seus dados para reservar</div>
-                        <div style={{ display:'inline-flex', alignItems:'center', gap:5, background:'#eef4eb', border:'1px solid #c8d9c4', borderRadius:999, padding:'4px 10px', fontSize:9, fontWeight:700, color:'#2d5a27', marginBottom:12 }}>📅 Segunda, 16 Jun às 10:00</div>
-                        <div style={{ fontSize:8, fontWeight:700, color:'#4f604f', textTransform:'uppercase', letterSpacing:0.5, marginBottom:4 }}>Nome</div>
-                        <div style={{ height:30, border:'1.5px solid #8ca085', borderRadius:8, padding:'0 10px', fontSize:11, color:'#1a2118', background:'#fafbf8', display:'flex', alignItems:'center', marginBottom:8 }}>Carlos Mendes</div>
-                        <div style={{ fontSize:8, fontWeight:700, color:'#4f604f', textTransform:'uppercase', letterSpacing:0.5, marginBottom:4 }}>Telefone</div>
-                        <div style={{ height:30, border:'1.5px solid #8ca085', borderRadius:8, padding:'0 10px', fontSize:11, color:'#1a2118', background:'#fafbf8', display:'flex', alignItems:'center', marginBottom:8 }}>(31) 99847-2210</div>
-                        <div style={{ fontSize:8, fontWeight:700, color:'#4f604f', textTransform:'uppercase', letterSpacing:0.5, marginBottom:4 }}>Serviço</div>
-                        <div style={{ height:32, border:'1.5px solid #8ca085', borderRadius:8, padding:'0 10px', fontSize:11, color:'#1a2118', background:'#fafbf8', display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14 }}>
+                        <div style={{ width:30, height:3, borderRadius:999, background:'#e5e7eb', margin:'8px auto 12px' }} />
+                        <div style={{ fontSize:13, fontWeight:800, color:'#111827', marginBottom:3 }}>Confirmar agendamento</div>
+                        <div style={{ fontSize:9, color:'#6b7280', marginBottom:12 }}>Preencha seus dados para reservar</div>
+                        <div style={{ display:'inline-flex', alignItems:'center', gap:5, background:'#f3f4f6', border:'1px solid #e5e7eb', borderRadius:999, padding:'4px 10px', fontSize:9, fontWeight:700, color:'#111827', marginBottom:12 }}>📅 Segunda, 16 Jun às 10:00</div>
+                        <div style={{ fontSize:8, fontWeight:700, color:'#374151', textTransform:'uppercase', letterSpacing:0.5, marginBottom:4 }}>Nome</div>
+                        <div style={{ height:30, border:'1.5px solid #d1d5db', borderRadius:8, padding:'0 10px', fontSize:11, color:'#111827', background:'#f9fafb', display:'flex', alignItems:'center', marginBottom:8 }}>Carlos Mendes</div>
+                        <div style={{ fontSize:8, fontWeight:700, color:'#374151', textTransform:'uppercase', letterSpacing:0.5, marginBottom:4 }}>Telefone</div>
+                        <div style={{ height:30, border:'1.5px solid #d1d5db', borderRadius:8, padding:'0 10px', fontSize:11, color:'#111827', background:'#f9fafb', display:'flex', alignItems:'center', marginBottom:8 }}>(31) 99847-2210</div>
+                        <div style={{ fontSize:8, fontWeight:700, color:'#374151', textTransform:'uppercase', letterSpacing:0.5, marginBottom:4 }}>Serviço</div>
+                        <div style={{ height:32, border:'1.5px solid #d1d5db', borderRadius:8, padding:'0 10px', fontSize:11, color:'#111827', background:'#f9fafb', display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14 }}>
                           <span>✂️ Corte + Barba</span>
-                          <span style={{ fontSize:10, fontWeight:700, color:'#2d5a27' }}>R$ 45</span>
+                          <span style={{ fontSize:10, fontWeight:700, color:'#111827' }}>R$ 45</span>
                         </div>
-                        <button style={{ width:'100%', height:36, background:'#1a2118', borderRadius:999, color:'#fff', fontSize:12, fontWeight:700, border:'none' }}>Confirmar agendamento</button>
+                        <button style={{ width:'100%', height:36, background:'#111827', borderRadius:999, color:'#fff', fontSize:12, fontWeight:700, border:'none' }}>Confirmar agendamento</button>
                       </DemoSheet>
                     </DemoSheetOverlay>
                   </DemoScreenBase>
 
                   <DemoScreenBase $visible={demoStep===3}>
-                    <div style={{ height:54, background:'#fff', borderBottom:'1px solid #e4e8e0', display:'flex', alignItems:'center', padding:'0 12px', gap:10, paddingTop:22 }}>
-                      <div style={{ width:28, height:28, borderRadius:'50%', background:'#2d3b2a', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontSize:9, fontWeight:700, flexShrink:0 }}>EL</div>
+                    <div style={{ height:54, background:'#fff', borderBottom:'1px solid #e5e7eb', display:'flex', alignItems:'center', padding:'0 12px', gap:10, paddingTop:22 }}>
+                      <div style={{ width:28, height:28, borderRadius:'50%', background:'#1f2937', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontSize:9, fontWeight:700, flexShrink:0 }}>EL</div>
                       <div style={{ flex:1 }}>
-                        <div style={{ fontSize:11, fontWeight:700, color:'#1a2118', lineHeight:1.2 }}>Elevato Barbearia</div>
-                        <div style={{ fontSize:8, color:'#8a9488', marginTop:1 }}>Agendamento confirmado</div>
+                        <div style={{ fontSize:11, fontWeight:700, color:'#111827', lineHeight:1.2 }}>Elevato Barbearia</div>
+                        <div style={{ fontSize:8, color:'#6b7280', marginTop:1 }}>Agendamento confirmado</div>
                       </div>
                     </div>
                     <div style={{ display:'flex', flexDirection:'column', alignItems:'center', padding:'24px 16px 0', textAlign:'center' }}>
                       <DemoSuccessIcon key={demoStep===3?'play':'idle'} $play={demoStep===3}>✓</DemoSuccessIcon>
-                      <div style={{ fontSize:15, fontWeight:800, color:'#1a2118', marginBottom:6 }}>Horário reservado!</div>
-                      <div style={{ fontSize:10, color:'#6a7a69', lineHeight:1.5, marginBottom:16, maxWidth:200 }}>Agendamento confirmado. Você receberá uma notificação de lembrete.</div>
-                      <div style={{ width:'100%', background:'#fff', border:'1.5px solid #d8ddd4', borderRadius:10, padding:12, textAlign:'left' }}>
+                      <div style={{ fontSize:15, fontWeight:800, color:'#111827', marginBottom:6 }}>Horário reservado!</div>
+                      <div style={{ fontSize:10, color:'#6b7280', lineHeight:1.5, marginBottom:16, maxWidth:200 }}>Agendamento confirmado. Você receberá uma notificação de lembrete.</div>
+                      <div style={{ width:'100%', background:'#fff', border:'1.5px solid #e5e7eb', borderRadius:10, padding:12, textAlign:'left' }}>
                         {[['Cliente','Carlos Mendes',false],['Serviço','Corte + Barba',false],['Data','Seg, 16 Jun · 10:00',false],['Valor','R$ 45,00',true]].map(([label,value,green]) => (
-                          <div key={label} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'5px 0', borderBottom:'1px solid #f0f3ee' }}>
-                            <span style={{ fontSize:9, color:'#8a9488' }}>{label}</span>
-                            <span style={{ fontSize:10, fontWeight:600, color:green?'#2d5a27':'#1a2118' }}>{value}</span>
+                          <div key={label} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'5px 0', borderBottom:'1px solid #f3f4f6' }}>
+                            <span style={{ fontSize:9, color:'#6b7280' }}>{label}</span>
+                            <span style={{ fontSize:10, fontWeight:600, color:green?'#111827':'#111827' }}>{value}</span>
                           </div>
                         ))}
                       </div>

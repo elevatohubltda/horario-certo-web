@@ -1,14 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import "../styles/index.css";
-import Topbar from "../components/topbar";
-import Sidebar from "../components/sidebar";
-import { Container } from "../components/container/style";
-import { Title } from "../components/title";
+import { PageLayout } from "../components/admin";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { isAvailableLogin } from "../util/auth";
-import { isMobile } from "../util/util";
 import { Download, FileText, FileSpreadsheet, Filter } from "lucide-react";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -22,20 +18,6 @@ const PageWrapper = styled.div`
   gap: 1rem;
 `;
 
-const TopRow = styled.div`
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
-`;
-
-const Subtitle = styled.p`
-  margin: 0.25rem 0 0;
-  color: rgba(30, 44, 40, 0.65);
-  font-size: 0.9rem;
-`;
-
 const Actions = styled.div`
   display: flex;
   align-items: center;
@@ -43,36 +25,34 @@ const Actions = styled.div`
   flex-wrap: wrap;
 `;
 
+// Botões no padrão do sistema: pílula escura (principal) ou branca com borda
 const Btn = styled.button`
-  border: 1px solid rgba(30, 44, 40, 0.2);
-  background: ${({ $primary }) => ($primary ? "var(--color-sage)" : "#fff")};
-  color: ${({ $primary }) => ($primary ? "#fff" : "var(--color-dark)")};
-  border-radius: 12px;
-  padding: 0.55rem 0.85rem;
+  border: 1px solid ${({ $primary }) => ($primary ? "var(--ui-primary)" : "var(--ui-input-border)")};
+  background: ${({ $primary }) => ($primary ? "var(--ui-primary)" : "#fff")};
+  color: ${({ $primary }) => ($primary ? "#fff" : "var(--ui-text)")};
+  border-radius: 999px;
+  padding: 0.45rem 0.95rem;
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.35rem;
   cursor: pointer;
-  font-size: 0.86rem;
-  font-weight: 600;
-  transition: 0.2s ease;
+  font-size: 0.82rem;
+  font-weight: 500;
 
-  &:hover {
-    transform: translateY(-1px);
-    opacity: 0.95;
+  &:hover:not(:disabled) {
+    opacity: 0.9;
   }
 
   &:disabled {
-    cursor: not-allowed;
-    opacity: 0.45;
-    transform: none;
+    cursor: default;
+    opacity: 0.6;
   }
 `;
 
 const FiltersCard = styled.div`
-  border: 1px solid rgba(30, 44, 40, 0.08);
+  box-shadow: var(--ui-card-shadow);
   background: #fff;
-  border-radius: 18px;
+  border-radius: var(--ui-radius);
   padding: 1rem;
 `;
 
@@ -132,9 +112,9 @@ const SummaryGrid = styled.div`
 `;
 
 const SummaryCard = styled.div`
-  border-radius: 16px;
+  border-radius: var(--ui-radius);
   background: ${({ $bg }) => $bg || "#fff"};
-  border: 1px solid rgba(30, 44, 40, 0.08);
+  box-shadow: var(--ui-card-shadow);
   padding: 0.9rem 1rem;
 `;
 
@@ -153,8 +133,8 @@ const SummaryValue = styled.p`
 
 const TableWrap = styled.div`
   background: #fff;
-  border-radius: 18px;
-  border: 1px solid rgba(30, 44, 40, 0.08);
+  border-radius: var(--ui-radius);
+  box-shadow: var(--ui-card-shadow);
   overflow: hidden;
 `;
 
@@ -312,7 +292,6 @@ export default function Reports() {
     Cookies.get("companyInfo") ? JSON.parse(Cookies.get("companyInfo")) : undefined
   );
 
-  const [mobile, setMobile] = useState(false);
   const [loading, setLoading] = useState(true);
   const [schedules, setSchedules] = useState([]);
   // Com equipe, o relatório separa o faturamento do dono da comissão sobre os atendimentos da equipe
@@ -334,7 +313,6 @@ export default function Reports() {
 
   useEffect(() => {
     if (isAvailableLogin()) {
-      setMobile(isMobile());
       return;
     }
     navigate("/" + companyUrl);
@@ -577,44 +555,10 @@ export default function Reports() {
   return (
     <>
       {companyInfo && (
-        <>
-          <Topbar
-            name={companyInfo.name}
-            imagem={companyInfo.imagem}
-            whatsapp={companyInfo.whatsapp}
-            instagram={companyInfo.instagram}
-            loggedIn={true}
-          />
-
-          <Container
-            $width="100%"
-            $display="flex"
-            $flexdirection="column"
-            $padding={mobile ? "1rem" : "0"}
-            $margin="0"
-            $backgroundcolor="transparent"
-            $borderRadius="0"
-            $boxshadow="none"
-          >
-            <Sidebar>
-              <Container
-                $width="100%"
-                $borderRadius="0"
-                $padding="0"
-                $display="flex"
-                $flexdirection="column"
-                $backgroundcolor="transparent"
-                $boxshadow="none"
-              >
-                <PageWrapper>
-                  <TopRow>
-                    <div>
-                      <Title $fontsize="2rem">Relatorios</Title>
-                      <Subtitle>
-                        Filtros de periodo, status e servico com exportacao para PDF e CSV. Periodo atual: {fmtPeriodDate(startDate)} ate {fmtPeriodDate(endDate)}.
-                      </Subtitle>
-                    </div>
-
+            <PageLayout
+              title="Relatórios"
+              subtitle={`Filtros de período, status e serviço com exportação para PDF e CSV. Período atual: ${fmtPeriodDate(startDate)} até ${fmtPeriodDate(endDate)}.`}
+              actions={
                     <Actions>
                       <Btn type="button" onClick={exportCsv} disabled={loading}>
                         <FileSpreadsheet size={16} />
@@ -625,7 +569,9 @@ export default function Reports() {
                         Exportar PDF
                       </Btn>
                     </Actions>
-                  </TopRow>
+              }
+            >
+                <PageWrapper>
 
                   <FiltersCard>
                     <Actions style={{ marginBottom: "0.6rem" }}>
@@ -797,10 +743,7 @@ export default function Reports() {
                     </Btn>
                   </Actions>
                 </PageWrapper>
-              </Container>
-            </Sidebar>
-          </Container>
-        </>
+            </PageLayout>
       )}
     </>
   );

@@ -17,16 +17,16 @@ const Page = styled.main`
     display: flex;
     align-items: center;
     justify-content: center;
-    background: radial-gradient(circle at 15% 20%, #26292e 0%, #1a1d22 40%, #17191d 100%);
+    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
 `;
 
 const Shell = styled.section`
     width: min(1080px, 100%);
     min-height: 640px;
-    background: #08090b;
-    border: 1px solid #23272d;
-    border-radius: 0.95rem;
-    box-shadow: 0 28px 50px rgba(0, 0, 0, 0.35);
+    background: #ffffff;
+    border: 1px solid var(--ui-border);
+    border-radius: 1.25rem;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.08);
     overflow: hidden;
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -111,7 +111,7 @@ const StepText = styled.span`
 
 const FormPanel = styled.div`
     padding: 3.1rem 2.3rem;
-    background: #07090b;
+    background: #ffffff;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -123,13 +123,13 @@ const FormPanel = styled.div`
 
 const FormTitle = styled.h1`
     margin: 0;
-    color: #f2f4f7;
+    color: var(--ui-text);
     font-size: 1.9rem;
 `;
 
 const FormSubtitle = styled.p`
     margin: 0.6rem 0 1.5rem;
-    color: #98a1ac;
+    color: var(--ui-muted);
     font-size: 0.9rem;
 `;
 
@@ -143,7 +143,7 @@ const Form = styled.form`
 
 const Label = styled.label`
     font-size: 0.8rem;
-    color: #c8ced8;
+    color: var(--ui-text-secondary);
     margin: 0 0 0.45rem;
     display: block;
 `;
@@ -155,19 +155,19 @@ const Input = styled.input`
     margin: 0 0 0.95rem;
     padding: 0 0.85rem;
     border-radius: 0.6rem;
-    border: 1px solid #252b34;
-    background: #12161c;
-    color: #f4f7fb;
+    border: 1px solid var(--ui-input-border);
+    background: #ffffff;
+    color: var(--ui-text);
     font-size: 0.9rem;
 
     &::placeholder {
-        color: #7f8792;
+        color: #9ca3af;
     }
 
     &:focus {
         outline: none;
-        border-color: #3fa487;
-        box-shadow: 0 0 0 3px rgba(63, 164, 135, 0.18);
+        border-color: var(--ui-primary);
+        box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.11);
     }
 `;
 
@@ -183,7 +183,7 @@ const Row = styled.div`
 
 const Hint = styled.span`
     font-size: 0.76rem;
-    color: #7ea594;
+    color: var(--ui-muted);
     margin-top: -0.45rem;
     margin-bottom: 0.9rem;
     display: block;
@@ -191,7 +191,7 @@ const Hint = styled.span`
 
 const Divider = styled.div`
     margin: 1.15rem 0;
-    border-top: 1px solid #20242b;
+    border-top: 1px solid var(--ui-border);
 `;
 
 const Actions = styled.div`
@@ -204,12 +204,13 @@ const Actions = styled.div`
 const GhostButton = styled.button`
     border: none;
     background: transparent;
-    color: #b8c0cb;
+    color: var(--ui-muted);
     cursor: pointer;
     font-size: 0.88rem;
+    font-weight: 600;
 
     &:hover {
-        color: #ffffff;
+        color: var(--ui-text);
     }
 `;
 
@@ -217,20 +218,25 @@ const SubmitButton = styled.button`
     border: none;
     min-width: 130px;
     height: 2.9rem;
-    border-radius: 0.6rem;
-    background: #f7f9fc;
-    color: #0e1317;
-    font-weight: 700;
+    border-radius: 999px;
+    background: var(--ui-primary);
+    color: #ffffff;
+    font-weight: 600;
     cursor: pointer;
 
     &:hover {
-        background: #ffffff;
+        background: #374151;
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
     }
 `;
 
 const FooterText = styled.p`
     margin: 1.2rem 0 0;
-    color: #8c95a1;
+    color: var(--ui-muted);
     font-size: 0.82rem;
     text-align: center;
 `;
@@ -238,7 +244,7 @@ const FooterText = styled.p`
 const FooterLink = styled.button`
     border: none;
     background: transparent;
-    color: #dde4f0;
+    color: var(--ui-text);
     padding: 0;
     cursor: pointer;
 
@@ -248,10 +254,10 @@ const FooterLink = styled.button`
 `;
 
 const PlanCard = styled.div`
-    border: 1px solid ${({ $selected }) => ($selected ? '#3fa487' : '#252b34')};
+    border: 1px solid ${({ $selected }) => ($selected ? 'var(--ui-primary)' : 'var(--ui-input-border)')};
     border-radius: 0.75rem;
     padding: 0.9rem 1rem;
-    background: ${({ $selected }) => ($selected ? 'rgba(63, 164, 135, 0.08)' : '#12161c')};
+    background: ${({ $selected }) => ($selected ? 'rgba(17, 24, 39, 0.05)' : '#ffffff')};
     cursor: pointer;
     display: flex;
     justify-content: space-between;
@@ -266,16 +272,16 @@ const FeatureCheckbox = styled.label`
     gap: 0.65rem;
     padding: 0.8rem 1rem;
     border-radius: 0.65rem;
-    border: 1px solid ${({ $checked }) => ($checked ? 'rgba(63,164,135,0.45)' : '#1e2530')};
-    background: ${({ $checked }) => ($checked ? 'rgba(63,164,135,0.07)' : '#0d1117')};
+    border: 1px solid ${({ $checked }) => ($checked ? 'rgba(17, 24, 39, 0.27)' : 'var(--ui-border)')};
+    background: ${({ $checked }) => ($checked ? 'rgba(17, 24, 39, 0.04)' : '#ffffff')};
     cursor: pointer;
     margin-bottom: 0.45rem;
-    color: #c8ced8;
+    color: var(--ui-text-secondary);
     font-size: 0.85rem;
     transition: border-color 0.15s, background 0.15s;
 
     &:hover {
-        border-color: rgba(63,164,135,0.3);
+        border-color: rgba(17, 24, 39, 0.18);
     }
 
     input {
@@ -284,8 +290,8 @@ const FeatureCheckbox = styled.label`
         width: 18px;
         height: 18px;
         border-radius: 5px;
-        border: 1.5px solid ${({ $checked }) => ($checked ? '#3fa487' : '#3a404d')};
-        background: ${({ $checked }) => ($checked ? '#3fa487' : 'transparent')};
+        border: 1.5px solid ${({ $checked }) => ($checked ? 'var(--ui-primary)' : 'var(--ui-input-border)')};
+        background: ${({ $checked }) => ($checked ? 'var(--ui-primary)' : 'transparent')};
         cursor: pointer;
         flex-shrink: 0;
         position: relative;
@@ -299,7 +305,7 @@ const FeatureCheckbox = styled.label`
             top: 1px;
             width: 5px;
             height: 9px;
-            border: 2px solid #07090b;
+            border: 2px solid #ffffff;
             border-top: none;
             border-left: none;
             transform: rotate(45deg);
@@ -311,8 +317,8 @@ const PriceSummary = styled.div`
     margin-top: 1rem;
     padding: 1rem;
     border-radius: 0.75rem;
-    background: rgba(63, 164, 135, 0.07);
-    border: 1px solid rgba(63, 164, 135, 0.25);
+    background: rgba(17, 24, 39, 0.04);
+    border: 1px solid rgba(17, 24, 39, 0.15);
 `;
 
 const ErrorHint = styled.span`
@@ -327,8 +333,8 @@ const TrialBadge = styled.div`
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    background: rgba(63, 164, 135, 0.15);
-    color: #3fa487;
+    background: rgba(17, 24, 39, 0.09);
+    color: var(--ui-primary);
     border-radius: 999px;
     padding: 0.3rem 0.75rem;
     font-size: 0.8rem;
@@ -751,30 +757,30 @@ function Register() {
                                             $selected={selectedPlan?.id === plan.id}
                                             onClick={() => setSelectedPlan(plan)}
                                         >
-                                            <span style={{ color: '#f2f4f7', fontSize: '0.9rem', fontWeight: 600 }}>
+                                            <span style={{ color: 'var(--ui-text)', fontSize: '0.9rem', fontWeight: 600 }}>
                                                 {plan.name}
                                             </span>
-                                            <span style={{ color: '#3fa487', fontWeight: 700 }}>
+                                            <span style={{ color: 'var(--ui-primary)', fontWeight: 700 }}>
                                                 R$ {Number(plan.price).toFixed(2).replace('.', ',')}/mês
                                             </span>
                                         </PlanCard>
                                         {selectedPlan?.id === plan.id && plan.features?.length > 0 && (
                                             <div style={{
-                                                background: '#0e1217',
-                                                border: '1px solid #1e2530',
+                                                background: '#f9fafb',
+                                                border: '1px solid var(--ui-border)',
                                                 borderTop: 'none',
                                                 borderRadius: '0 0 0.75rem 0.75rem',
                                                 padding: '0.75rem 1rem',
                                                 marginBottom: '0.5rem',
                                                 marginTop: '-0.5rem'
                                             }}>
-                                                <span style={{ fontSize: '0.75rem', color: '#7ea594', display: 'block', marginBottom: '0.4rem' }}>
+                                                <span style={{ fontSize: '0.75rem', color: 'var(--ui-muted)', display: 'block', marginBottom: '0.4rem' }}>
                                                     Incluso no plano:
                                                 </span>
                                                 {plan.features.map((f, i) => (
                                                     <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', marginBottom: '0.25rem' }}>
-                                                        <span style={{ color: '#3fa487', fontSize: '0.8rem', marginTop: '0.05rem' }}>✓</span>
-                                                        <span style={{ color: '#98a1ac', fontSize: '0.8rem' }}>{f}</span>
+                                                        <span style={{ color: 'var(--ui-primary)', fontSize: '0.8rem', marginTop: '0.05rem' }}>✓</span>
+                                                        <span style={{ color: 'var(--ui-muted)', fontSize: '0.8rem' }}>{f}</span>
                                                     </div>
                                                 ))}
                                             </div>
@@ -785,7 +791,7 @@ function Register() {
                                 {extraFeatures.length > 0 && (
                                     <>
                                         <Label style={{ marginTop: '0.75rem' }}>
-                                            Recursos adicionais <span style={{ color: '#7f8792' }}>(opcional)</span>
+                                            Recursos adicionais <span style={{ color: '#9ca3af' }}>(opcional)</span>
                                         </Label>
                                         {extraFeatures.map(f => (
                                             <FeatureCheckbox
@@ -798,7 +804,7 @@ function Register() {
                                                     onChange={() => toggleExtra(f.name)}
                                                 />
                                                 <span>{f.name}</span>
-                                                <span style={{ color: '#3fa487', fontWeight: 600, whiteSpace: 'nowrap', fontSize: '0.82rem' }}>
+                                                <span style={{ color: 'var(--ui-primary)', fontWeight: 600, whiteSpace: 'nowrap', fontSize: '0.82rem' }}>
                                                     + R$ {Number(f.price).toFixed(2).replace('.', ',')}/mês
                                                 </span>
                                             </FeatureCheckbox>
@@ -807,7 +813,7 @@ function Register() {
                                 )}
 
                                 <Label style={{ marginTop: '0.75rem' }}>
-                                    Código de desconto <span style={{ color: '#7f8792' }}>(opcional)</span>
+                                    Código de desconto <span style={{ color: '#9ca3af' }}>(opcional)</span>
                                 </Label>
                                 <Input
                                     placeholder="ex: BLACKFRIDAY"
@@ -821,14 +827,14 @@ function Register() {
                                     onBlur={handleDiscountCodeBlur}
                                     style={
                                         discountInfo
-                                            ? { borderColor: '#3fa487' }
+                                            ? { borderColor: 'var(--ui-primary)' }
                                             : discountError
                                             ? { borderColor: '#ef4444' }
                                             : {}
                                     }
                                 />
                                 {discountInfo && (
-                                    <Hint style={{ color: '#3fa487' }}>✓ {discountInfo}</Hint>
+                                    <Hint style={{ color: 'var(--ui-primary)' }}>✓ {discountInfo}</Hint>
                                 )}
                                 {discountError && (
                                     <Hint style={{ color: '#ef4444' }}>{discountError}</Hint>
@@ -836,33 +842,33 @@ function Register() {
 
                                 <PriceSummary>
                                     <TrialBadge>🎁 14 dias grátis</TrialBadge>
-                                    <div style={{ color: '#98a1ac', fontSize: '0.82rem', marginBottom: '0.75rem' }}>
-                                        Primeiro pagamento em <strong style={{ color: '#f2f4f7' }}>{trialEndDate}</strong>
+                                    <div style={{ color: 'var(--ui-muted)', fontSize: '0.82rem', marginBottom: '0.75rem' }}>
+                                        Primeiro pagamento em <strong style={{ color: 'var(--ui-text)' }}>{trialEndDate}</strong>
                                     </div>
                                     {discountData && (
                                         <>
                                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
-                                                <span style={{ color: '#98a1ac', fontSize: '0.82rem' }}>Subtotal</span>
-                                                <span style={{ color: '#98a1ac', fontSize: '0.85rem' }}>R$ {subtotal}</span>
+                                                <span style={{ color: 'var(--ui-muted)', fontSize: '0.82rem' }}>Subtotal</span>
+                                                <span style={{ color: 'var(--ui-muted)', fontSize: '0.85rem' }}>R$ {subtotal}</span>
                                             </div>
                                             <div style={{
                                                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                                                 marginBottom: '0.5rem', padding: '0.45rem 0.6rem',
-                                                background: 'rgba(63,164,135,0.12)', borderRadius: '0.5rem',
-                                                border: '1px solid rgba(63,164,135,0.3)'
+                                                background: 'rgba(17, 24, 39, 0.07)', borderRadius: '0.5rem',
+                                                border: '1px solid rgba(17, 24, 39, 0.18)'
                                             }}>
-                                                <span style={{ color: '#3fa487', fontSize: '0.82rem', fontWeight: 600 }}>
+                                                <span style={{ color: 'var(--ui-primary)', fontSize: '0.82rem', fontWeight: 600 }}>
                                                     🏷️ Desconto ({discountData.name})
                                                 </span>
-                                                <span style={{ color: '#3fa487', fontWeight: 700, fontSize: '1rem' }}>
+                                                <span style={{ color: 'var(--ui-primary)', fontWeight: 700, fontSize: '1rem' }}>
                                                     − R$ {discountAmount}
                                                 </span>
                                             </div>
                                         </>
                                     )}
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: discountData ? '1px solid #1e2530' : 'none', paddingTop: discountData ? '0.5rem' : 0 }}>
-                                        <span style={{ color: '#98a1ac', fontSize: '0.85rem' }}>Total mensal após o teste</span>
-                                        <span style={{ color: '#f2f4f7', fontWeight: 700, fontSize: '1.15rem' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: discountData ? '1px solid var(--ui-border)' : 'none', paddingTop: discountData ? '0.5rem' : 0 }}>
+                                        <span style={{ color: 'var(--ui-muted)', fontSize: '0.85rem' }}>Total mensal após o teste</span>
+                                        <span style={{ color: 'var(--ui-text)', fontWeight: 700, fontSize: '1.15rem' }}>
                                             R$ {totalAmount}
                                         </span>
                                     </div>

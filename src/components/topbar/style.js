@@ -52,42 +52,42 @@ export const TopbarStyle = styled.div`
     }
 
     .be-a-partner{
-      border: 1px solid var(--color-sage);
-      color: var(--color-sage);
+      border: 1px solid var(--ui-primary);
+      color: var(--ui-primary);
     }
     .be-a-partner:hover{
-      background-color: #8f85cc;
+      background-color: #374151;
       color: #fff;
     }
 
     .my-area{
-      background-color: var(--color-sage);
-      border: 1px solid var(--color-sage);
+      background-color: var(--ui-primary);
+      border: 1px solid var(--ui-primary);
       color: #fff;
     }
 
     .my-area:hover{
-      background-color: #8f85cc;
-      border: 1px solid var(--color-sage);
+      background-color: #374151;
+      border: 1px solid var(--ui-primary);
       color: #fff;
     }
 
     .user-button{
-      border: 1px solid var(--color-sage);
+      border: 1px solid var(--ui-primary);
       padding: .25rem .5rem;
       transition: .5s;
 
       svg{
-        color: var(--color-sage);
+        color: var(--ui-primary);
         height: 1.25rem;
         transition: .5s;
       }
     }
 
     .user-button:hover{
-      border: 1px solid var(--color-sage);
+      border: 1px solid var(--ui-primary);
       padding: .25rem .5rem;
-      background-color: var(--color-sage);
+      background-color: var(--ui-primary);
 
       svg{
         color: #ffffff;
@@ -98,19 +98,19 @@ export const TopbarStyle = styled.div`
     .menu-button{
       padding: .25rem .5rem;
       transition: .2s;
-      border: 1px solid var(--color-sage);
+      border: 1px solid var(--ui-primary);
 
       svg{
-        color: var(--color-sage);
+        color: var(--ui-primary);
         height: 2rem;
         transition: .3s;
       }
     }
 
     .menu-button:hover{
-      border: 1px solid var(--color-sage);
+      border: 1px solid var(--ui-primary);
       padding: .25rem .5rem;
-      background-color: var(--color-sage);
+      background-color: var(--ui-primary);
 
       svg{
         height: 1.25rem;

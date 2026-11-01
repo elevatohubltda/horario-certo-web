@@ -73,28 +73,35 @@ const Container = styled.div`
   display: flex;
 `;
 
+// Filtro suspenso no padrão dos botões do sistema (pílula branca com borda e menu em card)
 const Trigger = styled.button`
-  background: transparent;
-  border: none;
-  padding: 6px 8px;
+  background: #fff;
+  border: 1px solid var(--ui-input-border);
+  border-radius: 999px;
+  padding: 0.45rem 0.95rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
-  color: #333;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--ui-text-secondary);
+
+  &:hover {
+    background: #f3f4f6;
+  }
 `;
 
 const Menu = styled.div`
   position: absolute;
-  top: 100%;
+  top: calc(100% + 4px);
   left: 0;
-  background: white;
-  border: none;
-  box-shadow: none;
+  background: #fff;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-sm);
+  box-shadow: var(--ui-card-shadow);
   padding: 4px 0;
   z-index: 10;
-  border: 1px solid rgb(204, 204, 204);
   width: max-content;
   min-width: 100%;
 `;
@@ -103,17 +110,17 @@ const Option = styled.button`
   background: transparent;
   border: none;
   width: 100%;
-  padding: 6px 12px;
+  padding: 0.45rem 0.8rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
-  color: #333;
+  font-size: 0.82rem;
+  color: var(--ui-text-secondary);
   white-space: nowrap;
 
   &:hover {
-    background: #f5f5f5;
+    background: #f3f4f6;
   }
 `;
 

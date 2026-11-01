@@ -20,7 +20,7 @@ const Page = styled.main`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #f4f5f2 0%, #ebece8 100%);
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
 `;
 
 const LoginShell = styled.section`
@@ -31,7 +31,7 @@ const LoginShell = styled.section`
   display: grid;
   grid-template-columns: 1fr 1fr;
   background: #ffffff;
-  box-shadow: 0 24px 64px rgba(22, 29, 23, 0.12);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.08);
 
   @media (max-width: 980px) {
     grid-template-columns: 1fr;
@@ -54,7 +54,7 @@ const Brand = styled.span`
   font-size: 0.85rem;
   font-weight: 600;
   letter-spacing: 0.08em;
-  color: #7a8773;
+  color: var(--ui-muted);
   text-transform: uppercase;
 `;
 
@@ -62,14 +62,14 @@ const Heading = styled.h1`
   font-size: clamp(2.2rem, 5vw, 3rem);
   line-height: 1.05;
   margin: 0.75rem 0;
-  color: #131313;
+  color: var(--ui-text);
 `;
 
 const Subheading = styled.p`
   margin: 0 0 2rem;
   font-size: 0.98rem;
   line-height: 1.6;
-  color: #5f665d;
+  color: var(--ui-muted);
   max-width: 360px;
 `;
 
@@ -93,7 +93,7 @@ const FieldGroup = styled.div`
 const Label = styled.label`
   font-size: 0.83rem;
   font-weight: 600;
-  color: #546151;
+  color: var(--ui-text-secondary);
 `;
 
 const Input = styled.input`
@@ -102,19 +102,19 @@ const Input = styled.input`
   box-sizing: border-box;
   padding: 0 1rem;
   border-radius: 999px;
-  border: 1px solid #d7dbd4;
+  border: 1px solid var(--ui-input-border);
   background: #ffffff;
-  color: #1f271d;
+  color: var(--ui-text);
   font-size: 0.95rem;
 
   &::placeholder {
-    color: #a0a89d;
+    color: #9ca3af;
   }
 
   &:focus {
     outline: none;
-    border-color: #8ca085;
-    box-shadow: 0 0 0 3px rgba(140, 160, 133, 0.18);
+    border-color: var(--ui-primary);
+    box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.12);
   }
 `;
 
@@ -124,7 +124,7 @@ const SubmitButton = styled.button`
   border-radius: 999px;
   height: 3rem;
   margin-top: 0.5rem;
-  background: #111111;
+  background: var(--ui-primary);
   color: #ffffff;
   font-size: 0.95rem;
   font-weight: 700;
@@ -142,7 +142,7 @@ const Divider = styled.div`
   display: flex;
   align-items: center;
   gap: 0.9rem;
-  color: #8d9488;
+  color: var(--ui-muted);
   font-size: 0.78rem;
 
   &::before,
@@ -150,21 +150,21 @@ const Divider = styled.div`
     content: '';
     flex: 1;
     height: 1px;
-    background: #d8dcd6;
+    background: var(--ui-border);
   }
 `;
 
 const InfoText = styled.p`
   margin: 0;
   font-size: 0.84rem;
-  color: #6f756d;
+  color: var(--ui-muted);
   text-align: center;
 `;
 
 const RegisterLink = styled.button`
   border: none;
   background: transparent;
-  color: #59774a;
+  color: var(--ui-text);
   font-weight: 700;
   cursor: pointer;
   padding: 0;
@@ -177,7 +177,7 @@ const RegisterLink = styled.button`
 const ForgotLink = styled.button`
   border: none;
   background: transparent;
-  color: #73816d;
+  color: var(--ui-muted);
   font-size: 0.83rem;
   font-weight: 500;
   cursor: pointer;
@@ -186,7 +186,7 @@ const ForgotLink = styled.button`
   margin: 0.85rem auto 0;
 
   &:hover {
-    color: #3f4b3b;
+    color: var(--ui-text);
     text-decoration: underline;
   }
 `;

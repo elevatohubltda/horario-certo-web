@@ -1,60 +1,21 @@
 import React, { useCallback, useEffect, useMemo } from "react";
 import BlockedAccessPage from "../components/blockedAccess";
-import styled from "styled-components";
 import "slick-carousel/slick/slick.css"; 
 import "slick-carousel/slick/slick-theme.css";
 import "../styles/index.css";
-import Topbar from "../components/topbar";
-import { Container } from "../components/container/style";
 import { CustomFilterStyle } from "../components/filter/style";
 import { getCompany, getCompanySchedulesAuth } from "../services/endpoints/company";
 import DateRangeSelector from "../components/dateRangeSelector";
 import Cookies from "js-cookie";
-import Sidebar from "../components/sidebar";
 import { isAvailableLogin, setSecureCookie } from "../util/auth";
 import { useNavigate } from "react-router-dom";
 import SortedTable from "../components/sortedTable";
 import { isMobile } from "../util/util";
 import { expiresAt } from "../util/date";
 import FilterDropdown from "../components/filterDropdown";
-import { Title } from "../components/title";
-import { Separator } from "../components/separator/style";
+import { Plus } from "lucide-react";
+import { Button as UiButton, Message, PageLayout } from "../components/admin";
 
-const PageActions = styled.div`
-  display: flex;
-  justify-content: space-between;
-  justify-content: ${({ $justifycontent = 'center' }) => $justifycontent};
-  margin: ${({ $margin = '1rem 0rem' }) => $margin};
-  gap: 0.75rem;
-  flex-wrap: wrap;
-`;
-
-const ActionButton = styled.button`
-  cursor: pointer;
-  border: none;
-  border-radius: 999px;
-  padding: 0.5rem 1.25rem;
-  font-weight: 600;
-  font-size: 0.95rem;
-  transition: background-color 0.2s ease, color 0.2s ease;
-
-  &:first-child {
-    background: transparent;
-    color: var(--color-dark);
-    border: 1px solid rgba(30, 44, 40, 0.16);
-
-    &:hover {
-      background-color: var(--color-sage);
-      color: #fff;
-      border-color: var(--color-sage);
-    }
-  }
-
-  &:last-child {
-    border-color: var(--color-dark);
-    color: var(--color-dark);
-  }
-`;
 
 export default function MyAppointments() {
   const navigate = useNavigate();
@@ -122,7 +83,7 @@ export default function MyAppointments() {
       ...services.map((service) => ({
         label: service,
         value: service,
-        color: "var(--color-olive)"
+        color: "var(--ui-muted)"
       }))
     ];
   }, [getServiceType, horarios]);
@@ -254,64 +215,13 @@ export default function MyAppointments() {
     <>
       {companyInfo && companyInfo.active === false && <BlockedAccessPage variant="owner" />}
       {companyInfo && companyInfo.active !== false &&
-        <>
-            <Topbar
-                name={companyInfo.name}
-                imagem={companyInfo.imagem}
-                whatsapp={companyInfo.whatsapp}
-                instagram={companyInfo.instagram}
-                loggedIn={true}
-            />
-            <Container
-                $width="100%"
-                $display="flex"
-                $flexdirection="column"
-                $padding={!mobile ? "0" : "1rem"}
-                $margin="0"
-                $backgroundcolor="transparent"
-                $borderradius="0"
-                $boxshadow="0"
-            >
-                <Sidebar>
-                  {loading && companyInfo === undefined &&
-                    <Container 
-                      $width="100%" 
-                      $height="100vh" 
-                      $margin="0" 
-                      $padding="0" 
-                      $backgroundcolor="none"
-                      $borderradius="0" 
-                      $border="none"
-                      $display="flex" 
-                      $justifycontent="center" 
-                      $alignitems="center"
-                      $boxshadow="none"
-                    >
-                      <span className="loader"></span>
-                    </Container>
-                  }
-                <Title
-                  $padding="1rem"
-                  $margin="1rem 0 0 0"
-                  $fontweight="600"
-                  $fontsize="2rem"
-                  $color="var(--color-dark)"
-                  $width="max-content"
-                >
-                  Agendamentos
-                </Title>
-
-                <Separator
-                  $width="calc(100% - 2rem)"
-                  $bordercolor="var(--color-olive)"
-                  $margin="0 1rem 1rem 1rem"
-                  $style="dotted"
-                />
-
-                <PageActions $margin="1rem 0 0 0" $justifycontent={!mobile ? "end" : "end"}>
-                  <ActionButton onClick={() => navigate('/criar-agendamentos')}>Criar agendamentos</ActionButton>
-                </PageActions>
-                <CustomFilterStyle $margin="0" $width="100%" $padding="1rem 0 0 0">
+        <PageLayout
+          title="Agendamentos"
+          subtitle="Horários disponíveis e agendados no período."
+          actions={<UiButton onClick={() => navigate('/criar-agendamentos')}><Plus size={16} /> Criar agendamentos</UiButton>}
+        >
+                {loading && companyInfo === undefined && <Message>Carregando...</Message>}
+                <CustomFilterStyle $margin="0 0 1rem 0" $width="100%" $padding="0">
                       {hasServiceSchedules && (
                         <FilterDropdown
                           filters={serviceFilters}
@@ -350,9 +260,7 @@ export default function MyAppointments() {
                       onChange={handleCompanySchedules}
                       showServiceColumn={hasServiceSchedules}
                     />
-                </Sidebar>
-            </Container>
-        </>
+        </PageLayout>
       }
     </>
   );

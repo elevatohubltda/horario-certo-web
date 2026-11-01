@@ -1,12 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import styled, { keyframes } from "styled-components";
 import "../styles/index.css";
-import Topbar from "../components/topbar";
-import Sidebar from "../components/sidebar";
-import { Container } from "../components/container/style";
-import { Title } from "../components/title";
+import { PageLayout } from "../components/admin";
 import { isAvailableLogin } from "../util/auth";
-import { isMobile } from "../util/util";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { Filter, TrendingUp, TrendingDown, Minus } from "lucide-react";
@@ -36,27 +32,6 @@ const PageWrapper = styled.div`
   animation: ${fadeUp} 0.35s ease both;
 `;
 
-const Header = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 1rem;
-  flex-wrap: wrap;
-`;
-
-const Greeting = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-`;
-
-const Sub = styled.p`
-  margin: 0;
-  font-size: 0.9rem;
-  color: var(--color-dark);
-  opacity: 0.6;
-`;
 
 const FilterWrapper = styled.div`position: relative;`;
 
@@ -311,7 +286,6 @@ export default function Analytics() {
   const [companyInfo] = useState(
     Cookies.get("companyInfo") ? JSON.parse(Cookies.get("companyInfo")) : undefined
   );
-  const [mobile, setMobile] = useState();
   const [period, setPeriod] = useState("últimos 7 dias");
   const [openMenu, setOpenMenu] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -394,7 +368,6 @@ export default function Analytics() {
 
   useEffect(() => {
     if (isAvailableLogin()) {
-      setMobile(isMobile());
     } else {
       navigate("/" + companyUrl);
     }
@@ -460,43 +433,10 @@ export default function Analytics() {
   return (
     <>
       {companyInfo && (
-        <>
-          <Topbar
-            name={companyInfo.name}
-            imagem={companyInfo.imagem}
-            whatsapp={companyInfo.whatsapp}
-            instagram={companyInfo.instagram}
-            loggedIn={true}
-          />
-          <Container
-            $width={!mobile ? "100%" : "100%"}
-            $display="flex"
-            $flexdirection="column"
-            $padding={!mobile ? "0" : "1rem"}
-            $margin="0"
-            $backgroundcolor="transparent"
-            $borderRadius="0"
-            $boxshadow="none"
-          >
-            <Sidebar>
-              <Container
-                $width="90%"
-                $borderRadius="0 1rem 2rem 1rem"
-                $padding="0 0 3rem 0"
-                $display="flex"
-                $flexdirection="column"
-                $backgroundcolor="transparent"
-                $boxshadow="none"
-              >
-                <PageWrapper>
-                  {/* header */}
-                  <Header>
-                    <Greeting>
-                      <Title $fontsize="2rem">Análise de Desempenho</Title>
-                      <Sub>
-                        Comparado ao mesmo período anterior · {loading ? "carregando..." : `${days} dias`}
-                      </Sub>
-                    </Greeting>
+            <PageLayout
+              title="Análise de desempenho"
+              subtitle={`Comparado ao mesmo período anterior · ${loading ? "carregando..." : `${days} dias`}`}
+              actions={
                     <FilterWrapper ref={filterRef}>
                       <FilterBtn type="button" onClick={() => setOpenMenu((p) => !p)}>
                         <Filter size={15} />
@@ -517,7 +457,9 @@ export default function Analytics() {
                         </FilterMenu>
                       )}
                     </FilterWrapper>
-                  </Header>
+              }
+            >
+                <PageWrapper>
 
                   {/* metric cards */}
                   <CardsGrid>
@@ -623,10 +565,7 @@ export default function Analytics() {
                     )}
                   </ChartsRow>
                 </PageWrapper>
-              </Container>
-            </Sidebar>
-          </Container>
-        </>
+            </PageLayout>
       )}
     </>
   );

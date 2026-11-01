@@ -1,15 +1,10 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import "../styles/index.css";
-import Topbar from "../components/topbar";
-import { Container } from "../components/container/style";
-import { Title } from "../components/title";
-import { Separator } from "../components/separator/style";
-import Sidebar from "../components/sidebar";
+import { Message, PageLayout } from "../components/admin";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { isAvailableLogin } from "../util/auth";
-import { isMobile } from "../util/util";
 import { toast } from "react-toastify";
 import { getNotificationSettings, updateNotificationSettings } from "../services/endpoints/notifications";
 
@@ -57,9 +52,10 @@ const ToggleSlider = styled.span`
 
 /* ── Card colapsável ─────────────────────────────── */
 const Card = styled.div`
-  border: 1px solid ${({ $on }) => ($on ? "var(--color-sage)" : "#e0e0e0")};
-  border-radius: 12px;
-  transition: border-color 0.25s;
+  background: #fff;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius);
+  box-shadow: var(--ui-card-shadow);
   margin-bottom: 1rem;
 `;
 
@@ -69,10 +65,17 @@ const CardHeader = styled.div`
   justify-content: space-between;
   padding: 1rem 1.2rem;
   cursor: pointer;
-  background: ${({ $on }) => ($on ? "rgba(142,168,142,0.08)" : "#fafafa")};
-  border-radius: ${({ $open }) => ($open ? "12px 12px 0 0" : "12px")};
-  transition: background 0.25s, border-radius 0.25s;
+  background: #fff;
+  border-radius: ${({ $open }) => ($open ? "var(--ui-radius) var(--ui-radius) 0 0" : "var(--ui-radius)")};
   user-select: none;
+`;
+
+// Formulário dentro do card: sem o visual de card próprio
+const InnerForm = styled.form`
+  padding: 0;
+  box-shadow: none;
+  border-radius: 0;
+  background: transparent;
 `;
 
 const CardHeaderLeft = styled.div`
@@ -82,14 +85,14 @@ const CardHeaderLeft = styled.div`
 `;
 
 const CardTitle = styled.span`
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 600;
-  color: var(--color-dark);
+  color: var(--ui-text);
 `;
 
 const CardSubtitle = styled.span`
   font-size: 0.75rem;
-  color: ${({ $on }) => ($on ? "var(--color-sage)" : "var(--color-muted)")};
+  color: ${({ $on }) => ($on ? "#16a34a" : "var(--ui-muted)")};
 `;
 
 const CollapsibleBody = styled.div`
@@ -101,9 +104,9 @@ const CollapsibleBody = styled.div`
 
 const CardBody = styled.div`
   padding: 1.2rem;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--ui-border);
   background: #fff;
-  border-radius: 0 0 12px 12px;
+  border-radius: 0 0 var(--ui-radius) var(--ui-radius);
 `;
 
 /* ── Campo com tooltip ───────────────────────────── */
@@ -116,7 +119,8 @@ const FieldRow = styled.div`
 
 const FieldLabel = styled.label`
   font-size: 0.8rem;
-  color: var(--color-earth);
+  font-weight: 500;
+  color: var(--ui-text-secondary);
 `;
 
 const TooltipWrapper = styled.div`
@@ -158,7 +162,7 @@ const TooltipBubble = styled.span`
 `;
 
 const QuestionBtn = styled.button`
-  background: var(--color-sage);
+  background: var(--ui-muted);
   color: #fff;
   border: none;
   border-radius: 50%;
@@ -176,34 +180,34 @@ const QuestionBtn = styled.button`
 
 /* ── Input e botão ───────────────────────────────── */
 const NumberInput = styled.input`
-  padding: 0.4rem 0.6rem;
-  border: 1px solid var(--color-sage);
-  border-radius: 6px;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--ui-input-border);
+  border-radius: var(--ui-radius-sm);
   background: #fff;
-  color: var(--color-dark);
+  color: var(--ui-text);
   font-size: 0.85rem;
   margin-top: 0.2rem;
   margin-bottom: 1rem;
+  max-width: 160px;
 
   &:focus {
     outline: none;
-    border-color: var(--color-dark);
+    border-color: var(--ui-primary);
   }
 `;
 
 const SaveButton = styled.button`
-  background-color: var(--color-sage);
+  background-color: var(--ui-primary);
   color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 0.55rem 1.3rem;
+  border: 1px solid var(--ui-primary);
+  border-radius: 999px;
+  padding: 0.45rem 0.95rem;
   font-size: 0.82rem;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
-  transition: opacity 0.2s;
 
-  &:hover { opacity: 0.85; }
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:hover { opacity: 0.9; }
+  &:disabled { opacity: 0.6; cursor: default; }
 `;
 
 /* ── Acesso negado ───────────────────────────────── */
@@ -212,11 +216,14 @@ const AccessDenied = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 3rem 1rem;
+  padding: 2.5rem 1rem;
   gap: 1rem;
   text-align: center;
-  color: var(--color-muted);
+  color: var(--ui-muted);
   font-size: 0.9rem;
+  background: #fff;
+  border-radius: var(--ui-radius);
+  box-shadow: var(--ui-card-shadow);
 `;
 
 /* ── Helpers ─────────────────────────────────────── */
@@ -258,13 +265,11 @@ function NotificationCard({ title, subtitle, enabled, onToggle, children }) {
 /* ── Página principal ────────────────────────────── */
 export default function Notifications() {
   const companyUrl = Cookies.get("companyUrl");
-  const companyInfo = JSON.parse(Cookies.get("companyInfo") || "{}");
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [hasAccess, setHasAccess] = useState(false);
-  const [mobile, setMobile] = useState(false);
 
   const [retentionEnabled, setRetentionEnabled] = useState(false);
   const [retentionDays, setRetentionDays] = useState(3);
@@ -272,7 +277,6 @@ export default function Notifications() {
   const [reminderHours, setReminderHours] = useState(2);
 
   useEffect(() => {
-    setMobile(isMobile());
     if (!isAvailableLogin()) {
       navigate("/" + companyUrl);
       return;
@@ -356,29 +360,12 @@ export default function Notifications() {
   };
 
   return (
-    <>
-      <Topbar {...companyInfo} loggedIn />
-
-      <Container
-        $width="100%"
-        $display="flex"
-        $flexdirection="column"
-        $padding={!mobile ? "0" : "1rem"}
-        $margin="0"
-        $backgroundcolor="transparent"
-        $borderRadius="0"
-        $boxshadow="0"
-      >
-        <Sidebar>
+    <PageLayout
+      title="Notificações"
+      subtitle="Mensagens automáticas no WhatsApp para seus clientes voltarem e não esquecerem o horário."
+    >
           {loading ? (
-            <Container
-              $width="100%" $height="100vh" $margin="0" $padding="0"
-              $backgroundcolor="none" $borderRadius="0" $border="none"
-              $display="flex" $justifycontent="center" $alignitems="center"
-              $boxshadow="none"
-            >
-              <span className="loader" />
-            </Container>
+            <Message>Carregando...</Message>
           ) : !hasAccess ? (
             <AccessDenied>
               <span style={{ fontSize: "2rem" }}>🔒</span>
@@ -394,32 +381,14 @@ export default function Notifications() {
             </AccessDenied>
           ) : (
             <>
-              <Title
-                $padding="1rem"
-                $margin="1rem 0 0 0"
-                $fontweight="600"
-                $fontsize="2rem"
-                $color="var(--color-dark)"
-                $width="max-content"
-              >
-                Notificações
-              </Title>
-
-              <Separator
-                $width="calc(100% - 2rem)"
-                $bordercolor="var(--color-olive)"
-                $margin="0 1rem 1.5rem 1rem"
-                $style="dotted"
-              />
-
-              <div style={{ padding: "0 1rem" }}>
+              <div>
                 <NotificationCard
                   title="Notificação de retorno"
                   subtitle={retentionEnabled ? "Ativado" : "Desativado"}
                   enabled={retentionEnabled}
                   onToggle={() => setRetentionEnabled((v) => !v)}
                 >
-                  <form onSubmit={handleSaveRetention}>
+                  <InnerForm onSubmit={handleSaveRetention}>
                     <FieldRow>
                       <Tooltip text="O sistema calcula a média de dias entre os agendamentos do cliente. X dias antes da data prevista para o próximo serviço, ele recebe uma mensagem via WhatsApp caso não tenha nenhum agendamento futuro." />
                       <FieldLabel htmlFor="retention-days">
@@ -441,7 +410,7 @@ export default function Notifications() {
                         {saving ? "Salvando..." : "Salvar"}
                       </SaveButton>
                     </div>
-                  </form>
+                  </InnerForm>
                 </NotificationCard>
 
                 <NotificationCard
@@ -450,7 +419,7 @@ export default function Notifications() {
                   enabled={reminderEnabled}
                   onToggle={() => setReminderEnabled((v) => !v)}
                 >
-                  <form onSubmit={handleSaveReminder}>
+                  <InnerForm onSubmit={handleSaveReminder}>
                     <FieldRow>
                       <Tooltip text="Envia uma mensagem via WhatsApp para o cliente X horas antes do horário agendado. Útil para reduzir faltas e cancelamentos de última hora." />
                       <FieldLabel htmlFor="reminder-hours">
@@ -472,13 +441,11 @@ export default function Notifications() {
                         {saving ? "Salvando..." : "Salvar"}
                       </SaveButton>
                     </div>
-                  </form>
+                  </InnerForm>
                 </NotificationCard>
               </div>
             </>
           )}
-        </Sidebar>
-      </Container>
-    </>
+    </PageLayout>
   );
 }

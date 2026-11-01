@@ -16,16 +16,16 @@ const FlatpickrStyles = createGlobalStyle`
   }
 
   .flatpickr-day.today {
-    border: 1px solid var(--color-olive);
+    border: 1px solid var(--ui-input-border);
   }
 
   .flatpickr-day.selected {
-    background: var(--color-brown);
-    border: 1px solid var(--color-brown);
+    background: var(--ui-primary);
+    border: 1px solid var(--ui-primary);
     color: #fff;
     &:hover {
-      background: var(--color-brown);
-      border: 1px solid var(--color-brown);
+      background: var(--ui-primary);
+      border: 1px solid var(--ui-primary);
     }
   }
 `;
@@ -33,13 +33,13 @@ const FlatpickrStyles = createGlobalStyle`
 const StyledFlatpickr = styled(Flatpickr)`
   padding: 0.6rem;
   background-color: #fff;
-  border: 1px solid rgb(243, 243, 243);
-  border-top: 1px solid var(--color-sage);
+  border: 1px solid var(--ui-input-border);
+  border-radius: var(--ui-radius-sm);
   font-size: 1rem;
 
   &:focus {
     outline: none;
-    border-color: var(--color-sage);
+    border-color: var(--ui-primary);
   }
 `;
 

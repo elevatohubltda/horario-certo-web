@@ -1,22 +1,17 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 import "../styles/index.css";
-import Topbar from "../components/topbar";
-import { Container } from "../components/container/style";
 import {
   getCompanyProperties,
   updateCompany,
   updateCompanyProperties
 } from "../services/endpoints/company";
 import Cookies from "js-cookie";
-import Sidebar from "../components/sidebar";
 import { isAvailableLogin, setSecureCookie } from "../util/auth";
 import { useNavigate } from "react-router-dom";
 import { isMobile } from "../util/util";
-import { Title } from "../components/title";
-import { Separator } from "../components/separator/style";
 import { ToastContainer, toast } from "react-toastify";
-import { Button } from "react-bootstrap";
+import { Button as UiButton, Message, PageLayout } from "../components/admin";
 import {
   formataNumeroTelefone,
   paraHoraCompleta,
@@ -31,31 +26,45 @@ import { expiresAt } from "../util/date";
    Styled Components
 ======================= */
 
+// Formulário num card no padrão do sistema
 const Form = styled.form`
-  width: calc(100%-2rem);
-  background: transparent;
-  box-shadow: none;
-  padding: 1rem;
+  max-width: 640px;
+  background: #fff;
+  border-radius: var(--ui-radius);
+  box-shadow: var(--ui-card-shadow);
+  padding: 1.25rem;
 `;
 
 const Label = styled.label`
-  font-size: 0.8rem;
-  color: var(--color-earth);
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--ui-text-secondary);
 `;
 
 const Input = styled.input`
-  margin-top: 1rem;
-  padding: 0.5rem;
-  border-top: 1px solid var(--color-sage);
+  margin-top: 0.3rem;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--ui-input-border);
+  border-radius: var(--ui-radius-sm);
   background-color: #fff;
-  color: var(--color-dark);
+  color: var(--ui-text);
   font-size: 0.85rem;
 
   &:focus {
     outline: none;
-    border-color: var(--color-sage);
+    border-color: var(--ui-primary);
   }
+`;
 
+const Select = styled.select`
+  min-height: 40px;
+  margin: 0.3rem 0 1rem;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--ui-input-border);
+  border-radius: var(--ui-radius-sm);
+  background-color: #fff;
+  color: var(--ui-text);
+  font-size: 0.85rem;
 `;
 
 const UploadWrapper = styled.div`
@@ -93,13 +102,12 @@ const UploadInfo = styled.span`
   color: var(--color-muted);
 `;
 
-const Actions = styled(Container)`
+const Actions = styled.div`
+  display: flex;
   justify-content: flex-end;
-  align-items: flex-end;
-  background: transparent;
-  margin: 0;
-  width: 100%;
-  box-shadow: none;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--ui-border);
 `;
 
 /* =======================
@@ -216,56 +224,10 @@ export default function Config() {
   }, [companyUrl]);
 
   return (
-    <>
-        <Topbar {...companyInfo} loggedIn />
-
-        <Container 
-          $width="100%"
-          $display="flex"
-          $flexdirection="column"
-          $padding={!mobile ? "0" : "1rem"}
-          $margin="0"
-          $backgroundcolor="transparent"
-          $borderRadius="0"
-          $boxshadow="0"
-        >
-        <Sidebar>
+    <PageLayout title="Configurações" subtitle="Dados da empresa, regras de cancelamento e modo de agenda.">
+          {(loading || !companyProperties) && <Message>Carregando...</Message>}
           {!loading && companyProperties && (
             <>
-              {loading && companyInfo === undefined &&
-                <Container 
-                  $width="100%" 
-                  $height="100vh" 
-                  $margin="0" 
-                  $padding="0" 
-                  $backgroundcolor="none"
-                  $borderRadius="0" 
-                  $border="none"
-                  $display="flex" 
-                  $justifycontent="center" 
-                  $alignitems="center"
-                  $boxshadow="none"
-                >
-                  <span className="loader"></span>
-                </Container>
-              }
-              <Title
-                $padding="1rem"
-                $margin="1rem 0 0 0"
-                $fontweight="600"
-                $fontsize="2rem"
-                $color="var(--color-dark)"
-                $width="max-content"
-              >
-                Configurações
-              </Title>
-
-              <Separator
-                $width="calc(100% - 2rem)"
-                $bordercolor="var(--color-olive)"
-                $margin="0 1rem 1rem 1rem"
-                $style="dotted"
-              />
               <Form>
                   <Label>Tempo para cancelamento:</Label>
                   <Input
@@ -279,25 +241,15 @@ export default function Config() {
                   />
 
                   <Label>Modo de agenda:</Label>
-                  <select
+                  <Select
                     value={companyProperties.scheduleMode || "PADRAO"}
                     onChange={e =>
                       handleCompanyProperties("scheduleMode", e.target.value)
                     }
-                    style={{
-                      minHeight: "40px",
-                      marginTop: "1rem",
-                      marginBottom: "1rem",
-                      padding: "0.5rem",
-                      borderTop: "1px solid var(--color-sage)",
-                      backgroundColor: "#fff",
-                      color: "var(--color-dark)",
-                      fontSize: "0.85rem"
-                    }}
                   >
                     <option value="PADRAO">Padrão (horários fixos)</option>
                     <option value="SIMPLES">Simples (abertura, fechamento e intervalos)</option>
-                  </select>
+                  </Select>
                   {companyProperties.scheduleMode === "SIMPLES" && (
                     <span style={{ fontSize: "0.75rem", color: "var(--color-muted)", marginBottom: "1rem", display: "block" }}>
                       Configure os horários de abertura e fechamento em{" "}
@@ -383,36 +335,20 @@ export default function Config() {
                     </div>
                   </UploadWrapper>
 
-                  <Separator
-                    $width="100%"
-                    $bordercolor="var(--color-dark)"
-                    $margin="1rem 0 1rem 0"
-                    $style="dotted"
-                  />
-
                   <Actions>
-                    <Button
-                      type="button"
-                      style={{
-                        backgroundColor: "var(--color-sage)",
-                        borderColor: "var(--color-sage)"
-                      }}
-                      onClick={updateCompanyProps}
-                    >
+                    <UiButton type="button" onClick={updateCompanyProps}>
                       Salvar alterações
-                    </Button>
+                    </UiButton>
                   </Actions>
               </Form>
 
             </>
           )}
-          <ToastContainer 
-            position={mobile ? "bottom-center" : "top-right"} 
-            autoClose={3000} 
+          <ToastContainer
+            position={mobile ? "bottom-center" : "top-right"}
+            autoClose={3000}
             style={mobile ? { margin: '0 5% 1rem 5%', width: '90%' } : undefined}
           />
-        </Sidebar>
-      </Container>
-    </>
+    </PageLayout>
   );
 }

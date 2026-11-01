@@ -1,15 +1,11 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 import "../styles/index.css";
-import Topbar from "../components/topbar";
-import { Container } from "../components/container/style";
 import Cookies from "js-cookie";
-import Sidebar from "../components/sidebar";
+import { PageLayout, Message } from "../components/admin";
 import { isAvailableLogin } from "../util/auth";
 import { useNavigate } from "react-router-dom";
 import { generateTimeSlots, isMobile } from "../util/util";
-import { Title } from "../components/title";
-import { Separator } from "../components/separator/style";
 import { ToastContainer, toast } from "react-toastify";
 import { Button } from "react-bootstrap";
 import {
@@ -27,53 +23,46 @@ import { getNowInBrazilDate } from "../util/date";
 ======================= */
 
 const Form = styled.form`
-  width: calc(100% - 2rem);
+  width: 100%;
   background: transparent;
   box-shadow: none;
-  padding: 1rem;
+  border: none;
+  padding: 0;
   display: flex;
   flex-direction: column;
   gap: 0;
 `;
 
 const Label = styled.label`
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 600;
-  color: #546151;
-  margin-bottom: 0.55rem;
+  color: var(--ui-text-secondary);
+  margin-bottom: 0.35rem;
   display: block;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
 `;
 
 const Input = styled.input`
-  margin-top: 0.5rem;
-  padding: 0.6rem;
-  border: 1px solid rgb(243, 243, 243);
-  border-top: 1px solid var(--color-sage);
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--ui-input-border);
+  border-radius: var(--ui-radius-sm);
   background-color: #fff;
-  color: var(--color-dark);
-  font-size: 1rem;
-  transition: all 0.2s ease;
+  color: var(--ui-text);
+  font-size: 0.9rem;
+  transition: border-color 0.2s ease;
 
   &:focus {
     outline: none;
-    border-color: var(--color-sage);
+    border-color: var(--ui-primary);
   }
 `;
 
 const Section = styled.section`
-  padding: 2rem;
-  background: linear-gradient(135deg, #ffffff 0%, #fafbf9 100%);
-  border-radius: 12px;
-  border: 1px solid #e8e8e8;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  transition: all 0.3s ease;
-
-  &:hover {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  }
+  padding: 1.5rem;
+  background: #fff;
+  border-radius: var(--ui-radius);
+  border: 1px solid var(--ui-border);
+  margin-bottom: 1.25rem;
+  box-shadow: var(--ui-card-shadow);
 
   &:last-of-type {
     margin-bottom: 0;
@@ -81,104 +70,89 @@ const Section = styled.section`
 `;
 
 const SectionTitle = styled.h3`
-  margin: 0 0 1.5rem 0;
-  font-size: 1.1rem;
+  margin: 0 0 1.25rem 0;
+  font-size: 1rem;
   font-weight: 700;
-  color: #131313;
+  color: var(--ui-text);
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  letter-spacing: 0.5px;
-  padding-bottom: 0.75rem;
-  border-bottom: 2px solid #e8e8e8;
+  gap: 0.6rem;
 
   svg {
-    color: #546151;
+    color: var(--ui-muted);
   }
 `;
 
 const FormGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 1.5rem;
+  gap: 1.25rem;
+  margin-bottom: 1rem;
 
   > div {
     display: flex;
     flex-direction: column;
-    gap: 0.35rem;
   }
 `;
 
 const ButtonsGroup = styled.div`
   display: flex;
-  gap: 0.85rem;
+  gap: 0.6rem;
   flex-wrap: wrap;
-  margin: 1.75rem 0 0 0;
+  margin: 1rem 0 0 0;
 `;
 
 const PrimaryButton = styled(Button)`
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: 0.6rem !important;
-  background: var(--color-olive) !important;
-  border: none !important;
+  gap: 0.5rem !important;
+  background: var(--ui-primary) !important;
+  border: 1px solid var(--ui-primary) !important;
   color: #fff !important;
-  padding: 0.75rem 1.35rem !important;
-  border-radius: 8px !important;
+  padding: 0.6rem 1.25rem !important;
+  border-radius: 999px !important;
   font-size: 0.9rem !important;
   font-weight: 600 !important;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
 
   &:hover:not(:disabled) {
-    background: var(--color-brown) !important;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
-  }
-
-  &:active:not(:disabled) {
-    transform: translateY(0);
+    background: #374151 !important;
   }
 
   &:disabled {
-    background: #d0d0d0 !important;
-    opacity: 0.65;
+    opacity: 0.5;
     cursor: not-allowed;
-    box-shadow: none !important;
+  }
+`;
+
+const SecondaryButton = styled(PrimaryButton)`
+  background: #fff !important;
+  border: 1px solid var(--ui-input-border) !important;
+  color: var(--ui-text) !important;
+
+  &:hover:not(:disabled) {
+    background: #f3f4f6 !important;
   }
 `;
 
 const ChipContainer = styled.div`
   display: flex;
-  gap: 0.85rem;
+  gap: 0.5rem;
   flex-wrap: wrap;
-  margin-top: 1.25rem;
-  padding-top: 1.25rem;
-  border-top: 1px solid #e8e8e8;
 `;
 
 const Chip = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  background: linear-gradient(135deg, #f0f3ed 0%, #e8ebe5 100%);
-  border: 1.5px solid #d7dbd4;
-  border-radius: 20px;
-  padding: 0.65rem 1rem;
+  gap: 0.4rem;
+  background: #f3f4f6;
+  border: 1px solid var(--ui-border);
+  border-radius: 999px;
+  padding: 0.4rem 0.8rem;
   font-size: 0.85rem;
   font-weight: 500;
-  color: #546151;
-  transition: all 0.2s ease;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
-
-  &:hover {
-    background: linear-gradient(135deg, #e8ebe5 0%, #e0e3dc 100%);
-    border-color: #c9ccc6;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
+  color: var(--ui-text-secondary);
 
   span {
     display: flex;
@@ -194,24 +168,28 @@ const RemoveButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.2rem;
-  color: #a0a89d;
-  transition: all 0.2s ease;
+  padding: 0.15rem;
+  color: var(--ui-muted);
   border-radius: 50%;
 
   &:hover {
-    color: #d9534f;
-    background: rgba(217, 83, 79, 0.1);
+    color: var(--ui-danger);
+    background: #fef2f2;
   }
+`;
+
+const ListLabel = styled.p`
+  margin: 1.25rem 0 0.75rem 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ui-text);
 `;
 
 const Actions = styled.div`
   display: flex;
   gap: 1rem;
   justify-content: flex-end;
-  margin-top: 2rem;
-  padding-top: 1.5rem;
-  border-top: 2px solid #e8e8e8;
+  margin-top: 1.5rem;
 `;
 
 const EmptyState = styled.div`
@@ -219,62 +197,28 @@ const EmptyState = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1.25rem;
-  padding: 3.5rem 2rem;
-  background: linear-gradient(180deg, #f5f7f3 0%, #eff1ed 100%);
-  border: 1px solid #e8e8e8;
-  border-radius: 12px;
+  gap: 0.75rem;
+  padding: 2.5rem 1.5rem;
+  border: 1px dashed var(--ui-input-border);
+  border-radius: var(--ui-radius);
   text-align: center;
-  color: #a0a89d;
-  margin-top: 1.5rem;
-`;
-
-const EmptyStateIcon = styled.div`
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #e8ebe5 0%, #dfe2d9 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #546151;
-  font-size: 2.2rem;
+  margin-top: 1.25rem;
+  color: var(--ui-muted);
 `;
 
 const EmptyStateText = styled.p`
   margin: 0;
   font-size: 0.95rem;
-  color: #546151;
+  color: var(--ui-text);
   font-weight: 600;
-  letter-spacing: 0.3px;
 `;
 
 const EmptyStateHint = styled.p`
-  margin: 0;
-  font-size: 0.8rem;
-  color: #a0a89d;
+  margin: 0.25rem 0 0 0;
+  font-size: 0.85rem;
+  color: var(--ui-muted);
   max-width: 320px;
   line-height: 1.5;
-`;
-
-const GenerateButton = styled(PrimaryButton)`
-  background: linear-gradient(135deg, #546151 0%, #3d4a38 100%) !important;
-  border: none !important;
-  box-shadow: 0 6px 16px rgba(84, 97, 81, 0.3) !important;
-  font-size: 1rem !important;
-  padding: 0.9rem 2rem !important;
-  font-weight: 700 !important;
-  letter-spacing: 0.3px !important;
-
-  &:hover:not(:disabled) {
-    background: linear-gradient(135deg, #3d4a38 0%, #2d3628 100%) !important;
-    box-shadow: 0 8px 24px rgba(84, 97, 81, 0.4) !important;
-    transform: translateY(-3px) !important;
-  }
-
-  &:active:not(:disabled) {
-    transform: translateY(-1px) !important;
-  }
 `;
 
 /* =======================
@@ -283,7 +227,6 @@ const GenerateButton = styled(PrimaryButton)`
 
 export default function MySchedule() {
   const companyUrl = Cookies.get("companyUrl");
-  const companyInfo = JSON.parse(Cookies.get("companyInfo"));
   const [loading, setLoading] = React.useState(true);
   const [mobile, setMobile] = React.useState();
   const navigate = useNavigate();
@@ -379,39 +322,11 @@ export default function MySchedule() {
 
   return (
     <>
-      <Topbar {...companyInfo} loggedIn />
-
-      <Container
-        $width="100%"
-        $display="flex"
-        $flexdirection="column"
-        $padding={!mobile ? "0" : "1rem"}
-        $margin="0"
-        $backgroundcolor="transparent"
-        $boxshadow="none"
-      >
-        <Sidebar>
-          {loading && <span className="loader" />}
+      <PageLayout title="Criar agendamentos" subtitle="Gere os horários disponíveis de um dia específico.">
+          {loading && <Message>Carregando...</Message>}
 
           {!loading && (
             <>
-              <Title
-                $padding="1.5rem 1rem 0.5rem 1rem"
-                $margin="1.5rem 0 0.5rem 0"
-                $fontweight="700"
-                $width="initial"
-                $fontsize="2rem"
-                $color="#131313"
-              >
-                Criar agendamentos
-              </Title>
-
-              <Separator
-                $width="calc(100% - 2rem)"
-                $bordercolor="#e8e8e8"
-                $margin="0.75rem 1rem 1.5rem 1rem"
-                $style="solid"
-              />
 
               <Form>
                 {/* SEÇÃO 1: Configuração básica */}
@@ -486,7 +401,7 @@ export default function MySchedule() {
                   
                   <FormGrid>
                     <div>
-                      <Label style={{ fontSize: '0.75rem', marginBottom: '0.45rem', textTransform: 'uppercase' }}>Início:</Label>
+                      <Label>Início:</Label>
                       <Input
                         placeholder="00:00"
                         value={maskTime(interval.start || "")}
@@ -500,7 +415,7 @@ export default function MySchedule() {
                     </div>
 
                     <div>
-                      <Label style={{ fontSize: '0.75rem', marginBottom: '0.45rem', textTransform: 'uppercase' }}>Fim:</Label>
+                      <Label>Fim:</Label>
                       <Input
                         placeholder="00:00"
                         value={maskTime(interval.end || "")}
@@ -524,27 +439,21 @@ export default function MySchedule() {
                     </PrimaryButton>
 
                     {scheduleData.interval.length > 0 && (
-                      <PrimaryButton
+                      <SecondaryButton
                         type="button"
-                        style={{
-                          backgroundColor: "#666",
-                          borderColor: "#666"
-                        }}
                         onClick={() =>
                           setScheduleData(prev => ({ ...prev, interval: [] }))
                         }
                       >
                         <Trash2 size={16} />
                         Limpar todos
-                      </PrimaryButton>
+                      </SecondaryButton>
                     )}
                   </ButtonsGroup>
 
                   {scheduleData.interval.length > 0 && (
                     <>
-                      <Label style={{ marginTop: '1.5rem', marginBottom: '1rem', fontWeight: '700', fontSize: '0.9rem', color: '#131313' }}>
-                        Intervalos adicionados:
-                      </Label>
+                      <ListLabel>Intervalos adicionados:</ListLabel>
                       <ChipContainer>
                         {scheduleData.interval.map((item, index) => (
                           <Chip key={index}>
@@ -573,19 +482,17 @@ export default function MySchedule() {
                   
                   {schedule.length === 0 && (
                     <>
-                      <ButtonsGroup style={{ marginTop: '0.5rem', marginBottom: '0' }}>
-                        <GenerateButton
+                      <ButtonsGroup style={{ marginTop: 0 }}>
+                        <PrimaryButton
                           type="button"
                           onClick={generateSchedule}
                         >
-                          <Clock size={20} />
+                          <Clock size={16} />
                           Gerar horários
-                        </GenerateButton>
+                        </PrimaryButton>
                       </ButtonsGroup>
                       <EmptyState>
-                        <EmptyStateIcon>
-                          <AlertCircle size={40} />
-                        </EmptyStateIcon>
+                        <AlertCircle size={32} />
                         <div>
                           <EmptyStateText>Nenhum horário gerado</EmptyStateText>
                           <EmptyStateHint>Clique no botão acima para gerar os horários disponíveis para agendamentos</EmptyStateHint>
@@ -597,21 +504,15 @@ export default function MySchedule() {
                   {schedule.length > 0 && (
                     <>
                       <ButtonsGroup>
-                        <PrimaryButton
+                        <SecondaryButton
                           type="button"
-                          style={{
-                            backgroundColor: "#666",
-                            borderColor: "#666"
-                          }}
                           onClick={() => setSchedule([])}
                         >
                           <Trash2 size={16} />
                           Limpar horários
-                        </PrimaryButton>
+                        </SecondaryButton>
                       </ButtonsGroup>
-                      <Label style={{ marginTop: '1.5rem', marginBottom: '1rem', fontWeight: '700', fontSize: '0.9rem', color: '#131313' }}>
-                        {schedule.length} horários gerados:
-                      </Label>
+                      <ListLabel>{schedule.length} horários gerados:</ListLabel>
                       <ChipContainer>
                         {schedule.map((item, index) => (
                           <Chip key={index}>
@@ -634,10 +535,6 @@ export default function MySchedule() {
                 <Actions>
                   <PrimaryButton
                     type="button"
-                    style={{
-                      backgroundColor: "var(--color-sage)",
-                      borderColor: "var(--color-sage)"
-                    }}
                     disabled={schedule.length === 0}
                     onClick={saveSchedule}
                   >
@@ -648,14 +545,12 @@ export default function MySchedule() {
               </Form>
               </>
             )}
-          </Sidebar>
-
-          <ToastContainer 
-            position={mobile ? "bottom-center" : "top-right"} 
+          <ToastContainer
+            position={mobile ? "bottom-center" : "top-right"}
             autoClose={3000}
             style={mobile ? { margin: '0 5% 1rem 5%', width: '90%' } : undefined}
           />
-        </Container>
+      </PageLayout>
     </>
   );
 }

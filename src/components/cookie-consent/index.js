@@ -102,7 +102,7 @@ const ScrollBody = styled.div`
   p { margin: 0 0 0.5rem; }
 
   a {
-    color: var(--color-sage, #6a9c6a);
+    color: var(--ui-primary);
     text-decoration: underline;
   }
 `;
@@ -134,8 +134,8 @@ const CheckRow = styled.label`
     height: 18px;
     min-width: 18px;
     border-radius: 5px;
-    border: 1.5px solid ${({ $checked }) => ($checked ? 'var(--color-sage, #6a9c6a)' : '#b0b8ad')};
-    background: ${({ $checked }) => ($checked ? 'var(--color-sage, #6a9c6a)' : '#fff')};
+    border: 1.5px solid ${({ $checked }) => ($checked ? 'var(--ui-primary)' : '#b0b8ad')};
+    background: ${({ $checked }) => ($checked ? 'var(--ui-primary)' : '#fff')};
     cursor: pointer;
     margin-top: 1px;
     transition: background 0.15s, border-color 0.15s;
@@ -162,7 +162,7 @@ const AcceptBtn = styled.button`
   padding: 0.7rem;
   border-radius: 10px;
   border: none;
-  background: ${({ disabled }) => disabled ? '#c8d4c6' : 'var(--color-sage, #6a9c6a)'};
+  background: ${({ disabled }) => disabled ? '#d1d5db' : 'var(--ui-primary)'};
   color: ${({ disabled }) => disabled ? '#8fa48c' : '#fff'};
   font-size: 0.88rem;
   font-weight: 700;

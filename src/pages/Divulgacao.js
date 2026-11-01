@@ -5,11 +5,7 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
-import Topbar from '../components/topbar';
-import Sidebar from '../components/sidebar';
-import { Container } from '../components/container/style';
-import { Title } from '../components/title';
-import { Separator } from '../components/separator/style';
+import { PageLayout } from '../components/admin';
 import { isAvailableLogin } from '../util/auth';
 import { getCompany } from '../services/endpoints/company';
 import { ChevronLeft, ChevronRight, Download } from 'lucide-react';
@@ -20,8 +16,8 @@ const CARD_H = Math.round(CARD_W * (1123 / 794));
 const CARD_SCALE = CARD_W / 794;
 
 const CarouselWrapper = styled.div`
-  width: calc(100% - 2rem);
-  margin: 0 1rem 3rem;
+  width: 100%;
+  margin: 0 0 3rem;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -53,15 +49,16 @@ const CardLabel = styled.span`
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #6b7a6a;
+  color: var(--ui-muted);
 `;
 
 const PreviewBox = styled.div`
   width: ${CARD_W}px;
   height: ${CARD_H}px;
   overflow: hidden;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(22, 29, 23, 0.14);
+  border-radius: var(--ui-radius-sm);
+  border: 1px solid var(--ui-border);
+  box-shadow: var(--ui-card-shadow);
   flex-shrink: 0;
 `;
 
@@ -81,16 +78,15 @@ const DownloadBtn = styled.button`
   height: 2.4rem;
   border-radius: 999px;
   border: none;
-  background: var(--color-dark);
+  background: var(--ui-primary);
   color: #fff;
-  font-size: 0.82rem;
-  font-weight: 700;
+  font-size: 0.85rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: transform 0.18s, box-shadow 0.18s;
+  transition: background 0.15s;
 
   &:hover:not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(22, 29, 23, 0.22);
+    background: #374151;
   }
   &:disabled {
     opacity: 0.55;
@@ -110,9 +106,9 @@ const ArrowBtn = styled.button`
   width: 2.25rem;
   height: 2.25rem;
   border-radius: 50%;
-  border: 1px solid #d4d9d1;
+  border: 1px solid var(--ui-input-border);
   background: #fff;
-  color: var(--color-dark);
+  color: var(--ui-text);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -121,15 +117,14 @@ const ArrowBtn = styled.button`
   transition: background 0.15s, box-shadow 0.15s;
 
   &:hover:not(:disabled) {
-    background: #f0f4ee;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    background: #f3f4f6;
   }
   &:disabled { opacity: 0.3; cursor: default; }
 `;
 
 const Counter = styled.span`
   font-size: 0.82rem;
-  color: #6b7a6a;
+  color: var(--ui-muted);
   font-weight: 500;
   min-width: 4rem;
 `;
@@ -141,7 +136,7 @@ const Dot = styled.button`
   border-radius: 999px;
   border: none;
   padding: 0;
-  background: ${p => p.$active ? 'var(--color-sage)' : '#c8cec4'};
+  background: ${p => p.$active ? 'var(--ui-primary)' : '#d1d5db'};
   cursor: pointer;
   transition: width 0.2s, background 0.2s;
 `;
@@ -1003,7 +998,6 @@ export default function Divulgacao() {
   const displayUrl = `horariocerto.elevatohub.com.br/${companyUrl}`;
 
   const [companyName, setCompanyName] = useState('');
-  const [companyInfo, setCompanyInfo] = useState({});
   const [downloading, setDownloading] = useState(null);
   const [offset, setOffset] = useState(0);
   const [visibleCount, setVisibleCount] = useState(window.innerWidth < 768 ? 1 : 3);
@@ -1035,7 +1029,6 @@ export default function Divulgacao() {
     getCompany(companyUrl)
       .then(res => {
         setCompanyName(res.data.name || companyUrl);
-        setCompanyInfo(res.data);
       })
       .catch(() => setCompanyName(companyUrl));
   }, [companyUrl, navigate]);
@@ -1063,39 +1056,7 @@ export default function Divulgacao() {
 
   return (
     <>
-      <Topbar
-        name={companyInfo.name}
-        imagem={companyInfo.imagem}
-        whatsapp={companyInfo.whatsapp}
-        instagram={companyInfo.instagram}
-      />
-      <Container
-        $width="100%"
-        $display="flex"
-        $flexdirection="column"
-        $backgroundcolor="#fff"
-        $boxshadow="none"
-        $margin="0"
-      >
-        <Sidebar>
-          <Title
-            $padding="1rem"
-            $margin="1rem 0 0 0"
-            $fontweight="600"
-            $fontsize="2rem"
-            $color="var(--color-dark)"
-            $width="max-content"
-          >
-            Divulgação
-          </Title>
-
-          <Separator
-            $width="calc(100% - 2rem)"
-            $bordercolor="var(--color-olive)"
-            $margin="0 1rem 1.5rem 1rem"
-            $style="dotted"
-          />
-
+      <PageLayout title="Divulgação" subtitle="Baixe cartazes com o QR Code da sua página de agendamento.">
           <CarouselWrapper ref={wrapperRef}>
             {/* Controles */}
             <NavRow>
@@ -1142,8 +1103,7 @@ export default function Divulgacao() {
               })}
             </CarouselTrack>
           </CarouselWrapper>
-        </Sidebar>
-      </Container>
+      </PageLayout>
 
       {/* Layouts em tamanho real para captura — fora da tela */}
       <HiddenArea>

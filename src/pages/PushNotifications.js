@@ -1,15 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import "../styles/index.css";
-import Topbar from "../components/topbar";
-import { Container } from "../components/container/style";
-import { Title } from "../components/title";
-import { Separator } from "../components/separator/style";
-import Sidebar from "../components/sidebar";
+import { Message, PageLayout } from "../components/admin";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { isAvailableLogin } from "../util/auth";
-import { isMobile } from "../util/util";
 import { isMobileApp } from "../services/api";
 import { toast } from "react-toastify";
 import {
@@ -60,10 +55,11 @@ const ToggleSlider = styled.span`
 
 /* ── Card ────────────────────────────────────────── */
 const Card = styled.div`
-  border: 1px solid ${({ $on }) => ($on ? "var(--color-sage)" : "#e0e0e0")};
-  border-radius: 12px;
+  background: #fff;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius);
+  box-shadow: var(--ui-card-shadow);
   margin-bottom: 1rem;
-  transition: border-color 0.25s;
 `;
 
 const CardHeader = styled.div`
@@ -71,8 +67,8 @@ const CardHeader = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 1rem 1.2rem;
-  background: ${({ $on }) => ($on ? "rgba(142,168,142,0.08)" : "#fafafa")};
-  border-radius: 12px;
+  background: #fff;
+  border-radius: var(--ui-radius) var(--ui-radius) 0 0;
 `;
 
 const CardHeaderLeft = styled.div`
@@ -82,48 +78,48 @@ const CardHeaderLeft = styled.div`
 `;
 
 const CardTitle = styled.span`
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 600;
-  color: var(--color-dark);
+  color: var(--ui-text);
 `;
 
 const CardSubtitle = styled.span`
   font-size: 0.75rem;
-  color: ${({ $on }) => ($on ? "var(--color-sage)" : "var(--color-muted)")};
+  color: ${({ $on }) => ($on ? "#16a34a" : "var(--ui-muted)")};
 `;
 
 const CardBody = styled.div`
   padding: 1.2rem;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--ui-border);
   background: #fff;
-  border-radius: 0 0 12px 12px;
+  border-radius: 0 0 var(--ui-radius) var(--ui-radius);
   font-size: 0.82rem;
-  color: var(--color-earth);
+  color: var(--ui-text-secondary);
   line-height: 1.6;
 `;
 
 const ExampleBlock = styled.div`
-  background: #f5f5f7;
-  border-radius: 8px;
+  background: #f9fafb;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-sm);
   padding: 0.8rem 1rem;
   margin: 0.6rem 0;
   font-size: 0.78rem;
-  color: var(--color-dark);
+  color: var(--ui-text);
 `;
 
 const SaveButton = styled.button`
-  background-color: var(--color-sage);
+  background-color: var(--ui-primary);
   color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 0.55rem 1.3rem;
+  border: 1px solid var(--ui-primary);
+  border-radius: 999px;
+  padding: 0.45rem 0.95rem;
   font-size: 0.82rem;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
-  transition: opacity 0.2s;
 
-  &:hover { opacity: 0.85; }
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:hover { opacity: 0.9; }
+  &:disabled { opacity: 0.6; cursor: default; }
 `;
 
 /* ── Acesso restrito (fora do app) ───────────────── */
@@ -132,30 +128,30 @@ const InfoBlock = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 3rem 1rem;
+  padding: 2.5rem 1rem;
   gap: 1rem;
   text-align: center;
-  color: var(--color-muted);
+  color: var(--ui-muted);
   font-size: 0.9rem;
+  background: #fff;
+  border-radius: var(--ui-radius);
+  box-shadow: var(--ui-card-shadow);
 `;
 
 const PUSH_PERMISSION_CALLBACK = "__onPushPermissionResult";
 
 export default function PushNotifications() {
   const companyUrl = Cookies.get("companyUrl");
-  const companyInfo = JSON.parse(Cookies.get("companyInfo") || "{}");
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [mobile, setMobile] = useState(false);
   const [enabled, setEnabled] = useState(false);
   const pendingTokenRef = useRef(null);
 
   const inApp = isMobileApp();
 
   useEffect(() => {
-    setMobile(isMobile());
     if (!isAvailableLogin()) {
       navigate("/" + companyUrl);
       return;
@@ -249,29 +245,9 @@ export default function PushNotifications() {
   };
 
   return (
-    <>
-      <Topbar {...companyInfo} loggedIn />
-
-      <Container
-        $width="100%"
-        $display="flex"
-        $flexdirection="column"
-        $padding={!mobile ? "0" : "1rem"}
-        $margin="0"
-        $backgroundcolor="transparent"
-        $borderRadius="0"
-        $boxshadow="0"
-      >
-        <Sidebar>
+    <PageLayout title="Notificações push" subtitle="Avisos no seu celular sempre que algo acontecer na sua agenda.">
           {loading ? (
-            <Container
-              $width="100%" $height="100vh" $margin="0" $padding="0"
-              $backgroundcolor="none" $borderRadius="0" $border="none"
-              $display="flex" $justifycontent="center" $alignitems="center"
-              $boxshadow="none"
-            >
-              <span className="loader" />
-            </Container>
+            <Message>Carregando...</Message>
           ) : !inApp ? (
             <InfoBlock>
               <span style={{ fontSize: "2rem" }}>📱</span>
@@ -283,25 +259,7 @@ export default function PushNotifications() {
             </InfoBlock>
           ) : (
             <>
-              <Title
-                $padding="1rem"
-                $margin="1rem 0 0 0"
-                $fontweight="600"
-                $fontsize="2rem"
-                $color="var(--color-dark)"
-                $width="max-content"
-              >
-                Notificações Push
-              </Title>
-
-              <Separator
-                $width="calc(100% - 2rem)"
-                $bordercolor="var(--color-olive)"
-                $margin="0 1rem 1.5rem 1rem"
-                $style="dotted"
-              />
-
-              <div style={{ padding: "0 1rem" }}>
+              <div>
                 <Card $on={enabled}>
                   <CardHeader $on={enabled}>
                     <CardHeaderLeft>
@@ -357,8 +315,6 @@ export default function PushNotifications() {
               </div>
             </>
           )}
-        </Sidebar>
-      </Container>
-    </>
+    </PageLayout>
   );
 }

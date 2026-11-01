@@ -37,7 +37,7 @@ const hasWhatsAppFeature = (feature) =>
 const SidebarContainer = styled.div`
   width: ${(props) => (props.$isOpen ? "220px" : "70px")};
   height: 100%;
-  color: var(--color-dark);
+  color: var(--ui-text);
   transition: width 0.5s ease;
   font-size: 12px;
   display: flex;
@@ -77,9 +77,9 @@ const MenuItem = styled.li`
   transition: all 0.2s ease;
   font-size: ${(props) => (props.$isActive ? "13px" : "12px")};
   color: ${(props) =>
-    props.$isActive ? "#fff" : "var(--color-dark)"};
+    props.$isActive ? "#fff" : "var(--ui-text)"};
   background-color: ${(props) =>
-    props.$isActive ? "var(--color-sage)" : "transparent"};
+    props.$isActive ? "var(--ui-primary)" : "transparent"};
   border-left: none;
 
   svg {
@@ -89,8 +89,8 @@ const MenuItem = styled.li`
 
   &:hover {
     background-color: ${(props) =>
-      props.$isActive ? "var(--color-sage)" : "rgba(142, 152, 142, 0.15)"};
-    color: ${(props) => (props.$isActive ? "#fff" : "var(--color-dark)")};
+      props.$isActive ? "var(--ui-primary)" : "#f3f4f6"};
+    color: ${(props) => (props.$isActive ? "#fff" : "var(--ui-text)")};
   }
 `;
 

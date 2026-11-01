@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 const Page = styled.main`
   min-height: 100vh;
-  background: #f5f6f3;
+  background: var(--ui-page-bg);
   padding: 2.5rem 1rem 4rem;
   box-sizing: border-box;
 `;
@@ -14,7 +14,7 @@ const Container = styled.div`
   margin: 0 auto;
   background: #fff;
   border-radius: 14px;
-  border: 1px solid #e0e4dc;
+  border: 1px solid var(--ui-border);
   padding: 2.4rem 2.8rem;
   box-shadow: 0 2px 16px rgba(0,0,0,0.06);
 
@@ -26,7 +26,7 @@ const Container = styled.div`
 const BackBtn = styled.button`
   border: none;
   background: none;
-  color: var(--color-sage, #6a9c6a);
+  color: var(--ui-text);
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
@@ -43,38 +43,38 @@ const Logo = styled.p`
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.08em;
-  color: var(--color-sage, #6a9c6a);
+  color: var(--ui-text);
   text-transform: uppercase;
   margin: 0 0 0.5rem;
 `;
 
 const H1 = styled.h1`
   font-size: 1.7rem;
-  color: #1a2118;
+  color: var(--ui-text);
   margin: 0 0 0.4rem;
 `;
 
 const Updated = styled.p`
   font-size: 0.78rem;
-  color: #8a9087;
+  color: var(--ui-muted);
   margin: 0 0 2rem;
 `;
 
 const Hr = styled.hr`
   border: none;
-  border-top: 1px solid #e8ece5;
+  border-top: 1px solid var(--ui-border);
   margin: 1.8rem 0;
 `;
 
 const H2 = styled.h2`
   font-size: 1.05rem;
-  color: #1a2118;
+  color: var(--ui-text);
   margin: 0 0 0.6rem;
 `;
 
 const P = styled.p`
   font-size: 0.88rem;
-  color: #4a5148;
+  color: var(--ui-text-secondary);
   line-height: 1.7;
   margin: 0 0 0.8rem;
 `;
@@ -85,7 +85,7 @@ const Ul = styled.ul`
 
   li {
     font-size: 0.88rem;
-    color: #4a5148;
+    color: var(--ui-text-secondary);
     line-height: 1.7;
     margin-bottom: 0.25rem;
   }
@@ -93,8 +93,8 @@ const Ul = styled.ul`
 
 const Tag = styled.span`
   display: inline-block;
-  background: #eef4ee;
-  color: #4a7a4a;
+  background: #f3f4f6;
+  color: var(--ui-text-secondary);
   border-radius: 6px;
   padding: 0.15rem 0.55rem;
   font-size: 0.78rem;
@@ -104,8 +104,8 @@ const Tag = styled.span`
 `;
 
 const ContactBox = styled.div`
-  background: #f5f8f4;
-  border: 1px solid #dce5d8;
+  background: #f9fafb;
+  border: 1px solid var(--ui-border);
   border-radius: 10px;
   padding: 1rem 1.2rem;
   margin-top: 0.5rem;
@@ -113,12 +113,12 @@ const ContactBox = styled.div`
   p {
     margin: 0;
     font-size: 0.86rem;
-    color: #4a5148;
+    color: var(--ui-text-secondary);
     line-height: 1.7;
   }
 
   strong {
-    color: #1a2118;
+    color: var(--ui-text);
   }
 `;
 
@@ -316,9 +316,9 @@ export default function TermosDeUso() {
             <strong>Empresa:</strong> Elevatohub<br />
             <strong>Plataforma:</strong> horariocerto.elevatohub.com.br
           </p>
-          <p style={{ marginTop: '0.6rem', fontSize: '0.78rem', color: '#8a9087' }}>
+          <p style={{ marginTop: '0.6rem', fontSize: '0.78rem', color: 'var(--ui-muted)' }}>
             Autoridade Nacional de Proteção de Dados (ANPD):{' '}
-            <span style={{ color: 'var(--color-sage, #6a9c6a)' }}>gov.br/anpd</span>
+            <span style={{ color: 'var(--ui-text)' }}>gov.br/anpd</span>
           </p>
         </ContactBox>
       </Container>

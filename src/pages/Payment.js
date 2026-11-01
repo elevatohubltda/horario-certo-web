@@ -2,13 +2,11 @@ import React, { useCallback, useEffect, useState } from "react";
 import styled, { keyframes } from "styled-components";
 import Cookies from "js-cookie";
 
-import Sidebar from "../components/sidebar";
-import Topbar from "../components/topbar";
 import { Container } from "../components/container/style";
+import { PageLayout, Button as UiButton } from "../components/admin";
 import { Button } from "../components/button";
 import { Separator } from "../components/separator/style";
 import { Title } from "../components/title";
-import { isMobile } from "../util/util";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   getPayment,
@@ -38,10 +36,11 @@ const InvoiceCard = styled(Container)`
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: ${(props) => props.background};
-  border-radius: ${(props) => props.borderradius || "1rem"};
+  background: #fff;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius);
   padding: 1.25rem;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--ui-card-shadow);
 
   @media (max-width: 768px) {
     height: auto;
@@ -49,8 +48,8 @@ const InvoiceCard = styled(Container)`
 `;
 
 const PageGrid = styled.div`
-  width: calc(100% - 2rem);
-  margin: 0 1rem 1rem;
+  width: 100%;
+  margin: 0 0 1rem;
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
   gap: 1rem;
@@ -60,13 +59,6 @@ const PageGrid = styled.div`
   }
 `;
 
-const ActionsRow = styled.div`
-  width: calc(100% - 2rem);
-  margin: 0 1rem 1rem;
-  display: flex;
-  justify-content: flex-end;
-`;
-
 const SectionCard = styled(Container)`
   width: 100%;
   margin: 0;
@@ -74,9 +66,10 @@ const SectionCard = styled(Container)`
   display: flex;
   flex-direction: column;
   padding: 1.25rem;
-  background: ${(props) => props.background || "#fff"};
-  border-radius: ${(props) => props.borderradius || "1rem"};
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+  background: #fff;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius);
+  box-shadow: var(--ui-card-shadow);
 
   @media (max-width: 768px) {
     height: auto;
@@ -259,8 +252,8 @@ const ButtonSkeleton = styled.div`
 const CardActionButton = styled.button`
   width: fit-content;
   background: ${(props) => (props.$outline ? "transparent" : "#111827")};
-  color: ${(props) => (props.$outline ? "var(--color-dark)" : "#fff")};
-  border: 1px solid ${(props) => (props.$outline ? "var(--color-dark)" : "#111827")};
+  color: ${(props) => (props.$outline ? "var(--ui-text)" : "#fff")};
+  border: 1px solid ${(props) => (props.$outline ? "var(--ui-input-border)" : "#111827")};
   border-radius: 999px;
   padding: 0.5rem 1rem;
   font-size: 0.8rem;
@@ -302,9 +295,7 @@ const BadgeTrial = styled.div`
 /* ================= PAGE ================= */
 
 function Payment() {
-  const companyInfo = JSON.parse(Cookies.get("companyInfo"));
   const companyUrl = Cookies.get("companyUrl");
-  const mobile = isMobile();
   const navigate = useNavigate();
 
   const [paymentProps, setPaymentProps] = useState(null);
@@ -497,76 +488,25 @@ function Payment() {
 
   return (
     <>
-      <Topbar {...companyInfo} loggedIn />
-
-      <Container
-        $width="100%"
-        $display="flex"
-        $flexdirection="column"
-        $backgroundcolor="#fff"
-        $boxshadow="none"
-        $margin="0"
-      >
-        <Sidebar>
-          <Title
-            $padding="1rem"
-            $margin="1rem 0 0 0"
-            $fontweight="600"
-            $fontsize="2rem"
-            $color="var(--color-dark)"
-            $width="max-content"
-          >
-            Assinatura
-          </Title>
-
-          <Separator
-            $width="calc(100% - 2rem)"
-            $bordercolor="var(--color-olive)"
-            $margin="0 1rem 1rem 1rem"
-            $style="dotted"
-          />
-
-          <ActionsRow>
-            <Button
-              variant="confirm"
-              style={{
-                fontSize: "0.8rem",
-                padding: "0.5rem 1rem",
-                borderRadius: "999px",
-                background: "transparent",
-                color: "var(--color-dark)",
-                border: "1px solid var(--color-dark)",
-              }}
-              onClick={() => navigate("/mudar-assinatura")}
-            >
+      <PageLayout
+        title="Assinatura"
+        subtitle="Acompanhe seu plano, faturas e forma de pagamento."
+        actions={
+          <>
+            <UiButton $variant="outline" onClick={() => navigate("/mudar-assinatura")}>
               Mudar assinatura
-            </Button>
+            </UiButton>
             {showOverdueButton && (
-              <Button
-                variant="confirm"
-                style={{
-                  fontSize: "0.8rem",
-                  padding: "0.5rem 1rem",
-                  borderRadius: "999px",
-                  background: "#dc2626",
-                  color: "#fff",
-                  border: "none",
-                  opacity: isGeneratingOverdue ? 0.7 : 1,
-                }}
-                onClick={handleGenerateOverdueInvoice}
-                disabled={isGeneratingOverdue}
-              >
+              <UiButton $variant="danger" onClick={handleGenerateOverdueInvoice} disabled={isGeneratingOverdue}>
                 {isGeneratingOverdue ? "Gerando..." : "Gerar fatura em atraso"}
-              </Button>
+              </UiButton>
             )}
-          </ActionsRow>
+          </>
+        }
+      >
 
           <PageGrid>
-            <InvoiceCard
-              width="100%"
-              background="#ffffff"
-              borderradius={mobile ? "1rem" : "0 1rem 2rem 1rem"}
-            >
+            <InvoiceCard width="100%">
               {loading ? (
                 <>
                   <Skeleton height="1.2rem" width="100%" />
@@ -774,7 +714,7 @@ function Payment() {
               )}
             </InvoiceCard>
 
-            <SectionCard background="#fff" borderradius="1rem">
+            <SectionCard>
               <Title $fontsize="1.1rem" $margin="0 0 1rem 0">
                 Ultimas faturas
               </Title>
@@ -816,7 +756,7 @@ function Payment() {
               )}
             </SectionCard>
 
-            <FullWidthCard background="#fff" borderradius="1rem">
+            <FullWidthCard>
               <Title $fontsize="1.1rem" $margin="0 0 1rem 0">
                 Forma de pagamento
               </Title>
@@ -877,7 +817,7 @@ function Payment() {
               )}
             </FullWidthCard>
 
-            <FullWidthCard background="#fff" borderradius="1rem">
+            <FullWidthCard>
               <Title $fontsize="1.1rem" $margin="0 0 1rem 0">
                 Informacoes do plano
               </Title>
@@ -952,8 +892,7 @@ function Payment() {
               </FeatureList>
             </FullWidthCard>
           </PageGrid>
-        </Sidebar>
-      </Container>
+      </PageLayout>
     </>
   );
 }

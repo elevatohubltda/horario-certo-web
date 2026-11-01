@@ -351,7 +351,7 @@ const SortedTable = ({ data, loading, isMobile, onChange, showServiceColumn = tr
     if (loading) {
         return (
             <div className="loading-slide-dashboard">
-                <ThreeDots height={20} width={60} color="var(--color-sage)" />
+                <ThreeDots height={20} width={60} color="#111827" />
                 <p>Buscando horários...</p>
             </div>
         );
@@ -416,7 +416,7 @@ const SortedTable = ({ data, loading, isMobile, onChange, showServiceColumn = tr
                                     </Button>
                                 </>
                             )}
-                            <span style={{ color: 'var(--color-dark)', fontSize: '0.9rem' }}>
+                            <span style={{ color: 'var(--ui-text)', fontSize: '0.9rem' }}>
                                 {selectedSchedules.length} selecionado{selectedSchedules.length === 1 ? '' : 's'}
                             </span>
                         </div>
@@ -491,7 +491,7 @@ const SortedTable = ({ data, loading, isMobile, onChange, showServiceColumn = tr
                                         {serviceType && (
                                             <Tag
                                                 $color="#fff"
-                                                $background="var(--color-olive)"
+                                                $background="var(--ui-text-secondary)"
                                                 $texttransform="uppercase"
                                                 $margin="0 auto"
                                             >
@@ -577,7 +577,7 @@ const SortedTable = ({ data, loading, isMobile, onChange, showServiceColumn = tr
                             <Title
                                 $fontweight="600"
                                 $fontsize="1.1rem"
-                                $color="var(--color-brown)"
+                                $color="var(--ui-primary)"
                                 $texttransform="uppercase"
                             >
                                 Copiar selecionados
@@ -585,7 +585,7 @@ const SortedTable = ({ data, loading, isMobile, onChange, showServiceColumn = tr
 
                             <Separator
                                 $width="100%"
-                                $bordercolor="var(--color-olive)"
+                                $bordercolor="var(--ui-border)"
                                 $margin="0.75rem 0 1rem 0"
                                 $style="dotted"
                             />
@@ -627,7 +627,7 @@ const SortedTable = ({ data, loading, isMobile, onChange, showServiceColumn = tr
                         <Title
                             $fontweight="600"
                             $fontsize="1.1rem"
-                            $color="var(--color-brown)"
+                            $color="var(--ui-primary)"
                             $texttransform="uppercase"
                         >
                             Altere o agendamento
@@ -635,7 +635,7 @@ const SortedTable = ({ data, loading, isMobile, onChange, showServiceColumn = tr
 
                         <Separator
                             $width="100%"
-                            $bordercolor="var(--color-olive)"
+                            $bordercolor="var(--ui-border)"
                             $margin="0.75rem 0 2rem 0"
                             $style="dotted"
                         />
@@ -686,7 +686,7 @@ const SortedTable = ({ data, loading, isMobile, onChange, showServiceColumn = tr
                         <Title
                             $fontweight="600"
                             $fontsize="1.1rem"
-                            $color="var(--color-brown)"
+                            $color="var(--ui-primary)"
                             $texttransform="uppercase"
                         >
                             Agendamento manual
@@ -694,7 +694,7 @@ const SortedTable = ({ data, loading, isMobile, onChange, showServiceColumn = tr
 
                         <Separator
                             $width="100%"
-                            $bordercolor="var(--color-olive)"
+                            $bordercolor="var(--ui-border)"
                             $margin="0.75rem 0 2rem 0"
                             $style="dotted"
                         />

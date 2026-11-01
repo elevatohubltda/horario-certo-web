@@ -17,8 +17,8 @@ const StepCircle = styled.div`
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  border: 2px solid ${props => props.completed || props.active ? 'var(--color-sage)' : '#ccc'};
-  background-color: ${props => props.completed ? 'var(--color-sage)' : props.active ? 'var(--color-sage)' : '#fff'};
+  border: 2px solid ${props => props.completed || props.active ? 'var(--ui-primary)' : '#ccc'};
+  background-color: ${props => props.completed ? 'var(--ui-primary)' : props.active ? 'var(--ui-primary)' : '#fff'};
   color: #fff;
   display: flex;
   align-items: center;

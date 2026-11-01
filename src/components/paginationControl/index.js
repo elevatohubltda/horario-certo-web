@@ -85,13 +85,13 @@ const PageButton = styled.button`
   justify-content: center;
 
   border-radius: 6px;
-  border: 1px solid var(--color-olive);
+  border: 1px solid var(--ui-input-border);
 
   background-color: ${({ active }) =>
-    active ? "var(--color-sage)" : "transparent"};
+    active ? "var(--ui-primary)" : "transparent"};
 
   color: ${({ active }) =>
-    active ? "#fff" : "var(--color-dark)"};
+    active ? "#fff" : "var(--ui-text)"};
 
   cursor: pointer;
   font-size: 13px;
@@ -106,8 +106,8 @@ const PageButton = styled.button`
 
   &:hover:not(:disabled) {
     background-color: ${({ active }) =>
-      active ? "var(--color-sage)" : "rgba(142, 152, 142, 0.2)"};
-    border-color: var(--color-sage);
+      active ? "var(--ui-primary)" : "#f3f4f6"};
+    border-color: var(--ui-primary);
   }
 
   &:disabled {

@@ -1,56 +1,27 @@
-import React, { useEffect } from "react";
+import React from "react";
 import styled from "styled-components";
 import "../styles/index.css";
-import Topbar from "../components/topbar";
-import { Container } from "../components/container/style";
-import Cookies from "js-cookie";
-import Sidebar from "../components/sidebar";
-import { isAvailableLogin } from "../util/auth";
-import { useNavigate } from "react-router-dom";
-import { isMobile } from "../util/util";
-import { Title } from "../components/title";
-import { Separator } from "../components/separator/style";
 import { ToastContainer, toast } from "react-toastify";
-import { Button } from "react-bootstrap";
 import { updatePassword } from "../services/endpoints/user";
+import { isMobile } from "../util/util";
+import { Button, Card, Field, Input, PageLayout } from "../components/admin";
 
 /* =======================
    Styled Components
 ======================= */
 
-const Form = styled.form`
-  width: calc(100% - 2rem);
-  background: transparent;
-  box-shadow: none;
-  padding: 1rem;
+const FormCard = styled(Card)`
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 1.25rem;
 `;
 
-const Label = styled.label`
-  font-size: 0.8rem;
-  color: var(--color-earth);
-`;
-
-const Input = styled.input`
-  margin-top: 1rem;
-  padding: 0.6rem;
-  border-top: 1px solid var(--color-sage);
-  background-color: #fff;
-  color: var(--color-dark);
-  font-size: 0.85rem;
-
-  &:focus {
-    outline: none;
-    border-color: var(--color-dark);
-  }
-`;
-
-const Actions = styled(Container)`
+const Actions = styled.div`
+  display: flex;
   justify-content: flex-end;
-  align-items: flex-end;
-  background: transparent;
-  margin: 0;
-  width: 100%;
-  box-shadow: none;
+  margin-top: 0.25rem;
 `;
 
 /* =======================
@@ -58,12 +29,8 @@ const Actions = styled(Container)`
 ======================= */
 
 export default function ChangePassword() {
-  const companyUrl = Cookies.get("companyUrl");
-  // Admin não tem empresa: sem companyInfo, o topo aparece sem os dados do estabelecimento
-  const companyInfo = Cookies.get("companyInfo") ? JSON.parse(Cookies.get("companyInfo")) : {};
-  const [loading, setLoading] = React.useState(true);
-  const [mobile, setMobile] = React.useState();
-  const navigate = useNavigate();
+  const mobile = isMobile();
+  const [saving, setSaving] = React.useState(false);
   const [password, setPassword] = React.useState({
     stepOne: "",
     stepTwo: ""
@@ -79,15 +46,19 @@ export default function ChangePassword() {
       return;
     }
 
+    setSaving(true);
     try {
       const response = await updatePassword({ password: password.stepOne });
       if (response.status === 200) {
         toast.success("Senha alterada com sucesso!");
+        setPassword({ stepOne: "", stepTwo: "" });
       } else {
         toast.error(response.data);
       }
     } catch (error) {
-      toast.error(error);
+      toast.error(error?.response?.data || "Não foi possível alterar a senha.");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -98,119 +69,42 @@ export default function ChangePassword() {
     }));
   };
 
-  useEffect(() => {
-    if (isAvailableLogin()) {
-      setMobile(isMobile());
-      setLoading(false);
-    } else {
-      navigate(companyUrl ? "/" + companyUrl : "/login");
-    }
-  }, [companyUrl, navigate]);
-
   return (
-    <>
-      <Topbar {...companyInfo} loggedIn />
-
-      <Container
-        $width="100%"
-        $display="flex"
-        $flexdirection="column"
-        $padding={!mobile ? "0" : "1rem"}
-        $margin="0"
-        $backgroundcolor="transparent"
-        $borderRadius="0"
-        $boxshadow="0"
-      >
-        <Sidebar>
-          {loading &&
-            <Container 
-              $width="100%" 
-              $height="100vh" 
-              $margin="0" 
-              $padding="0" 
-              $backgroundcolor="none"
-              $borderRadius="0" 
-              $border="none"
-              $display="flex" 
-              $justifycontent="center" 
-              $alignitems="center"
-              $boxshadow="none"
-            >
-              <span className="loader"></span>
-            </Container>
-          }
-          {!loading && (
-            <>
-              <Title
-                $padding="1rem"
-                $margin="1rem 0 0 0"
-                $fontweight="600"
-                $fontsize="2rem"
-                $color="var(--color-dark)"
-                $width="max-content"
-              >
-                Alterar Senha
-              </Title>
-
-              <Separator
-                $width="calc(100% - 2rem)"
-                $bordercolor="var(--color-olive)"
-                $margin="0 1rem 1rem 1rem"
-                $style="dotted"
-              />
-
-              <Form>
-                <Label>Nova senha:</Label>
-                <Input
-                  type="password"
-                  placeholder="Digite a nova senha"
-                  value={password.stepOne}
-                  onChange={e =>
-                    handlePassword("stepOne", e.target.value)
-                  }
-                />
-
-                <Label>Confirme a nova senha:</Label>
-                <Input
-                  type="password"
-                  placeholder="Digite a nova senha novamente"
-                  value={password.stepTwo}
-                  onChange={e =>
-                    handlePassword("stepTwo", e.target.value)
-                  }
-                />
-
-                <Separator
-                  $width="100%"
-                  $bordercolor="var(--color-dark)"
-                  $margin="1rem 0 1rem 0"
-                  $style="dotted"
-                />
-
-                <Actions>
-                  <Button
-                    style={{
-                      backgroundColor: "var(--color-sage)",
-                      borderColor: "var(--color-sage)",
-                      fontSize: "0.8rem",
-                      padding: "0.5rem 1rem"
-                    }}
-                    onClick={update}
-                  >
-                    Salvar alterações
-                  </Button>
-                </Actions>
-              </Form>
-            </>
-          )}
-
-          <ToastContainer 
-            position={mobile ? "bottom-center" : "top-right"} 
-            autoClose={3000} 
-            style={mobile ? { margin: '0 5% 1rem 5%', width: '90%' } : undefined}
+    <PageLayout title="Alterar senha" subtitle="Defina uma nova senha para o seu acesso.">
+      <FormCard>
+        <Field>
+          Nova senha
+          <Input
+            type="password"
+            placeholder="Digite a nova senha"
+            value={password.stepOne}
+            onChange={e => handlePassword("stepOne", e.target.value)}
           />
-        </Sidebar>
-      </Container>
-    </>
+        </Field>
+
+        <Field>
+          Confirme a nova senha
+          <Input
+            type="password"
+            placeholder="Digite a nova senha novamente"
+            value={password.stepTwo}
+            onChange={e => handlePassword("stepTwo", e.target.value)}
+            onKeyDown={e => e.key === "Enter" && update()}
+          />
+        </Field>
+
+        <Actions>
+          <Button onClick={update} disabled={saving}>
+            {saving ? "Salvando..." : "Salvar alterações"}
+          </Button>
+        </Actions>
+      </FormCard>
+
+      <ToastContainer
+        position={mobile ? "bottom-center" : "top-right"}
+        autoClose={3000}
+        style={mobile ? { margin: '0 5% 1rem 5%', width: '90%' } : undefined}
+      />
+    </PageLayout>
   );
 }
