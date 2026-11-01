@@ -13,6 +13,8 @@ import { Download, FileText, FileSpreadsheet, Filter } from "lucide-react";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import { getCompanySchedulesAuth } from "../services/endpoints/company";
+import { fetchMaxProfessionals } from "../services/endpoints/professional";
+import { bookingAmount, bookingCommission, formatMoney, summarizeRevenue } from "../util/revenue";
 
 const PageWrapper = styled.div`
   display: flex;
@@ -313,6 +315,8 @@ export default function Reports() {
   const [mobile, setMobile] = useState(false);
   const [loading, setLoading] = useState(true);
   const [schedules, setSchedules] = useState([]);
+  // Com equipe, o relatório separa o faturamento do dono da comissão sobre os atendimentos da equipe
+  const [hasTeam, setHasTeam] = useState(false);
 
   const [period, setPeriod] = useState("7");
   const [startDate, setStartDate] = useState(getRangeByPeriod("7").startDate);
@@ -351,6 +355,10 @@ export default function Reports() {
       fetchData();
     }
   }, [companyUrl, startDate, endDate]);
+
+  useEffect(() => {
+    if (companyUrl) fetchMaxProfessionals(companyUrl).then((max) => setHasTeam(max > 1));
+  }, [companyUrl]);
 
   const serviceOptions = useMemo(() => {
     const names = [
@@ -422,6 +430,14 @@ export default function Reports() {
     return { totalSlots, booked, available, done };
   }, [filteredSchedules]);
 
+  const finance = useMemo(() => summarizeRevenue(filteredSchedules), [filteredSchedules]);
+
+  // Valor e comissão de uma linha: só existem para horários reservados
+  const rowAmount = (item) => (item?.available === false ? formatMoney(bookingAmount(item)) : "-");
+  const rowCommission = (item) =>
+    item?.available === false && item?.professionalIsOwner === false ? formatMoney(bookingCommission(item)) : "-";
+  const rowProfessional = (item) => item?.professionalName || "-";
+
   const exportCsv = () => {
     const now = formatNow();
     const fileDate = new Date().toISOString().slice(0, 10);
@@ -435,12 +451,22 @@ export default function Reports() {
       `${csvEscape("Agendados")};${csvEscape(metrics.booked)}`,
       `${csvEscape("Disponiveis")};${csvEscape(metrics.available)}`,
       `${csvEscape("Concluidos")};${csvEscape(metrics.done)}`,
+      `${csvEscape(hasTeam ? "Faturamento (seus atendimentos)" : "Faturamento")};${csvEscape(formatMoney(finance.revenue))}`,
+      ...(hasTeam
+        ? [
+            `${csvEscape("Comissao da equipe")};${csvEscape(formatMoney(finance.commission))}`,
+            `${csvEscape("Faturamento total")};${csvEscape(formatMoney(finance.total))}`,
+          ]
+        : []),
       "",
       [
         "Data",
         "Hora",
         "Status",
         "Servico",
+        ...(hasTeam ? ["Profissional"] : []),
+        "Valor",
+        ...(hasTeam ? ["Comissao"] : []),
         "Cliente",
         "Telefone",
       ].map(csvEscape).join(";"),
@@ -452,6 +478,9 @@ export default function Reports() {
         fmtTime(item.schedule),
         statusName(item),
         item?.service?.name || "Sem servico",
+        ...(hasTeam ? [rowProfessional(item)] : []),
+        rowAmount(item),
+        ...(hasTeam ? [rowCommission(item)] : []),
         item?.name || "-",
         item?.phone || "-",
       ].map(csvEscape).join(";"));
@@ -499,20 +528,37 @@ export default function Reports() {
       14,
       52
     );
+    doc.text(
+      hasTeam
+        ? `Faturamento: ${formatMoney(finance.revenue)} | Comissao: ${formatMoney(finance.commission)} | Faturamento total: ${formatMoney(finance.total)}`
+        : `Faturamento: ${formatMoney(finance.revenue)}`,
+      14,
+      58
+    );
 
+    const head = [
+      "Data", "Hora", "Status", "Servico",
+      ...(hasTeam ? ["Profissional"] : []),
+      "Valor",
+      ...(hasTeam ? ["Comissao"] : []),
+      "Cliente", "Telefone",
+    ];
     const rows = sortedSchedules.map((item) => ([
       fmtDate(item.schedule),
       fmtTime(item.schedule),
       statusName(item),
       item?.service?.name || "Sem servico",
+      ...(hasTeam ? [rowProfessional(item)] : []),
+      rowAmount(item),
+      ...(hasTeam ? [rowCommission(item)] : []),
       item?.name || "-",
       item?.phone || "-",
     ]));
 
     autoTable(doc, {
-      startY: 59,
-      head: [["Data", "Hora", "Status", "Servico", "Cliente", "Telefone"]],
-      body: rows.length ? rows : [["-", "-", "Sem registros", "-", "-", "-"]],
+      startY: 64,
+      head: [head],
+      body: rows.length ? rows : [head.map((_, i) => (i === 2 ? "Sem registros" : "-"))],
       styles: {
         fontSize: 8,
         cellPadding: 2.2,
@@ -665,6 +711,25 @@ export default function Reports() {
                     </SummaryCard>
                   </SummaryGrid>
 
+                  <SummaryGrid style={{ marginTop: "0.85rem" }}>
+                    <SummaryCard>
+                      <SummaryLabel>{hasTeam ? "Faturamento (seus atendimentos)" : "Faturamento"}</SummaryLabel>
+                      <SummaryValue>{loading ? "-" : formatMoney(finance.revenue)}</SummaryValue>
+                    </SummaryCard>
+                    {hasTeam && (
+                      <>
+                        <SummaryCard>
+                          <SummaryLabel>Comissão da equipe</SummaryLabel>
+                          <SummaryValue>{loading ? "-" : formatMoney(finance.commission)}</SummaryValue>
+                        </SummaryCard>
+                        <SummaryCard>
+                          <SummaryLabel>Faturamento total</SummaryLabel>
+                          <SummaryValue>{loading ? "-" : formatMoney(finance.total)}</SummaryValue>
+                        </SummaryCard>
+                      </>
+                    )}
+                  </SummaryGrid>
+
                   <TableWrap>
                     <TableScroll>
                       <Table>
@@ -682,6 +747,9 @@ export default function Reports() {
                             <th>
                               <SortHeaderButton type="button" onClick={() => handleSort("service")}>Servico {getSortArrow("service")}</SortHeaderButton>
                             </th>
+                            {hasTeam && <th>Profissional</th>}
+                            <th>Valor</th>
+                            {hasTeam && <th>Comissão</th>}
                             <th>
                               <SortHeaderButton type="button" onClick={() => handleSort("name")}>Cliente {getSortArrow("name")}</SortHeaderButton>
                             </th>
@@ -693,7 +761,7 @@ export default function Reports() {
                         <tbody>
                           {!loading && sortedSchedules.length === 0 && (
                             <tr>
-                              <td colSpan="6" style={{ padding: 0 }}>
+                              <td colSpan={hasTeam ? 9 : 7} style={{ padding: 0 }}>
                                 <EmptyState>Nenhum registro para os filtros selecionados.</EmptyState>
                               </td>
                             </tr>
@@ -704,6 +772,9 @@ export default function Reports() {
                               <td>{fmtTime(item.schedule)}</td>
                               <td>{statusName(item)}</td>
                               <td>{item?.service?.name || "Sem servico"}</td>
+                              {hasTeam && <td>{rowProfessional(item)}</td>}
+                              <td>{rowAmount(item)}</td>
+                              {hasTeam && <td>{rowCommission(item)}</td>}
                               <td>{item?.name || "-"}</td>
                               <td>{item?.phone || "-"}</td>
                             </tr>

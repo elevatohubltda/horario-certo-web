@@ -316,6 +316,8 @@ export default function Services() {
   const [professionals, setProfessionals] = useState([]);
   // { [professionalId]: "R$ 0,00" } — presença na chave = profissional selecionado; vazio = valor padrão
   const [professionalPrices, setProfessionalPrices] = useState({});
+  // Percentual que fica com o dono quando um profissional da equipe faz o serviço
+  const [newServiceCommission, setNewServiceCommission] = useState("");
   const multiProfessional = professionals.length > 1;
   const ownerProfessionalId = professionals.find((p) => p.isOwner)?.id ?? null;
   // Profissional da equipe num serviço compartilhado: só altera o próprio valor
@@ -381,6 +383,7 @@ export default function Services() {
   const openModal = () => {
     setEditingService(null);
     setProfessionalPrices(ownerProfessionalId ? { [ownerProfessionalId]: "" } : {});
+    setNewServiceCommission("");
     setNewServiceName("");
     setNewServicePrice("");
     setNewServiceDuration("");
@@ -395,6 +398,9 @@ export default function Services() {
     setEditingService(service);
     setProfessionalPrices(
       Object.fromEntries((service.professionals || []).map((p) => [p.professionalId, formatCurrency(p.price)]))
+    );
+    setNewServiceCommission(
+      service.commissionPercent != null && Number(service.commissionPercent) > 0 ? String(Number(service.commissionPercent)) : ""
     );
     setNewServiceName(service.name);
     setNewServicePrice(formatCurrency(service.price));
@@ -488,6 +494,11 @@ export default function Services() {
       toast.error("Selecione pelo menos um profissional para o serviço.", { containerId: TOAST_CONTAINER_ID });
       return;
     }
+    const parsedCommission = newServiceCommission === "" ? 0 : Number(String(newServiceCommission).replace(",", "."));
+    if (multiProfessional && (Number.isNaN(parsedCommission) || parsedCommission < 0 || parsedCommission > 100)) {
+      toast.error("A comissão deve ficar entre 0% e 100%.", { containerId: TOAST_CONTAINER_ID });
+      return;
+    }
     setSaving(true);
     try {
       const payload = {
@@ -498,6 +509,7 @@ export default function Services() {
         // Valor em branco usa o valor padrão do serviço
         ...(multiProfessional
           ? {
+              commissionPercent: parsedCommission,
               professionals: selectedProfessionals.map((id) => ({
                 professionalId: Number(id),
                 price: parsePriceInput(professionalPrices[id] || "") || parsedPrice,
@@ -665,6 +677,9 @@ export default function Services() {
                               .join(" · ")}`
                           : `${formatCurrency(service.price)} · ${service.durationMinutes} min`}
                         {isProfessional() && service.canEditDetails === false ? " · compartilhado" : ""}
+                        {multiProfessional && Number(service.commissionPercent) > 0
+                          ? ` · comissão ${Number(service.commissionPercent).toLocaleString("pt-BR")}%`
+                          : ""}
                       </ServicePrice>
                     </ServiceTexts>
                   </ServiceInfo>
@@ -802,6 +817,22 @@ export default function Services() {
                 </ProfessionalPriceList>
                 <ErrorMessage style={{ color: "#6b7280", marginTop: 0 }}>
                   Deixe o valor em branco para usar o valor padrão.
+                </ErrorMessage>
+
+                <ModalLabel htmlFor="service-commission">Comissão da barbearia (%)</ModalLabel>
+                <ModalInput
+                  id="service-commission"
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.5"
+                  placeholder="Ex: 40"
+                  value={newServiceCommission}
+                  onChange={(e) => setNewServiceCommission(e.target.value)}
+                />
+                <ErrorMessage style={{ color: "#6b7280", marginTop: 0 }}>
+                  Parte do valor que fica com você quando o serviço é feito por um profissional da equipe.
+                  Nos seus próprios atendimentos o valor é todo seu.
                 </ErrorMessage>
               </>
             )}

@@ -11,8 +11,10 @@ import { isMobile } from "../util/util";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { getClientStatus } from "../services/endpoints/payment";
-import { Clock, CalendarDays, Check, Filter } from "lucide-react";
-import { getCompany, getCompanySchedules, getCompanySchedulesAuth } from "../services/endpoints/company";
+import { Clock, CalendarDays, Check, Filter, Wallet, Percent, TrendingUp } from "lucide-react";
+import { getCompany, getCompanySchedulesAuth } from "../services/endpoints/company";
+import { fetchMaxProfessionals } from "../services/endpoints/professional";
+import { formatMoney, summarizeRevenue } from "../util/revenue";
 import { expiresAt } from "../util/date";
 
 
@@ -222,6 +224,13 @@ export default function Dashboard() {
   const [selectedPeriod, setSelectedPeriod] = useState("essa semana");
   const [openFilterMenu, setOpenFilterMenu] = useState(false);
   const [schedules, setSchedules] = useState([]);
+  // Plano com equipe: mostra comissão e faturamento total além do faturamento do dono
+  const [hasTeam, setHasTeam] = useState(false);
+
+  useEffect(() => {
+    if (!companyUrl || isProfessional()) return;
+    fetchMaxProfessionals(companyUrl).then((max) => setHasTeam(max > 1));
+  }, [companyUrl]);
 
   const formatDateToApi = (date) => {
     const year = date.getFullYear();
@@ -259,10 +268,9 @@ export default function Dashboard() {
     const { startDate, endDate } = getDateRangeByPeriod(selectedPeriod);
 
     try {
-      // Profissional da equipe vê só os próprios agendamentos (o backend filtra pela sessão)
-      const response = isProfessional()
-        ? await getCompanySchedulesAuth(companyUrl, startDate, endDate)
-        : await getCompanySchedules(companyUrl, startDate, endDate);
+      // Consulta autenticada: traz valores e comissões (a pública não expõe esses dados).
+      // Para o profissional da equipe, o backend devolve só os agendamentos dele.
+      const response = await getCompanySchedulesAuth(companyUrl, startDate, endDate);
       setSchedules(response.data || []);
     } catch (error) {
       console.error("Erro ao buscar os agendamentos do dashboard:", error);
@@ -281,10 +289,25 @@ export default function Dashboard() {
   const openSchedules = schedules.filter((item) => isFutureAvailableSchedule(item)).length;
   const totalSchedules = completedSchedules + openSchedules;
 
+  // Números financeiros são do dono: faturamento dos atendimentos dele, comissão da equipe e o total
+  const finance = summarizeRevenue(schedules);
+  const financeCards = isProfessional()
+    ? []
+    : hasTeam
+    ? [
+        { title: "Faturamento (seus atendimentos)", value: formatMoney(finance.revenue), icon: <Wallet size={18} />, description: selectedPeriod },
+        { title: "Comissão da equipe", value: formatMoney(finance.commission), icon: <Percent size={18} />, description: selectedPeriod },
+        { title: "Faturamento total", value: formatMoney(finance.total), icon: <TrendingUp size={18} />, description: "faturamento + comissão" },
+      ]
+    : [
+        { title: "Faturamento", value: formatMoney(finance.revenue), icon: <Wallet size={18} />, description: selectedPeriod },
+      ];
+
   const cards = [
     { title: "Agendamentos realizados", value: completedSchedules, icon: <Check size={18} />, description: selectedPeriod },
     { title: "Agendamentos em aberto", value: openSchedules, icon: <Clock size={18} />, description: selectedPeriod },
     { title: "Total de agendamentos", value: totalSchedules, icon: <CalendarDays size={18} />, description: selectedPeriod },
+    ...financeCards,
   ];
 
   const upcomingAgenda = schedules
