@@ -1,1109 +1,1299 @@
-import React, { useEffect, useRef, useState } from 'react';
-import styled, { keyframes, css, ThemeProvider } from 'styled-components';
+import React, { useEffect, useState } from 'react';
+import styled, { keyframes } from 'styled-components';
 import { ReactComponent as Logo } from '../assets/horario-certo-logo-horizontal.svg?component';
 import { useNavigate } from 'react-router-dom';
+import {
+  ArrowRight, BarChart3, Bell, CalendarClock, Check, ChevronDown, Clock, FileText, Home,
+  LifeBuoy, Link2, MessageCircle, Percent, Scissors, Settings, ShieldCheck, Smartphone,
+  Store, Users, Wallet, X,
+} from 'lucide-react';
 import { getPublicSubscriptionPlans } from '../services/endpoints/payment';
 
-/* ── temas ──────────────────────────────────────────────────────────── */
-
-const buildTheme = (dark) => ({
-  dark,
-  pageBg:        dark ? 'linear-gradient(135deg,#080808 0%,#0f0f0f 100%)' : 'linear-gradient(135deg,#f6f0e4 0%,#ede6d5 100%)',
-  shellBg:       dark ? '#111111'  : '#fffef8',
-  shellBorder:   dark ? '#232323'  : '#dfd5b8',
-  navBorder:     dark ? '#1c1c1c'  : '#e8dfc8',
-  surfaceBg:     dark ? '#1a1a1a'  : '#ffffff',
-  surfaceBorder: dark ? '#252525'  : '#e5dac0',
-  surface2Bg:    dark ? '#1c1c1c'  : '#faf6ec',
-  insetBg:       dark ? '#141414'  : '#f5f0e5',
-  stripBg:       dark ? '#0d0d0d'  : '#f0e8d4',
-  stripBorder:   dark ? '#1c1c1c'  : '#e5d8b8',
-  carouselBg:    dark ? 'linear-gradient(180deg,#161616 0%,#131313 100%)' : 'linear-gradient(180deg,#faf7ee 0%,#f5f0e5 100%)',
-  carouselBorder:dark ? '#1e1e1e'  : '#e5dac0',
-  hlCardBg:      'linear-gradient(160deg,#1c1500 0%,#231c00 100%)',
-  floatBg:       dark ? 'rgba(22,18,12,.9)' : 'rgba(255,252,240,.95)',
-  floatBorder:   dark ? 'rgba(201,168,76,.2)' : 'rgba(138,104,32,.2)',
-  floatLabel:    dark ? '#8a8070' : '#7a6845',
-  chevBg:        dark ? '#222'     : '#f0e8d4',
-  chevBorder:    dark ? '#2e2e2e'  : '#e0d0a8',
-  reviewDivider: dark ? '#222'     : '#e5dac0',
-  planSecBtn:    dark ? '#252525'  : '#f0e5cc',
-  planSecColor:  dark ? '#c8bfaa'  : '#6a5018',
-  // text
-  textP: dark ? '#f5f0e8' : '#1c1505',
-  textS: dark ? '#8a8070' : '#7a6845',
-  textM: dark ? '#6a6055' : '#9a8060',
-  textD: dark ? '#504540' : '#c0a880',
-  // accent
-  accent:   dark ? '#c9a84c' : '#8a6820',
-  accentL:  dark ? '#e2c06a' : '#c9a84c',
-  accentA:  dark ? 'rgba(201,168,76,.28)' : 'rgba(138,104,32,.30)',
-  accentAS: dark ? 'rgba(201,168,76,.50)' : 'rgba(138,104,32,.55)',
-  accentBg: dark ? 'rgba(201,168,76,.07)' : 'rgba(138,104,32,.06)',
-  accentCtaBg: dark
-    ? 'linear-gradient(100deg,rgba(201,168,76,.13) 0%,rgba(201,168,76,.06) 55%,rgba(201,168,76,.10) 100%)'
-    : 'linear-gradient(100deg,rgba(138,104,32,.12) 0%,rgba(138,104,32,.06) 55%,rgba(138,104,32,.09) 100%)',
-  // buttons
-  btnPBg:    dark ? 'linear-gradient(125deg,#c9a84c 0%,#e2c06a 100%)' : 'linear-gradient(125deg,#8a6820 0%,#c9a84c 100%)',
-  btnPColor: dark ? '#0d0d0d' : '#ffffff',
-  btnOColor: dark ? '#c8bfaa' : '#6a5018',
-  btnOBorder:dark ? 'rgba(201,168,76,.28)' : 'rgba(138,104,32,.30)',
-  // misc
-  numBg:    dark ? 'linear-gradient(135deg,#c9a84c 0%,#a08035 100%)' : 'linear-gradient(135deg,#8a6820 0%,#c9a84c 100%)',
-  numColor: dark ? '#0d0d0d' : '#ffffff',
-  dotA: dark ? '#c9a84c' : '#8a6820',
-  dotI: dark ? '#333'    : '#d5c898',
-  logoFilter: dark ? 'brightness(0) invert(1)' : 'none',
-  shadow:     dark ? 'rgba(0,0,0,.7)' : 'rgba(90,60,0,.15)',
-});
-
-const darkTheme  = buildTheme(true);
-const lightTheme = buildTheme(false);
-
-/* ── keyframes ──────────────────────────────────────────────────────── */
+/* ── animações ───────────────────────────────────────────────────────── */
 
 const revealUp = keyframes`
-  from { opacity:0; transform:translateY(16px); }
-  to   { opacity:1; transform:translateY(0);    }
-`;
-
-const drift = keyframes`
-  0%,100% { transform:translateY(0px);  }
-  50%      { transform:translateY(-6px); }
-`;
-
-const shimmerLine = keyframes`
-  0%   { background-position:0%   50%; }
-  100% { background-position:200% 50%; }
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
 `;
 
 const successPop = keyframes`
-  from { transform:scale(0.5); opacity:0; }
-  to   { transform:scale(1);   opacity:1; }
+  0%   { transform: scale(0.6); opacity: 0; }
+  70%  { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); }
 `;
 
-/* ── layout ─────────────────────────────────────────────────────────── */
+/* ── estrutura ───────────────────────────────────────────────────────── */
 
 const Page = styled.main`
-  min-height: 100dvh;
-  width: 100%;
-  box-sizing: border-box;
-  padding: 0.85rem;
-  background: ${({ theme }) => theme.pageBg};
-  transition: background 0.35s ease;
-
-  @media (min-width: 768px) { padding: 1.35rem; }
+  min-height: 100vh;
+  background: var(--ui-page-bg);
+  color: var(--ui-text);
+  overflow-x: hidden;
 `;
 
-const Shell = styled.div`
-  width: min(1180px, 100%);
+const Container = styled.div`
+  width: min(1160px, 100%);
   margin: 0 auto;
-  border-radius: 1.15rem;
-  border: 1px solid ${({ theme }) => theme.shellBorder};
-  background: ${({ theme }) => theme.shellBg};
-  box-shadow: 0 24px 48px ${({ theme }) => theme.shadow};
-  overflow: hidden;
-  transition: background 0.35s ease, border-color 0.35s ease;
+  padding: 0 1rem;
+  box-sizing: border-box;
 `;
 
-/* ── nav ────────────────────────────────────────────────────────────── */
+const Section = styled.section`
+  padding: 4.5rem 0;
+  scroll-margin-top: 64px;
 
-const Nav = styled.nav`
+  @media (max-width: 768px) {
+    padding: 3rem 0;
+  }
+`;
+
+const SectionHead = styled.div`
+  max-width: 680px;
+  margin: 0 auto 2.5rem;
+  text-align: center;
+`;
+
+const Eyebrow = styled.span`
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ui-muted);
+`;
+
+const H2 = styled.h2`
+  margin: 0.5rem 0 0;
+  font-size: clamp(1.6rem, 3.2vw, 2.25rem);
+  line-height: 1.2;
+  font-weight: 800;
+  color: var(--ui-text);
+`;
+
+const Lead = styled.p`
+  margin: 0.85rem 0 0;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--ui-muted);
+`;
+
+/* ── botões ──────────────────────────────────────────────────────────── */
+
+const Button = styled.button`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  height: ${(p) => (p.$large ? '3rem' : '2.5rem')};
+  padding: 0 ${(p) => (p.$large ? '1.5rem' : '1.1rem')};
+  border-radius: 999px;
+  border: 1px solid ${(p) => (p.$outline ? 'var(--ui-input-border)' : p.$light ? '#fff' : 'var(--ui-primary)')};
+  background: ${(p) => (p.$outline ? '#fff' : p.$light ? '#fff' : 'var(--ui-primary)')};
+  color: ${(p) => (p.$outline || p.$light ? 'var(--ui-text)' : '#fff')};
+  font-family: inherit;
+  font-size: ${(p) => (p.$large ? '0.95rem' : '0.875rem')};
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    background: ${(p) => (p.$outline ? '#f3f4f6' : p.$light ? '#f3f4f6' : '#374151')};
+  }
+`;
+
+/* ── topo ────────────────────────────────────────────────────────────── */
+
+const Header = styled.header`
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--ui-border);
+`;
+
+const HeaderInner = styled(Container)`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.7rem 1rem;
-  border-bottom: 1px solid ${({ theme }) => theme.navBorder};
-  background: ${({ theme }) => theme.shellBg};
-  transition: background 0.35s ease;
-
-  @media (min-width: 768px) { padding: 1rem 1.4rem; }
+  gap: 1rem;
+  height: 64px;
 `;
 
 const Brand = styled.button`
-  border: none;
-  background: transparent;
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 0.45rem;
+  padding: 0;
+  border: none;
+  background: none;
   cursor: pointer;
-  color: ${({ theme }) => theme.textP};
-  font-family: 'Montserrat', sans-serif;
-  font-weight: 700;
-  font-size: 0.95rem;
 
   svg {
-    width: max-content;
-    height: 44px;
-    margin-left: 4px;
-    filter: ${({ theme }) => theme.logoFilter};
-    transition: filter 0.35s ease;
-
-    @media (min-width: 768px) { height: 60px; margin-left: 8px; }
+    height: 40px;
+    width: auto;
   }
 `;
 
-const NavActions = styled.div`
-  display: none;
-  align-items: center;
+const NavLinks = styled.nav`
+  display: flex;
+  gap: 1.5rem;
+
+  a {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--ui-text-secondary);
+    text-decoration: none;
+
+    &:hover {
+      color: var(--ui-text);
+    }
+  }
+
+  @media (max-width: 900px) {
+    display: none;
+  }
+`;
+
+const HeaderActions = styled.div`
+  display: flex;
   gap: 0.5rem;
 
-  @media (min-width: 768px) { display: flex; }
-`;
-
-const ThemeToggle = styled.button`
-  width: 2.2rem;
-  height: 2.2rem;
-  border-radius: 999px;
-  border: 1px solid ${({ theme }) => theme.btnOBorder};
-  background: transparent;
-  color: ${({ theme }) => theme.accent};
-  font-size: 1rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-  flex-shrink: 0;
-
-  &:hover {
-    transform: rotate(20deg) scale(1.08);
-    border-color: ${({ theme }) => theme.accentAS};
-    box-shadow: 0 4px 12px ${({ theme }) => theme.accentA};
+  @media (max-width: 480px) {
+    .hide-xs {
+      display: none;
+    }
   }
 `;
 
-const MobileThemeToggle = styled(ThemeToggle)`
-  display: flex;
-
-  @media (min-width: 768px) { display: none; }
-`;
-
-const OutlineButton = styled.button`
-  height: 2.2rem;
-  padding: 0 0.95rem;
-  border-radius: 999px;
-  border: 1px solid ${({ theme }) => theme.btnOBorder};
-  background: transparent;
-  color: ${({ theme }) => theme.btnOColor};
-  font-weight: 600;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-
-  &:hover {
-    transform: translateY(-1px);
-    border-color: ${({ theme }) => theme.accentAS};
-    box-shadow: 0 8px 18px ${({ theme }) => theme.accentA};
-  }
-`;
-
-const PrimaryButton = styled.button`
-  height: 2.2rem;
-  padding: 0 1.1rem;
-  border-radius: 999px;
-  border: none;
-  background: ${({ theme }) => theme.btnPBg};
-  color: ${({ theme }) => theme.btnPColor};
-  font-weight: 700;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
-
-  &:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 10px 20px ${({ theme }) => theme.accentA};
-    filter: brightness(1.08);
-  }
-`;
-
-/* ── hero ───────────────────────────────────────────────────────────── */
+/* ── hero ────────────────────────────────────────────────────────────── */
 
 const Hero = styled.section`
-  padding: 1.75rem 1.1rem 1.25rem;
+  padding: 4.5rem 0 3rem;
   text-align: center;
+  background:
+    radial-gradient(60% 50% at 50% 0%, #ffffff 0%, rgba(255, 255, 255, 0) 100%),
+    var(--ui-page-bg);
 
-  @media (min-width: 768px) { padding: 3.5rem 2rem 2rem; }
+  @media (max-width: 768px) {
+    padding: 3rem 0 2rem;
+  }
 `;
 
 const HeroBadge = styled.span`
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  margin-bottom: 1rem;
-  padding: 0.3rem 0.7rem;
-  border-radius: 0.9rem;
-  border: 2px solid ${({ theme }) => theme.accentA};
-  background: ${({ theme }) => theme.accentBg};
-  color: ${({ theme }) => theme.accentL};
-  font-size: 0.74rem;
-  font-weight: 700;
-
-  &::before {
-    content: '✓';
-    width: 1rem;
-    height: 1rem;
-    flex-shrink: 0;
-    border-radius: 999px;
-    background: ${({ theme }) => theme.accent};
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: ${({ theme }) => theme.btnPColor};
-    font-weight: 900;
-    font-size: 0.7rem;
-  }
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid var(--ui-border);
+  background: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ui-text-secondary);
+  animation: ${revealUp} 0.5s ease both;
 `;
 
 const HeroTitle = styled.h1`
-  margin: 0 auto;
   max-width: 820px;
-  color: ${({ theme }) => theme.textP};
-  line-height: 1.1;
-  font-family: 'Montserrat', sans-serif;
-  font-size: clamp(2rem, 8vw, 3.6rem);
-
-  strong { color: ${({ theme }) => theme.accent}; }
+  margin: 1.25rem auto 0;
+  font-size: clamp(2.1rem, 5.4vw, 3.6rem);
+  line-height: 1.08;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--ui-text);
+  animation: ${revealUp} 0.5s ease 0.05s both;
 `;
 
 const HeroSub = styled.p`
-  margin: 1rem auto 0;
-  max-width: 580px;
-  color: ${({ theme }) => theme.textS};
-  line-height: 1.55;
-  font-size: clamp(0.88rem, 3.8vw, 1.02rem);
+  max-width: 620px;
+  margin: 1.1rem auto 0;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--ui-muted);
+  animation: ${revealUp} 0.5s ease 0.1s both;
 `;
 
-const HeroCtas = styled.div`
-  margin-top: 1.4rem;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 0.55rem;
-
-  @media (min-width: 420px) {
-    flex-direction: row;
-    justify-content: center;
+// Barra no estilo "busca" da Booksy, aqui para o barbeiro criar o próprio link
+const LinkBar = styled.form`
+  && {
+    display: flex;
     align-items: center;
-    flex-wrap: wrap;
-  }
-`;
-
-const HeroCta = styled.button`
-  height: 3rem;
-  padding: 0 1.6rem;
-  border-radius: 999px;
-  border: none;
-  background: ${({ theme }) => theme.btnPBg};
-  color: ${({ theme }) => theme.btnPColor};
-  font-weight: 700;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 24px ${({ theme }) => theme.accentA};
-    filter: brightness(1.07);
-  }
-`;
-
-const HeroCtaOutline = styled.button`
-  height: 3rem;
-  padding: 0 1.4rem;
-  border-radius: 999px;
-  border: 1.5px solid ${({ theme }) => theme.btnOBorder};
-  background: transparent;
-  color: ${({ theme }) => theme.btnOColor};
-  font-weight: 600;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: transform 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-
-  &:hover {
-    transform: translateY(-1px);
-    border-color: ${({ theme }) => theme.accentAS};
-    color: ${({ theme }) => theme.accentL};
-  }
-`;
-
-const HeroRisk = styled.p`
-  margin: 0.65rem 0 0;
-  color: ${({ theme }) => theme.textD};
-  font-size: 0.78rem;
-`;
-
-const FloatingGroup = styled.div`
-  margin: 1.25rem auto 0;
-  width: fit-content;
-  max-width: calc(100% - 1rem);
-  display: flex;
-  align-items: center;
-  padding: 0.2rem 0.7rem 0.2rem 0.6rem;
-  border-radius: 999px;
-  background: ${({ theme }) => theme.floatBg};
-  border: 1px solid ${({ theme }) => theme.floatBorder};
-  box-shadow: 0 8px 20px ${({ theme }) => theme.shadow};
-
-  .avatar {
-    width: 2rem; height: 2rem;
+    gap: 0.5rem;
+    max-width: 620px;
+    margin: 2rem auto 0;
+    padding: 0.4rem 0.4rem 0.4rem 1.1rem;
     border-radius: 999px;
-    border: 2px solid ${({ theme }) => theme.shellBg};
-    margin-left: -0.3rem;
-    display: inline-flex; align-items: center; justify-content: center;
-    color: #0d0d0d; font-size: 0.65rem; font-weight: 700;
-    background: ${({ theme }) => theme.accent};
-    animation: ${drift} 4s ease-in-out infinite;
-
-    &:nth-child(2) { background: ${({ theme }) => theme.dark ? '#b09040' : '#a07830'}; animation-delay:.15s; }
-    &:nth-child(3) { background: ${({ theme }) => theme.dark ? '#907530' : '#806020'}; animation-delay:.3s;  }
-    &:nth-child(4) { background: ${({ theme }) => theme.dark ? '#705820' : '#604810'}; animation-delay:.45s; }
+    border: 1px solid var(--ui-border);
+    background: #fff;
+    box-shadow: 0 12px 32px rgba(17, 24, 39, 0.08);
+    animation: ${revealUp} 0.5s ease 0.15s both;
   }
 
-  .label {
-    margin-left: 0.55rem;
-    font-size: 0.78rem;
-    color: ${({ theme }) => theme.floatLabel};
-    font-weight: 600;
+  svg {
+    flex-shrink: 0;
+    color: var(--ui-muted);
+  }
+
+  .prefix {
+    font-size: 0.9rem;
+    color: var(--ui-muted);
     white-space: nowrap;
   }
+
+  && input {
+    flex: 1;
+    min-width: 0;
+    height: 2.75rem;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--ui-text);
+    box-shadow: none;
+  }
+
+  && input:focus {
+    outline: none;
+  }
+
+  @media (max-width: 600px) {
+    && {
+      flex-wrap: wrap;
+      border-radius: var(--ui-radius);
+      padding: 0.75rem;
+    }
+
+    .prefix {
+      font-size: 0.8rem;
+    }
+
+    button {
+      width: 100%;
+    }
+  }
 `;
 
-/* ── trust strip ────────────────────────────────────────────────────── */
+const HeroNote = styled.p`
+  margin: 0.85rem 0 0;
+  font-size: 0.8rem;
+  color: var(--ui-muted);
+`;
 
-const TrustStrip = styled.div`
+// Chips de recursos, no lugar das categorias da Booksy
+const Chips = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 1.75rem auto 0;
+  max-width: 820px;
+`;
+
+const Chip = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid var(--ui-border);
+  background: #fff;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--ui-text-secondary);
+
+  svg {
+    color: var(--ui-text);
+  }
+`;
+
+/* ── prévia do painel (igual ao sistema) ─────────────────────────────── */
+
+const AppFrame = styled.div`
+  margin: 3rem auto 0;
+  max-width: 1040px;
+  border-radius: 1rem;
+  border: 1px solid var(--ui-border);
+  background: #fff;
+  box-shadow: 0 30px 60px rgba(17, 24, 39, 0.12);
+  overflow: hidden;
+  text-align: left;
+  animation: ${revealUp} 0.6s ease 0.2s both;
+`;
+
+const AppTopbar = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  height: 40px;
+  padding: 0 1rem;
+  border-bottom: 1px solid var(--ui-border);
+  background: #fff;
+
+  i {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #e5e7eb;
+  }
+
+  span {
+    margin-left: 0.75rem;
+    font-size: 0.75rem;
+    color: var(--ui-muted);
+  }
+`;
+
+const AppBody = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.5rem 0.5rem;
-  padding: 0.8rem 1.1rem;
-  border-top: 1px solid ${({ theme }) => theme.stripBorder};
-  border-bottom: 1px solid ${({ theme }) => theme.stripBorder};
-  background: ${({ theme }) => theme.stripBg};
-  transition: background 0.35s ease;
+  grid-template-columns: 56px 1fr;
+  background: var(--ui-page-bg);
 
-  @media (min-width: 580px) {
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const AppSidebar = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.9rem 0;
+  background: #fff;
+  border-right: 1px solid var(--ui-border);
+
+  span {
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-wrap: wrap;
-    gap: 0.3rem 1.4rem;
-    padding: 0.75rem 1rem;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    color: var(--ui-text-secondary);
+  }
+
+  span.active {
+    background: var(--ui-primary);
+    color: #fff;
+  }
+
+  @media (max-width: 640px) {
+    display: none;
   }
 `;
 
-const TrustItem = styled.span`
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  font-size: 0.76rem;
-  color: ${({ theme }) => theme.textM};
-  font-weight: 600;
-  line-height: 1.3;
+const AppMain = styled.div`
+  padding: 1.25rem;
 
-  .emoji { font-size: 0.85rem; flex-shrink: 0; }
+  h4 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
 
-  @media (min-width: 580px) {
-    font-size: 0.8rem;
-    .emoji { font-size: 0.9rem; }
+  p {
+    margin: 0.15rem 0 1rem;
+    font-size: 0.78rem;
+    color: var(--ui-muted);
   }
 `;
 
-/* ── shared section atoms ───────────────────────────────────────────── */
-
-const SectionLabel = styled.span`
-  display: inline-block;
-  border-radius: 999px;
-  border: 1px solid ${({ theme }) => theme.accentA};
-  color: ${({ theme }) => theme.accent};
-  font-size: 0.72rem;
-  font-weight: 600;
-  padding: 0.22rem 0.62rem;
-  margin-bottom: 0.65rem;
-`;
-
-const SectionHeading = styled.h2`
-  margin: 0 0 1rem;
-  font-size: clamp(1.3rem, 4vw, 1.9rem);
-  line-height: 1.18;
-  color: ${({ theme }) => theme.textP};
-  font-family: 'Montserrat', sans-serif;
-`;
-
-/* ── problem ────────────────────────────────────────────────────────── */
-
-const ProblemSection = styled.section`
-  padding: 1.5rem 1rem;
-
-  @media (min-width: 768px) { padding: 1.8rem 2rem; }
-`;
-
-const ProblemGrid = styled.div`
+const StatGrid = styled.div`
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.7rem;
-
-  @media (min-width: 640px) { grid-template-columns: repeat(3,1fr); }
-`;
-
-const ProblemCard = styled.article`
-  border-radius: 0.95rem;
-  padding: 1rem;
-  background: ${({ theme }) => theme.surfaceBg};
-  border: 1px solid ${({ theme }) => theme.surfaceBorder};
-  animation: ${revealUp} 0.5s ease both;
-  animation-delay: ${({ $delay }) => $delay || '0s'};
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.35s ease;
-
-  &:hover {
-    border-color: ${({ theme }) => theme.accentA};
-    box-shadow: 0 8px 20px ${({ theme }) => theme.shadow};
-  }
-
-  .icon { font-size:1.5rem; line-height:1; margin-bottom:0.6rem; display:block; }
-  h3   { margin:0; font-size:0.95rem; color:${({ theme }) => theme.textP}; line-height:1.3; }
-  p    { margin:0.4rem 0 0; color:${({ theme }) => theme.textM}; font-size:0.82rem; line-height:1.45; }
-`;
-
-/* ── features ───────────────────────────────────────────────────────── */
-
-const Features = styled.section`
-  padding: 0 1rem 1.5rem;
-
-  @media (min-width: 768px) { padding: 0 2rem 2rem; }
-`;
-
-const FeatureGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(${(p) => p.$cols || 3}, minmax(0, 1fr));
   gap: 0.75rem;
 
-  @media (min-width: 980px) { grid-template-columns: 1fr 1fr 1fr 1.4fr; }
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
-const FeatureCard = styled.article`
-  border-radius: 0.95rem;
-  padding: 1rem;
-  background: ${({ theme }) => theme.surfaceBg};
-  border: 1px solid ${({ theme }) => theme.surfaceBorder};
-  animation: ${revealUp} 0.5s ease both;
-  animation-delay: ${({ $delay }) => $delay || '0s'};
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.35s ease;
+const Stat = styled.div`
+  padding: 0.9rem 1rem;
+  border-radius: var(--ui-radius);
+  background: #fff;
+  box-shadow: var(--ui-card-shadow);
 
-  &:hover {
-    transform: translateY(-4px);
-    border-color: ${({ theme }) => theme.accentA};
-    box-shadow: 0 14px 24px ${({ theme }) => theme.shadow};
+  small {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--ui-muted);
   }
 
-  h3 { margin:0.6rem 0 0; font-size:1.05rem; line-height:1.25; color:${({ theme }) => theme.textP}; }
-  p  { margin:0.5rem 0 0; color:${({ theme }) => theme.textM}; font-size:0.85rem; line-height:1.45; }
+  strong {
+    display: block;
+    margin-top: 0.35rem;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--ui-text);
+  }
 `;
 
-const Dot = styled.span`
-  width: 2rem; height: 2rem;
-  border-radius: 0.7rem;
-  display: inline-flex; align-items: center; justify-content: center;
-  color: #0d0d0d; font-size: 0.75rem; font-weight: 700;
-  background: ${({ $tone }) => $tone};
+const MiniList = styled.div`
+  margin-top: 0.75rem;
+  border-radius: var(--ui-radius);
+  background: #fff;
+  box-shadow: var(--ui-card-shadow);
+  overflow: hidden;
 `;
 
-const HighlightCard = styled.article`
-  border-radius: 0.95rem;
-  padding: 1rem;
-  background: ${({ theme }) => theme.hlCardBg};
-  border: 1px solid rgba(201,168,76,.2);
-  display: flex; flex-direction: column; justify-content: center;
-  position: relative; overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+const MiniRow = styled.div`
+  display: grid;
+  grid-template-columns: 56px 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 1rem;
+  border-top: 1px solid var(--ui-border);
+  font-size: 0.8rem;
 
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 16px 28px rgba(201,168,76,.12);
+  &:first-child {
+    border-top: none;
   }
 
-  &::after {
-    content: '';
-    position: absolute;
-    inset: auto -15% -45% -15%;
-    height: 60%;
-    background: radial-gradient(circle, rgba(201,168,76,.12) 0%, transparent 68%);
-    pointer-events: none;
+  b {
+    font-weight: 700;
   }
 
-  .tag {
-    width: fit-content;
+  span {
+    color: var(--ui-muted);
+  }
+`;
+
+const Pill = styled.span`
+  && {
+    padding: 0.2rem 0.6rem;
     border-radius: 999px;
-    border: 1px solid rgba(201,168,76,.3);
-    color: #c9a84c;
-    font-size: 0.72rem; font-weight: 600;
-    padding: 0.22rem 0.62rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    background: ${(p) => (p.$tone === 'green' ? '#ecfdf5' : '#f3f4f6')};
+    color: ${(p) => (p.$tone === 'green' ? '#047857' : 'var(--ui-text-secondary)')};
+  }
+`;
+
+/* ── diferenciais ────────────────────────────────────────────────────── */
+
+const DiffGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+
+  @media (max-width: 1000px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  h3 { margin:0.8rem 0 0; font-size:clamp(1.35rem,2.5vw,1.75rem); line-height:1.18; color:#f5f0e8; }
-  p  { margin:0.6rem 0 0; color:#8a8070; line-height:1.5; font-size:0.88rem; }
+  @media (max-width: 560px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
-/* ── plans ──────────────────────────────────────────────────────────── */
+const Card = styled.article`
+  padding: 1.4rem;
+  border-radius: var(--ui-radius);
+  background: #fff;
+  border: 1px solid var(--ui-border);
+  box-shadow: var(--ui-card-shadow);
 
-const PlansSection = styled.section`
-  padding: 1rem;
-  position: relative;
+  h3 {
+    margin: 0.9rem 0 0.4rem;
+    font-size: 1rem;
+    font-weight: 700;
+  }
 
-  @media (min-width: 768px) { padding: 0 2rem 2rem; }
+  p {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.55;
+    color: var(--ui-muted);
+  }
 `;
 
-const PlansHeader = styled.div`
+const IconBox = styled.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: ${(p) => (p.$dark ? 'var(--ui-primary)' : '#f3f4f6')};
+  color: ${(p) => (p.$dark ? '#fff' : 'var(--ui-text)')};
+`;
+
+const CompareCard = styled.div`
+  margin-top: 2rem;
+  border-radius: var(--ui-radius);
+  background: #fff;
+  border: 1px solid var(--ui-border);
+  box-shadow: var(--ui-card-shadow);
+  overflow-x: auto;
+`;
+
+const CompareTable = styled.table`
+  width: 100%;
+  min-width: 620px;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+
+  th, td {
+    padding: 0.9rem 1.1rem;
+    text-align: left;
+    vertical-align: top;
+    border-top: 1px solid var(--ui-border);
+  }
+
+  thead th {
+    border-top: none;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--ui-muted);
+    background: #f9fafb;
+  }
+
+  thead th.ours {
+    color: #fff;
+    background: var(--ui-primary);
+  }
+
+  td:first-child {
+    font-weight: 600;
+    color: var(--ui-text);
+    width: 30%;
+  }
+
+  td.ours {
+    background: #f9fafb;
+    color: var(--ui-text);
+    font-weight: 600;
+  }
+
+  td.theirs {
+    color: var(--ui-muted);
+  }
+
+  .cell {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+
+  .cell svg {
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+`;
+
+const CompareNote = styled.p`
+  margin: 0.75rem 0 0;
+  font-size: 0.75rem;
+  color: var(--ui-muted);
+  text-align: center;
+`;
+
+/* ── blocos alternados (texto + tela) ────────────────────────────────── */
+
+const Row = styled.div`
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 3rem;
+
+  & + & {
+    margin-top: 4.5rem;
+  }
+
+  ${(p) => p.$reverse && `
+    > :first-child { order: 2; }
+  `}
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+
+    > :first-child { order: 0; }
+
+    & + & {
+      margin-top: 3rem;
+    }
+  }
+`;
+
+const RowText = styled.div`
+  h3 {
+    margin: 0.5rem 0 0;
+    font-size: clamp(1.4rem, 2.6vw, 1.85rem);
+    line-height: 1.2;
+    font-weight: 800;
+  }
+
+  > p {
+    margin: 0.85rem 0 0;
+    font-size: 0.975rem;
+    line-height: 1.6;
+    color: var(--ui-muted);
+  }
+`;
+
+const CheckList = styled.ul`
+  list-style: none;
+  margin: 1.25rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+
+  li {
+    display: flex;
+    gap: 0.6rem;
+    align-items: flex-start;
+    font-size: 0.9rem;
+    color: var(--ui-text-secondary);
+  }
+
+  svg {
+    flex-shrink: 0;
+    margin-top: 0.15rem;
+    padding: 2px;
+    border-radius: 50%;
+    background: var(--ui-primary);
+    color: #fff;
+  }
+`;
+
+const Visual = styled.div`
+  padding: 1.5rem;
+  border-radius: 1rem;
+  background: #fff;
+  border: 1px solid var(--ui-border);
+  box-shadow: 0 20px 40px rgba(17, 24, 39, 0.08);
+`;
+
+const VisualTitle = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.8rem;
-  margin-bottom: 0.9rem;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+  font-weight: 700;
 
-  h2 { margin:0; color:${({ theme }) => theme.textP}; font-size:clamp(1.5rem,4vw,2.1rem); line-height:1.15; font-family:'Montserrat',sans-serif; }
+  span {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--ui-muted);
+  }
 `;
 
-const PlansMeta = styled.div`
-  display: flex; align-items: center; gap: 0.55rem;
+const ProRow = styled.div`
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--ui-border);
+  font-size: 0.85rem;
+
+  &:first-of-type {
+    border-top: none;
+  }
+
+  .avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #f3f4f6;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  small {
+    display: block;
+    color: var(--ui-muted);
+    font-size: 0.75rem;
+  }
+
+  b {
+    font-weight: 700;
+    text-align: right;
+  }
 `;
 
-const ControlButton = styled.button`
-  width: 2rem; height: 2rem;
-  border-radius: 999px;
-  border: 1px solid ${({ theme }) => theme.surfaceBorder};
-  background: ${({ theme }) => theme.surfaceBg};
-  color: ${({ theme }) => theme.btnOColor};
-  font-weight: 700; cursor: pointer;
-  transition: border-color 0.2s ease;
+const WhatsBubble = styled.div`
+  max-width: 300px;
+  padding: 0.85rem 1rem;
+  border-radius: 14px 14px 14px 4px;
+  background: #f3f4f6;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--ui-text);
 
-  &:hover { border-color: ${({ theme }) => theme.accentA}; }
-  &:disabled { opacity:0.35; cursor:not-allowed; }
+  & + & {
+    margin-top: 0.6rem;
+  }
+
+  small {
+    display: block;
+    margin-top: 0.35rem;
+    font-size: 0.7rem;
+    color: var(--ui-muted);
+    text-align: right;
+  }
 `;
 
-const PlansCarousel = styled.div`
-  border-radius: 1rem;
-  border: 1px solid ${({ theme }) => theme.carouselBorder};
-  background: ${({ theme }) => theme.carouselBg};
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
-  padding: 0.8rem;
-  transition: background 0.35s ease;
+/* ── demonstração no celular ─────────────────────────────────────────── */
 
-  @media (min-width: 768px) { padding: 1rem; }
-`;
-
-const PlansTrack = styled.div`
+const DemoSteps = styled.div`
   display: flex;
-  justify-content: ${({ $singleItem }) => ($singleItem ? 'center' : 'flex-start')};
-  gap: 0.8rem;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+`;
 
-  &::-webkit-scrollbar { display:none; }
+const DemoStep = styled.button`
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+  padding: 1rem;
+  border-radius: var(--ui-radius);
+  border: 1px solid ${(p) => (p.$active ? 'var(--ui-primary)' : 'var(--ui-border)')};
+  background: #fff;
+  box-shadow: ${(p) => (p.$active ? 'var(--ui-card-shadow)' : 'none')};
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  .num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: ${(p) => (p.$active ? 'var(--ui-primary)' : '#f3f4f6')};
+    color: ${(p) => (p.$active ? '#fff' : 'var(--ui-text)')};
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+
+  h4 {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--ui-text);
+  }
+
+  p {
+    margin: 0.25rem 0 0;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--ui-muted);
+  }
+`;
+
+const Phone = styled.div`
+  position: relative;
+  width: 280px;
+  height: 560px;
+  margin: 0 auto;
+  border-radius: 40px;
+  border: 10px solid #111827;
+  background: #f9fafb;
+  box-shadow: 0 30px 60px rgba(17, 24, 39, 0.2);
+  overflow: hidden;
+`;
+
+const PhoneScreen = styled.div`
+  position: absolute;
+  inset: 0;
+  padding-top: 28px;
+  opacity: ${(p) => (p.$visible ? 1 : 0)};
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+`;
+
+const PhoneHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.9rem;
+  background: #fff;
+  border-bottom: 1px solid var(--ui-border);
+
+  .logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--ui-primary);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+  }
+
+  b {
+    display: block;
+    font-size: 0.78rem;
+  }
+
+  small {
+    font-size: 0.62rem;
+    color: var(--ui-muted);
+  }
+`;
+
+const PhoneLabel = styled.div`
+  padding: 0.8rem 0.9rem 0.45rem;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ui-muted);
+`;
+
+const PhoneOption = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0 0.9rem 0.45rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 10px;
+  border: 1px solid ${(p) => (p.$selected ? 'var(--ui-primary)' : 'var(--ui-border)')};
+  background: ${(p) => (p.$selected ? '#f3f4f6' : '#fff')};
+  font-size: 0.72rem;
+  font-weight: 600;
+
+  span {
+    font-weight: 500;
+    color: var(--ui-muted);
+  }
+`;
+
+const PhoneSlots = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.4rem;
+  padding: 0 0.9rem;
+`;
+
+const PhoneSlot = styled.div`
+  padding: 0.45rem 0;
+  border-radius: 999px;
+  border: 1px solid ${(p) => (p.$selected ? 'var(--ui-primary)' : p.$off ? 'var(--ui-border)' : 'var(--ui-input-border)')};
+  background: ${(p) => (p.$selected ? 'var(--ui-primary)' : '#fff')};
+  color: ${(p) => (p.$selected ? '#fff' : p.$off ? '#9ca3af' : 'var(--ui-text)')};
+  text-decoration: ${(p) => (p.$off ? 'line-through' : 'none')};
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-align: center;
+`;
+
+const PhoneCta = styled.div`
+  margin: 1rem 0.9rem 0;
+  padding: 0.65rem;
+  border-radius: 999px;
+  background: var(--ui-primary);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: center;
+`;
+
+const SuccessIcon = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  margin: 2rem auto 0.9rem;
+  border-radius: 50%;
+  background: var(--ui-primary);
+  color: #fff;
+  animation: ${(p) => (p.$play ? successPop : 'none')} 0.5s ease both;
+`;
+
+const PhoneDots = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-top: 1rem;
+
+  button {
+    width: 8px;
+    height: 8px;
+    padding: 0;
+    border: none;
+    border-radius: 999px;
+    background: #d1d5db;
+    cursor: pointer;
+    transition: width 0.2s ease, background 0.2s ease;
+  }
+
+  button.active {
+    width: 22px;
+    background: var(--ui-primary);
+  }
+`;
+
+/* ── como funciona ───────────────────────────────────────────────────── */
+
+const Steps = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+
+  @media (max-width: 860px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const StepNumber = styled.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--ui-primary);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+`;
+
+/* ── planos ──────────────────────────────────────────────────────────── */
+
+const PlansGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+  align-items: stretch;
 `;
 
 const PlanCard = styled.article`
-  flex: 0 0 86%;
-  min-height: 330px;
-  border-radius: 0.9rem;
-  border: 1px solid ${({ $recommended, theme }) => $recommended ? theme.accentAS : theme.surfaceBorder};
-  background: ${({ theme }) => theme.surface2Bg};
-  padding: 0.95rem;
-  box-shadow: ${({ $recommended, theme }) => $recommended
-    ? `0 16px 28px ${theme.accentA}`
-    : `0 6px 14px ${theme.shadow}`};
-  scroll-snap-align: start;
-  animation: ${revealUp} 0.5s ease both;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.35s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  border-radius: var(--ui-radius);
+  background: #fff;
+  border: ${(p) => (p.$featured ? '2px solid var(--ui-primary)' : '1px solid var(--ui-border)')};
+  box-shadow: var(--ui-card-shadow);
+`;
 
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: ${({ $recommended, theme }) => $recommended
-      ? `0 20px 32px ${theme.accentA}`
-      : `0 14px 24px ${theme.shadow}`};
+const PlanBadge = styled.span`
+  position: absolute;
+  top: -12px;
+  left: 1.5rem;
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  background: var(--ui-primary);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+`;
+
+const PlanName = styled.h3`
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+`;
+
+const PlanDescription = styled.p`
+  margin: 0.35rem 0 0;
+  min-height: 2.6em;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--ui-muted);
+`;
+
+const PlanPrice = styled.div`
+  margin: 1.1rem 0;
+
+  strong {
+    font-size: 2rem;
+    font-weight: 800;
   }
 
-  @media (min-width: 768px)  { flex-basis: 44%; }
-  @media (min-width: 1080px) { flex-basis: calc(33.333% - 0.54rem); }
-`;
-
-const PlanTag = styled.span`
-  font-size: 0.75rem; color: ${({ theme }) => theme.accent}; font-weight: 700;
-`;
-
-const PlanText = styled.p`
-  margin: 0.45rem 0 0.7rem; color: ${({ theme }) => theme.textM}; font-size: 0.83rem; line-height: 1.4;
-`;
-
-const PlanPriceBox = styled.div`
-  border-radius: 0.75rem;
-  border: 1px solid ${({ theme }) => theme.surfaceBorder};
-  background: ${({ theme }) => theme.insetBg};
-  padding: 0.7rem; margin-bottom: 0.75rem;
-  display: flex; align-items: end; gap: 0.45rem;
-  transition: background 0.35s ease;
-
-  strong { color:${({ theme }) => theme.textP}; font-size:1.85rem; line-height:1; }
-  span   { color:${({ theme }) => theme.textD}; font-size:0.78rem; margin-bottom:0.2rem; }
-`;
-
-const PlanAction = styled.button`
-  width: 100%; height: 2.25rem;
-  border-radius: 999px; border: none;
-  background: ${({ $recommended, theme }) => $recommended ? theme.btnPBg : theme.planSecBtn};
-  color: ${({ $recommended, theme }) => $recommended ? theme.btnPColor : theme.planSecColor};
-  font-size: 0.82rem; font-weight: 700; cursor: pointer;
-  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
-
-  &:hover {
-    transform: translateY(-1px);
-    filter: brightness(${({ $recommended }) => $recommended ? '1.06' : '1.1'});
-    box-shadow: ${({ $recommended, theme }) => $recommended ? `0 8px 16px ${theme.accentA}` : 'none'};
+  span {
+    font-size: 0.85rem;
+    color: var(--ui-muted);
   }
 `;
 
-const PlanFeatureList = styled.ul`
-  margin: 0.8rem 0 0; padding: 0; list-style: none; display: grid; gap: 0.45rem;
+const PlanFeatures = styled(CheckList)`
+  margin: 1.25rem 0 0;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--ui-border);
 
   li {
-    color: ${({ theme }) => theme.textM};
-    font-size: 0.79rem; line-height: 1.35;
-    display: flex; align-items: flex-start; gap: 0.4rem;
-
-    &::before {
-      content:''; margin-top:0.35rem;
-      width:0.38rem; height:0.38rem; border-radius:999px;
-      background: ${({ theme }) => theme.accentA};
-      flex-shrink: 0;
-    }
-
-    &.addon { color:${({ theme }) => theme.textS}; &::before { opacity:.6; } }
+    font-size: 0.85rem;
   }
 `;
 
-const AddonBadge = styled.span`
-  display: inline-block; margin-left: 0.3rem;
-  padding: 0.1rem 0.38rem; border-radius: 999px;
-  border: 1px solid ${({ theme }) => theme.accentA};
-  background: ${({ theme }) => theme.accentBg};
-  color: ${({ theme }) => theme.accent};
-  font-size: 0.68rem; font-weight: 600; white-space: nowrap;
-  flex-shrink: 0; align-self: center;
+const Muted = styled.p`
+  margin: 0;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--ui-muted);
 `;
 
-const PlansDots = styled.div`
-  margin-top: 0.8rem;
-  display: flex; align-items: center; justify-content: center; gap: 0.45rem;
-`;
-
-const DotButton = styled.button`
-  width: ${({ $active }) => ($active ? '1.35rem' : '0.45rem')};
-  height: 0.45rem; border-radius: 999px; border: none;
-  background: ${({ $active, theme }) => $active ? theme.dotA : theme.dotI};
-  cursor: pointer; transition: all 0.18s ease;
-`;
-
-const PlansFallbackText = styled.p`
-  margin: 0.35rem 0; padding: 1rem 0.5rem;
-  text-align: center; color: ${({ theme }) => theme.textM}; font-size: 0.9rem;
-`;
-
-/* ── how it works ───────────────────────────────────────────────────── */
-
-const HowSection = styled.section`
-  padding: 0 1rem 1.5rem;
-
-  @media (min-width: 768px) { padding: 0 2rem 2rem; }
-`;
-
-const HowGrid = styled.div`
-  display: grid; grid-template-columns: 1fr; gap: 0.75rem;
-
-  @media (min-width: 768px) { grid-template-columns: repeat(3,1fr); }
-`;
-
-const HowStep = styled.article`
-  border-radius: 0.95rem; padding: 1.1rem;
-  background: ${({ theme }) => theme.surfaceBg};
-  border: 1px solid ${({ theme }) => theme.surfaceBorder};
-  display: flex; flex-direction: column; gap: 0.6rem;
-  animation: ${revealUp} 0.5s ease both;
-  animation-delay: ${({ $delay }) => $delay || '0s'};
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.35s ease;
-
-  &:hover {
-    transform: translateY(-3px);
-    border-color: ${({ theme }) => theme.accentA};
-    box-shadow: 0 12px 22px ${({ theme }) => theme.shadow};
-  }
-
-  h3 { margin:0; font-size:1rem; color:${({ theme }) => theme.textP}; line-height:1.3; }
-  p  { margin:0; color:${({ theme }) => theme.textM}; font-size:0.85rem; line-height:1.5; }
-`;
-
-const HowNumber = styled.span`
-  width: 2.2rem; height: 2.2rem; border-radius: 0.7rem;
-  background: ${({ theme }) => theme.numBg};
-  color: ${({ theme }) => theme.numColor};
-  font-size: 0.8rem; font-weight: 700;
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-`;
-
-/* ── faq ────────────────────────────────────────────────────────────── */
-
-const FaqSection = styled.section`
-  padding: 0 1rem 1.5rem;
-
-  @media (min-width: 768px) { padding: 0 2rem 2rem; }
-`;
+/* ── dúvidas ─────────────────────────────────────────────────────────── */
 
 const FaqList = styled.div`
-  display: grid; gap: 0.55rem;
+  max-width: 760px;
+  margin: 0 auto;
+  border-radius: var(--ui-radius);
+  background: #fff;
+  border: 1px solid var(--ui-border);
+  box-shadow: var(--ui-card-shadow);
+  overflow: hidden;
 `;
 
 const FaqItem = styled.div`
-  border-radius: 0.95rem;
-  border: 1px solid ${({ $open, theme }) => $open ? theme.accentAS : theme.surfaceBorder};
-  background: ${({ theme }) => theme.surfaceBg};
-  overflow: hidden;
-  transition: border-color 0.2s ease, background 0.35s ease;
+  border-top: 1px solid var(--ui-border);
+
+  &:first-child {
+    border-top: none;
+  }
 `;
 
 const FaqQuestion = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
   width: 100%;
-  display: flex; align-items: center; justify-content: space-between; gap: 0.8rem;
-  padding: 0.9rem 1rem;
-  background: transparent; border: none; cursor: pointer;
-  text-align: left; font-size: 0.9rem; font-weight: 600;
-  color: ${({ theme }) => theme.textP}; line-height: 1.35;
+  padding: 1.1rem 1.25rem;
+  border: none;
+  background: #fff;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ui-text);
+  text-align: left;
+  cursor: pointer;
 
-  .chevron {
-    flex-shrink: 0; width: 1.1rem; height: 1.1rem; border-radius: 999px;
-    border: 1px solid ${({ theme }) => theme.chevBorder};
-    background: ${({ theme }) => theme.chevBg};
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.65rem; color: ${({ theme }) => theme.accent};
+  svg {
+    flex-shrink: 0;
     transition: transform 0.2s ease;
-    transform: ${({ $open }) => ($open ? 'rotate(180deg)' : 'rotate(0deg)')};
+    transform: rotate(${(p) => (p.$open ? '180deg' : '0deg')});
   }
 `;
 
 const FaqAnswer = styled.div`
-  max-height: ${({ $open }) => ($open ? '12rem' : '0')};
-  overflow: hidden; transition: max-height 0.28s ease;
+  display: ${(p) => (p.$open ? 'block' : 'none')};
+  padding: 0 1.25rem 1.1rem;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--ui-muted);
+`;
+
+/* ── chamada final e rodapé ──────────────────────────────────────────── */
+
+const CtaBand = styled.div`
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) auto;
+  align-items: center;
+  gap: 2rem;
+  padding: 3rem;
+  border-radius: 1.25rem;
+  background: var(--ui-primary);
+  color: #fff;
+
+  h3 {
+    margin: 0;
+    font-size: clamp(1.5rem, 3vw, 2.1rem);
+    line-height: 1.2;
+    font-weight: 800;
+  }
 
   p {
-    margin: 0; padding: 0 1rem 0.9rem;
-    color: ${({ theme }) => theme.textM}; font-size: 0.85rem; line-height: 1.6;
-    border-top: 1px solid ${({ theme }) => theme.surfaceBorder}; padding-top: 0.75rem;
+    margin: 0.75rem 0 0;
+    font-size: 0.975rem;
+    line-height: 1.6;
+    color: #d1d5db;
+  }
+
+  small {
+    display: block;
+    margin-top: 0.6rem;
+    font-size: 0.75rem;
+    color: #9ca3af;
+    text-align: center;
+  }
+
+  @media (max-width: 760px) {
+    grid-template-columns: 1fr;
+    padding: 2rem 1.5rem;
   }
 `;
 
-/* ── reviews ────────────────────────────────────────────────────────── */
-
-const ReviewsSection = styled.section`
-  padding: 0 1rem 1.5rem;
-
-  @media (min-width: 768px) { padding: 0 2rem 2rem; }
+const Footer = styled.footer`
+  margin-top: 3rem;
+  padding: 2rem 0;
+  border-top: 1px solid var(--ui-border);
+  background: #fff;
 `;
 
-const ReviewsGrid = styled.div`
-  display: grid; grid-template-columns: 1fr; gap: 0.75rem;
+const FooterInner = styled(Container)`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.8rem;
+  color: var(--ui-muted);
 
-  @media (min-width: 640px)  { grid-template-columns: repeat(2,1fr); }
-  @media (min-width: 1000px) { grid-template-columns: repeat(3,1fr); }
-`;
+  svg {
+    height: 36px;
+    width: auto;
+  }
 
-const ReviewCard = styled.article`
-  border-radius: 0.95rem; padding: 1rem;
-  background: ${({ theme }) => theme.surfaceBg};
-  border: 1px solid ${({ theme }) => theme.surfaceBorder};
-  display: flex; flex-direction: column; gap: 0.75rem;
-  animation: ${revealUp} 0.5s ease both;
-  animation-delay: ${({ $delay }) => $delay || '0s'};
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.35s ease;
+  nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+  }
 
-  &:hover {
-    transform: translateY(-3px);
-    border-color: ${({ theme }) => theme.accentA};
-    box-shadow: 0 12px 22px ${({ theme }) => theme.shadow};
+  a {
+    color: var(--ui-text-secondary);
+    text-decoration: none;
+
+    &:hover {
+      color: var(--ui-text);
+    }
   }
 `;
 
-const Stars = styled.div`
-  display: flex; gap: 0.15rem; color: ${({ theme }) => theme.accent}; font-size: 0.82rem;
-`;
+/* ── conteúdo ────────────────────────────────────────────────────────── */
 
-const ReviewText = styled.p`
-  margin: 0; color: ${({ theme }) => theme.textS}; font-size: 0.87rem; line-height: 1.55; flex: 1;
-`;
+const BOOKING_HOST = 'horariocerto.elevatohub.com.br/';
 
-const ReviewAuthor = styled.div`
-  display: flex; align-items: center; gap: 0.6rem;
-  padding-top: 0.6rem; border-top: 1px solid ${({ theme }) => theme.reviewDivider};
-`;
+const heroChips = [
+  { icon: CalendarClock, label: 'Agenda online 24h' },
+  { icon: MessageCircle, label: 'Lembrete no WhatsApp' },
+  { icon: Smartphone, label: 'Cliente agenda sem baixar app' },
+  { icon: Users, label: 'Equipe e comissões' },
+  { icon: BarChart3, label: 'Faturamento e relatórios' },
+];
 
-const ReviewAvatar = styled.span`
-  width: 2.1rem; height: 2.1rem; border-radius: 999px;
-  background: ${({ $tone }) => $tone || '#c9a84c'};
-  color: #0d0d0d; font-size: 0.7rem; font-weight: 700;
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-`;
+// O que nos separa dos marketplaces de beleza
+const differentials = [
+  {
+    icon: Store,
+    title: 'Sua clientela é só sua',
+    text: 'Seu link mostra apenas a sua barbearia. Nada de vitrine com a concorrência do bairro ao lado do seu perfil.',
+  },
+  {
+    icon: MessageCircle,
+    title: 'WhatsApp, não mais um app',
+    text: 'O cliente agenda pelo navegador e recebe confirmação e lembrete no WhatsApp, que ele já usa todo dia.',
+  },
+  {
+    icon: LifeBuoy,
+    title: 'A gente configura com você',
+    text: 'Na implantação a nossa equipe cadastra serviços e horários junto com você. Você não começa sozinho.',
+  },
+  {
+    icon: Wallet,
+    title: 'Preço justo, sem pegadinha',
+    text: 'Plano mensal sem fidelidade e sem taxa por agendamento. Cancele quando quiser, direto pelo painel.',
+  },
+];
 
-const ReviewMeta = styled.div`
-  strong { display:block; font-size:0.83rem; color:${({ theme }) => theme.textP}; line-height:1.2; }
-  span   { font-size:0.75rem; color:${({ theme }) => theme.textD}; }
-`;
-
-/* ── cta band ───────────────────────────────────────────────────────── */
-
-const CtaBand = styled.section`
-  margin: 0.3rem 1rem 1rem;
-  border-radius: 0.95rem; padding: 1.5rem 1rem;
-  border: 1px solid ${({ theme }) => theme.accentA};
-  background: ${({ theme }) => theme.accentCtaBg};
-  display: flex; flex-direction: column; gap: 1rem;
-  position: relative; overflow: hidden; text-align: center;
-
-  &::before {
-    content: ''; position: absolute; inset: 0;
-    background: linear-gradient(115deg,transparent 0%,rgba(255,255,255,.04) 42%,transparent 70%);
-    background-size: 200% 100%;
-    animation: ${shimmerLine} 8s linear infinite;
-    pointer-events: none;
-  }
-
-  h3 { margin:0; color:${({ theme }) => theme.textP}; font-size:clamp(1.2rem,3.5vw,1.7rem); font-family:'Montserrat',sans-serif; line-height:1.25; }
-  p  { margin:0.5rem 0 0; color:${({ theme }) => theme.textS}; line-height:1.5; font-size:0.93rem; }
-
-  @media (min-width: 768px) {
-    margin: 0 2rem 2rem; padding: 2rem 1.5rem;
-    text-align: left; flex-direction: row; align-items: center; justify-content: space-between;
-  }
-`;
-
-const CtaActions = styled.div`
-  display: flex; flex-direction: column; align-items: center; gap: 0.5rem; flex-shrink: 0;
-
-  @media (min-width: 768px) { align-items: flex-end; }
-`;
-
-const CtaFinalButton = styled.button`
-  height: 2.85rem; padding: 0 1.8rem; border-radius: 999px; border: none;
-  background: ${({ theme }) => theme.btnPBg};
-  color: ${({ theme }) => theme.btnPColor};
-  font-weight: 700; font-size: 0.95rem; cursor: pointer; white-space: nowrap;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 24px ${({ theme }) => theme.accentA};
-    filter: brightness(1.06);
-  }
-`;
-
-const CtaNote = styled.span`
-  font-size: 0.77rem; color: ${({ theme }) => theme.textD};
-`;
-
-/* ── demo section ───────────────────────────────────────────────────── */
-
-const DemoSection = styled.section`
-  padding: 0 1rem 1.5rem;
-
-  @media (min-width: 768px) { padding: 0 2rem 2rem; }
-`;
-
-const DemoLayout = styled.div`
-  display: flex; flex-direction: column; gap: 2rem; align-items: center;
-
-  @media (min-width: 880px) { flex-direction: row; align-items: center; gap: 3.5rem; }
-`;
-
-const DemoStepsList = styled.div`
-  display: flex; flex-direction: column; gap: 0.7rem; flex: 1; order: 2;
-
-  @media (min-width: 880px) { order: 1; }
-`;
-
-const DemoStepItem = styled.div`
-  display: flex; gap: 1rem; align-items: flex-start;
-  border-radius: 0.95rem; padding: 0.9rem 1rem;
-  background: ${({ $active, theme }) => $active ? theme.surfaceBg : 'transparent'};
-  border: 1px solid ${({ $active, theme }) => $active ? theme.accentA : theme.surfaceBorder};
-  opacity: ${({ $active }) => ($active ? 1 : 0.45)};
-  transition: all 0.4s ease;
-
-  h4 { margin:0 0 0.25rem; font-size:0.92rem; color:${({ theme }) => theme.textP}; font-weight:700; }
-  p  { margin:0; font-size:0.82rem; color:${({ theme }) => theme.textM}; line-height:1.45; }
-`;
-
-const DemoStepNum = styled.span`
-  flex-shrink: 0; width: 2rem; height: 2rem; border-radius: 0.65rem;
-  background: ${({ $active, theme }) => $active ? theme.numBg : theme.chevBg};
-  color: ${({ $active, theme }) => $active ? theme.numColor : theme.textD};
-  font-size: 0.75rem; font-weight: 700;
-  display: flex; align-items: center; justify-content: center;
-  transition: all 0.4s ease;
-`;
-
-const DemoPhoneWrapper = styled.div`
-  flex-shrink: 0; order: 1;
-  display: flex; flex-direction: column; align-items: center; gap: 1rem;
-
-  @media (min-width: 880px) { order: 2; }
-`;
-
-const DemoPhone = styled.div`
-  width: 245px; height: 490px; border-radius: 30px;
-  background: #f9fafb;
-  box-shadow: 0 0 0 8px #1a1a1a, 0 0 0 10px #2a2a2a, 0 28px 56px rgba(0,0,0,.65);
-  overflow: hidden; position: relative;
-  font-family: 'Inter', -apple-system, sans-serif;
-
-  &::before {
-    content:''; position:absolute; top:0; left:50%; transform:translateX(-50%);
-    width:85px; height:20px; background:#1a1a1a;
-    border-radius:0 0 13px 13px; z-index:200;
-  }
-`;
-
-const DemoScreenBase = styled.div`
-  position: absolute; inset: 0; background: #f9fafb;
-  opacity: ${({ $visible }) => ($visible ? 1 : 0)};
-  transition: opacity 0.4s ease;
-  pointer-events: ${({ $visible }) => ($visible ? 'all' : 'none')};
-  overflow: hidden;
-`;
-
-const DemoSheetOverlay = styled.div`
-  position: absolute; inset: 0; background: rgba(0,0,0,.4);
-  opacity: ${({ $visible }) => ($visible ? 1 : 0)};
-  transition: opacity 0.3s ease;
-  pointer-events: ${({ $visible }) => ($visible ? 'all' : 'none')};
-  display: flex; align-items: flex-end;
-`;
-
-const DemoSheet = styled.div`
-  width: 100%; background: #fff;
-  border-radius: 18px 18px 0 0; padding: 0 14px 20px;
-  transform: ${({ $open }) => ($open ? 'translateY(0)' : 'translateY(100%)')};
-  transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
-`;
-
-const DemoSuccessIcon = styled.div`
-  width: 52px; height: 52px; border-radius: 50%;
-  background: rgba(201,168,76,.1); border: 2.5px solid rgba(201,168,76,.5);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 22px; margin-bottom: 14px; color: #c9a84c;
-  ${({ $play }) => $play && css`animation: ${successPop} 0.5s cubic-bezier(0.34,1.56,0.64,1) both;`}
-`;
-
-const DemoProgressBar = styled.div`
-  position: absolute; bottom: 0; left: 0; height: 2.5px;
-  background: ${({ theme }) => theme.accent};
-  width: ${({ $pct }) => $pct}%;
-  transition: width ${({ $duration }) => $duration}ms linear;
-`;
-
-const DemoDotsRow = styled.div`
-  display: flex; align-items: center; gap: 0.5rem;
-`;
-
-const DemoDot = styled.button`
-  width: ${({ $active }) => ($active ? '1.3rem' : '0.4rem')};
-  height: 0.4rem; border-radius: 999px; border: none;
-  background: ${({ $active, theme }) => $active ? theme.dotA : theme.dotI};
-  cursor: pointer; transition: all 0.2s ease; padding: 0;
-`;
-
-/* ── static data ────────────────────────────────────────────────────── */
-
-const problemCards = [
-  { icon:'📱', title:'WhatsApp virou agenda de papel digital', text:'Mensagem perdida, horário esquecido, cliente que some. Gerenciar agenda no WhatsApp cansa e cobra erro.' },
-  { icon:'😤', title:'Furo na agenda nos horários de pico', text:'Aquele horário que ficou vazio por falta de confirmação. Vaga perdida, dinheiro que foi embora.' },
-  { icon:'🤷', title:'Não sabe quanto faturou no mês', text:'No fim do mês você vai no instinto. Sem número claro de faturamento fica difícil crescer.' },
+const comparison = [
+  ['Onde o cliente agenda', 'No seu link exclusivo, só com a sua barbearia', 'Em uma vitrine com outras barbearias da região'],
+  ['O cliente precisa baixar app?', 'Não. Abre direto no navegador do celular', 'Normalmente é levado a instalar o app'],
+  ['Lembrete do horário', 'No WhatsApp do cliente', 'Notificação do app ou e-mail'],
+  ['Implantação', 'Feita junto com a nossa equipe', 'Você configura sozinho'],
+  ['Fidelidade e multa', 'Nenhuma. Cancele quando quiser', 'Varia conforme o contrato'],
 ];
 
 const howSteps = [
-  { number:'01', title:'Crie sua conta em 2 minutos', text:'Sem cartão de crédito. Preencha nome, e-mail e senha — e sua conta já está pronta para configurar.' },
-  { number:'02', title:'Configure seus serviços e horários', text:'Adicione os serviços que você oferece, defina seus horários disponíveis e pronto. Menos de 30 minutos.' },
-  { number:'03', title:'Compartilhe o link com seus clientes', text:'Você recebe um link exclusivo da sua barbearia. Mande no WhatsApp, Instagram ou bio — clientes agendam sozinhos.' },
+  { title: 'Crie sua conta', text: 'Leva 2 minutos e não pede cartão. Você ganha 14 dias para testar tudo.' },
+  { title: 'Configure com a gente', text: 'Cadastre serviços, preços e horários. Se preferir, fazemos isso junto com você.' },
+  { title: 'Divulgue seu link', text: 'Coloque na bio do Instagram e no WhatsApp. Os clientes passam a marcar sozinhos.' },
 ];
 
 const faqItems = [
-  { question:'Preciso de cartão de crédito para testar?', answer:'Não. O teste de 14 dias é completamente gratuito e não exige nenhum dado de pagamento. Você só informa o cartão se decidir assinar ao final do período.' },
-  { question:'Funciona para barbearia com apenas 1 profissional?', answer:'Sim, e foi exatamente para isso que o Horário Certo foi criado. Barbearias pequenas, com 1 ou 2 profissionais, são o nosso foco. A plataforma é simples o suficiente para você usar sozinho, sem precisar de um gestor.' },
-  { question:'Meu cliente precisa baixar algum aplicativo para agendar?', answer:'Não. Seu cliente acessa a página da sua barbearia pelo navegador do celular e agenda normalmente, sem precisar instalar nada. O aplicativo é só para você, dono da barbearia, gerenciar tudo.' },
-  { question:'Como funciona o WhatsApp? Já está incluso no plano?', answer:'A integração com WhatsApp é um recurso adicional, disponível em duas versões: WhatsApp Básico (até 500 mensagens por mês) e WhatsApp Plus (mensagens ilimitadas). Você pode adicionar ao plano escolhido a qualquer momento.' },
-  { question:'Quanto tempo leva para configurar?', answer:'A maioria dos clientes configura tudo em menos de 30 minutos. Você adiciona seus serviços, define os horários disponíveis e já pode começar a receber agendamentos no mesmo dia.' },
-  { question:'Como cancelo se não gostar?', answer:'Sem burocracia. Você cancela direto pelo painel, a qualquer momento, sem multa e sem precisar falar com ninguém. Não há fidelidade mínima.' },
+  {
+    question: 'Preciso de cartão de crédito para testar?',
+    answer: 'Não. O teste de 14 dias é gratuito e não pede nenhum dado de pagamento. Você só escolhe a forma de pagamento se decidir assinar.',
+  },
+  {
+    question: 'Meu cliente precisa baixar algum aplicativo?',
+    answer: 'Não. Ele abre o link da sua barbearia no navegador do celular, escolhe o serviço, o profissional e o horário. Sem cadastro e sem instalar nada.',
+  },
+  {
+    question: 'Qual a diferença para um marketplace de beleza?',
+    answer: 'Num marketplace o seu perfil fica numa vitrine junto com outras barbearias, e o cliente é incentivado a usar o app da plataforma. No Horário Certo o link é só seu: o cliente agenda direto com você e o relacionamento continua sendo seu.',
+  },
+  {
+    question: 'Funciona para quem trabalha sozinho? E para equipe?',
+    answer: 'Funciona para os dois. O barbeiro autônomo usa sozinho, sem complicação. Barbearias com equipe cadastram os profissionais, cada um com sua agenda, seus serviços e seus preços, e acompanham a parte da barbearia em cada atendimento.',
+  },
+  {
+    question: 'Como funcionam os lembretes no WhatsApp?',
+    answer: 'Quando o cliente agenda, ele recebe a confirmação no WhatsApp e, perto do horário, um lembrete. Isso reduz as faltas sem você precisar mandar mensagem um por um. Confira na seção de planos o que está incluso em cada plano.',
+  },
+  {
+    question: 'Como cancelo se não gostar?',
+    answer: 'Direto pelo painel, a qualquer momento, sem multa e sem precisar falar com ninguém. Não existe fidelidade mínima.',
+  },
 ];
 
-const reviewCards = [
-  { text:'Antes eu perdia horário toda semana por causa de confusão no WhatsApp. Hoje a agenda tá sempre organizada e eu consigo ver tudo pelo celular mesmo durante o atendimento.', author:'Rafael M.', role:'Dono — Barbearia RM', initials:'RM', tone:'#c9a84c' },
-  { text:'O aplicativo é muito simples. Em menos de um dia já tava funcionando. Meus clientes adoraram poder marcar a qualquer hora, sem precisar me chamar.', author:'Douglas S.', role:'Barbeiro — Studio DS', initials:'DS', tone:'#a08035' },
-  { text:'Tentei outros sistemas antes e todos eram complicados demais pra uma barbearia pequena como a minha. O Horário Certo foi o único que realmente encaixou na minha rotina.', author:'Thiago A.', role:'Dono — Barbearia do Thiago', initials:'TA', tone:'#b09040' },
-  { text:'A notificação no celular quando alguém agenda é demais. Não preciso mais ficar olhando pro WhatsApp o tempo todo esperando confirmação de cliente.', author:'Leandro P.', role:'Barbeiro — LP Barbearia', initials:'LP', tone:'#906828' },
-  { text:'O controle financeiro me ajudou a entender quais serviços dão mais lucro. Antes eu não tinha ideia de quanto faturava em corte versus barba. Agora sei exatamente.', author:'Marcos V.', role:'Dono — Barbearia Vintage', initials:'MV', tone:'#c9a84c' },
-  { text:'Custo-benefício excelente. Pago menos do que pagaria num concorrente e tenho tudo que preciso. Suporte responde rápido quando tenho dúvida.', author:'André C.', role:'Barbeiro — Corte & Estilo', initials:'AC', tone:'#a08035' },
-];
+const formatBRL = (value) =>
+  Number(value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2 });
 
-const featureCards = [
-  { title:'Agenda online 24h', text:'Cliente agenda enquanto você trabalha — ou dorme. A agenda funciona sozinha, sem você precisar responder.', tone:'#c9a84c' },
-  { title:'Notificação no celular na hora', text:'Alguém agendou? Notificação push chega no seu celular em segundos. Você sabe em tempo real.', tone:'#a08035' },
-  { title:'Faturamento no controle', text:'Veja quanto ganhou por serviço, por dia e por semana. Dados simples pra decidir sem achismo.', tone:'#7a6025' },
-];
+// Mesma regra do link no cadastro: só letras minúsculas e números
+const slugify = (value) =>
+  value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]/g, '')
+    .slice(0, 40);
 
-/* ── component ──────────────────────────────────────────────────────── */
+/* ── componente ──────────────────────────────────────────────────────── */
 
 function Landing() {
   const navigate = useNavigate();
-  const plansTrackRef = useRef(null);
+  const [slug, setSlug] = useState('');
   const [plans, setPlans] = useState([]);
   const [plansLoading, setPlansLoading] = useState(true);
-  const [activePlan, setActivePlan] = useState(0);
-  const [faqOpen, setFaqOpen] = useState(null);
-
-  const getInitialMode = () => {
-    try {
-      const saved = localStorage.getItem('hc-landing-theme');
-      if (saved === 'dark' || saved === 'light') return saved;
-    } catch {}
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  };
-  const [themeMode, setThemeMode] = useState(getInitialMode);
-  const theme = themeMode === 'dark' ? darkTheme : lightTheme;
-
-  const toggleTheme = () => {
-    const next = themeMode === 'dark' ? 'light' : 'dark';
-    setThemeMode(next);
-    try { localStorage.setItem('hc-landing-theme', next); } catch {}
-  };
+  const [faqOpen, setFaqOpen] = useState(0);
 
   const DEMO_DELAY = 3500;
   const [demoStep, setDemoStep] = useState(1);
-  const [demoPct, setDemoPct] = useState(0);
 
   useEffect(() => {
-    setDemoPct(0);
-    const pctTimer = setTimeout(() => setDemoPct(100), 50);
-    const stepTimer = setTimeout(() => setDemoStep((p) => (p >= 3 ? 1 : p + 1)), DEMO_DELAY);
-    return () => { clearTimeout(pctTimer); clearTimeout(stepTimer); };
+    const timer = setTimeout(() => setDemoStep((p) => (p >= 3 ? 1 : p + 1)), DEMO_DELAY);
+    return () => clearTimeout(timer);
   }, [demoStep]);
 
   useEffect(() => {
     const normalizePlan = (plan, index) => {
-      const normalizedFeatures = Array.isArray(plan.features)
-        ? plan.features.map((f) => (typeof f === 'string' ? f : f?.name || 'Recurso')).filter(Boolean)
+      const features = Array.isArray(plan.features)
+        ? plan.features.map((f) => (typeof f === 'string' ? f : f?.name)).filter(Boolean)
         : [];
       return {
         id: plan.id || plan._id || `${plan.name || 'plano'}-${index}`,
         name: plan.name || `Plano ${index + 1}`,
         monthly: Number(plan.price || plan.monthlyPrice || plan.amount || 0),
-        description: plan.description || `Plano com ${normalizedFeatures.length} recurso${normalizedFeatures.length === 1 ? '' : 's'} inclusos.`,
-        button: 'Assinar',
-        recommended: Boolean(plan.recommended || plan.popular || plan.highlighted || plan.isMostPopular),
-        features: normalizedFeatures,
+        description: plan.description || '',
+        featured: Boolean(plan.recommended || plan.popular || plan.highlighted || plan.isMostPopular),
+        features,
       };
     };
 
@@ -1112,416 +1302,471 @@ function Landing() {
       try {
         const response = await getPublicSubscriptionPlans();
         const payload = response?.data;
-        const sourcePlans = Array.isArray(payload?.plans) ? payload.plans : Array.isArray(payload) ? payload : [];
-        const mapped = sourcePlans.map(normalizePlan).sort((a, b) => a.monthly - b.monthly);
-        if (mapped.length > 0 && !mapped.some((p) => p.recommended)) {
+        const source = Array.isArray(payload?.plans) ? payload.plans : Array.isArray(payload) ? payload : [];
+        const mapped = source.map(normalizePlan).sort((a, b) => a.monthly - b.monthly);
+        if (mapped.length > 1 && !mapped.some((p) => p.featured)) {
           const mid = Math.floor(mapped.length / 2);
-          mapped[mid] = { ...mapped[mid], recommended: true };
+          mapped[mid] = { ...mapped[mid], featured: true };
         }
         setPlans(mapped);
-        setActivePlan(0);
-      } catch { setPlans([]); }
-      finally { setPlansLoading(false); }
+      } catch {
+        setPlans([]);
+      } finally {
+        setPlansLoading(false);
+      }
     };
 
     fetchPlans();
   }, []);
 
-  const getScrollStep = () => {
-    const track = plansTrackRef.current;
-    if (!track) return 0;
-    const firstCard = track.querySelector('[data-plan-card="true"]');
-    if (!firstCard) return track.clientWidth;
-    const gap = Number.parseFloat(window.getComputedStyle(track).columnGap || '0') || 0;
-    return firstCard.clientWidth + gap;
+  const startTrial = (event) => {
+    event?.preventDefault();
+    navigate('/registro', slug ? { state: { url: slug } } : undefined);
   };
 
-  const handlePlanScroll = (e) => {
-    const step = getScrollStep();
-    if (!step) return;
-    const index = Math.round(e.currentTarget.scrollLeft / step);
-    setActivePlan(Math.max(0, Math.min(Math.max(plans.length - 1, 0), index)));
-  };
-
-  const scrollPlans = (dir) => {
-    const track = plansTrackRef.current;
-    const step = getScrollStep();
-    if (!track || !step) return;
-    track.scrollBy({ left: dir === 'next' ? step : -step, behavior: 'smooth' });
-  };
-
-  const scrollToPlan = (index) => {
-    const track = plansTrackRef.current;
-    const step = getScrollStep();
-    if (!track || !step) return;
-    track.scrollTo({ left: step * index, behavior: 'smooth' });
-  };
+  const scrollTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const lowestPrice = plans.length > 0 ? plans[0].monthly : null;
 
   return (
-    <ThemeProvider theme={theme}>
-      <Page>
-        <Shell>
+    <Page>
+      <Header>
+        <HeaderInner>
+          <Brand type="button" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Horário Certo">
+            <Logo />
+          </Brand>
+          <NavLinks>
+            <a href="#diferenciais">Diferenciais</a>
+            <a href="#recursos">Recursos</a>
+            <a href="#planos">Planos</a>
+            <a href="#duvidas">Dúvidas</a>
+          </NavLinks>
+          <HeaderActions>
+            <Button $outline className="hide-xs" type="button" onClick={() => navigate('/login')}>
+              Entrar
+            </Button>
+            <Button type="button" onClick={() => startTrial()}>
+              Testar grátis
+            </Button>
+          </HeaderActions>
+        </HeaderInner>
+      </Header>
 
-          {/* Nav */}
-          <Nav>
-            <Brand type="button" onClick={() => navigate('/')}>
-              <Logo className="logo" />
-            </Brand>
-            <MobileThemeToggle type="button" onClick={toggleTheme} aria-label="Alternar tema">
-              {themeMode === 'dark' ? '☀' : '🌙'}
-            </MobileThemeToggle>
-            <NavActions>
-              <ThemeToggle type="button" onClick={toggleTheme} aria-label="Alternar tema">
-                {themeMode === 'dark' ? '☀' : '🌙'}
-              </ThemeToggle>
-              <OutlineButton type="button" onClick={() => navigate('/login')}>
-                Já sou cliente
-              </OutlineButton>
-              <PrimaryButton type="button" onClick={() => navigate('/registro')}>
-                Testar grátis
-              </PrimaryButton>
-            </NavActions>
-          </Nav>
+      {/* HERO */}
+      <Hero>
+        <Container>
+          <HeroBadge>
+            <Scissors size={14} /> Feito para barbeiros e barbearias
+          </HeroBadge>
+          <HeroTitle>Seus clientes marcam sozinhos. Você só se preocupa com o corte.</HeroTitle>
+          <HeroSub>
+            Um link de agendamento só seu, lembrete no WhatsApp para o cliente não faltar e um painel
+            simples com agenda, equipe e faturamento.
+          </HeroSub>
 
-          {/* Hero */}
-          <Hero>
-            <HeroBadge>14 dias grátis • Sem cartão de crédito</HeroBadge>
+          <LinkBar onSubmit={startTrial}>
+            <Link2 size={18} />
+            <span className="prefix">{BOOKING_HOST}</span>
+            <input
+              value={slug}
+              onChange={(e) => setSlug(slugify(e.target.value))}
+              placeholder="suabarbearia"
+              aria-label="Endereço da sua barbearia"
+            />
+            <Button type="submit">
+              Criar meu link <ArrowRight size={16} />
+            </Button>
+          </LinkBar>
+          <HeroNote>14 dias grátis • Sem cartão de crédito • Cancele quando quiser</HeroNote>
 
-            <HeroTitle>
-              Sua barbearia no <strong>piloto automático</strong>
-            </HeroTitle>
+          <Chips>
+            {heroChips.map(({ icon: Icon, label }) => (
+              <Chip key={label}>
+                <Icon size={15} /> {label}
+              </Chip>
+            ))}
+          </Chips>
 
-            <HeroSub>
-              Clientes marcam online enquanto você trabalha. Você recebe notificação no celular na hora.
-              App nativo para iOS e Android — sem complicação, sem curva de aprendizado.
-            </HeroSub>
+          {/* Prévia do painel com o mesmo visual do sistema */}
+          <AppFrame aria-hidden="true">
+            <AppTopbar>
+              <i /><i /><i />
+              <span>Painel Horário Certo</span>
+            </AppTopbar>
+            <AppBody>
+              <AppSidebar>
+                <span className="active"><Home size={16} /></span>
+                <span><Clock size={16} /></span>
+                <span><CalendarClock size={16} /></span>
+                <span><BarChart3 size={16} /></span>
+                <span><FileText size={16} /></span>
+                <span><Scissors size={16} /></span>
+                <span><Users size={16} /></span>
+                <span><Settings size={16} /></span>
+              </AppSidebar>
+              <AppMain>
+                <h4>Dashboard</h4>
+                <p>Resumo da sua barbearia nesta semana</p>
+                <StatGrid>
+                  <Stat>
+                    <small><CalendarClock size={13} /> Agendamentos</small>
+                    <strong>42</strong>
+                  </Stat>
+                  <Stat>
+                    <small><Wallet size={13} /> Faturamento</small>
+                    <strong>R$ 2.180,00</strong>
+                  </Stat>
+                  <Stat>
+                    <small><Bell size={13} /> Lembretes enviados</small>
+                    <strong>84</strong>
+                  </Stat>
+                </StatGrid>
+                <MiniList>
+                  <MiniRow><b>09:00</b><span>Corte + Barba · Lucas</span><Pill $tone="green">Confirmado</Pill></MiniRow>
+                  <MiniRow><b>10:00</b><span>Corte degradê · Pedro</span><Pill $tone="green">Confirmado</Pill></MiniRow>
+                  <MiniRow><b>11:30</b><span>Barba · Rafael</span><Pill>Lembrete enviado</Pill></MiniRow>
+                </MiniList>
+              </AppMain>
+            </AppBody>
+          </AppFrame>
+        </Container>
+      </Hero>
 
-            <HeroCtas>
-              <HeroCta type="button" onClick={() => navigate('/registro')}>
-                Começar 14 dias grátis
-              </HeroCta>
-              <HeroCtaOutline
-                type="button"
-                onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-              >
-                Ver ao vivo ↓
-              </HeroCtaOutline>
-            </HeroCtas>
+      {/* DIFERENCIAIS */}
+      <Section id="diferenciais">
+        <Container>
+          <SectionHead>
+            <Eyebrow>Nosso diferencial</Eyebrow>
+            <H2>Agenda própria, não vitrine de marketplace</H2>
+            <Lead>
+              Nos marketplaces de beleza, o seu perfil divide a tela com a concorrência e o cliente é empurrado
+              para o app da plataforma. Aqui o cliente é seu do começo ao fim.
+            </Lead>
+          </SectionHead>
 
-            <HeroRisk>Sem cartão de crédito. Cancele quando quiser.</HeroRisk>
+          <DiffGrid>
+            {differentials.map(({ icon: Icon, title, text }, i) => (
+              <Card key={title}>
+                <IconBox $dark={i === 0}><Icon size={20} /></IconBox>
+                <h3>{title}</h3>
+                <p>{text}</p>
+              </Card>
+            ))}
+          </DiffGrid>
 
-            <FloatingGroup aria-hidden="true">
-              <span className="avatar">AN</span>
-              <span className="avatar">BR</span>
-              <span className="avatar">CL</span>
-              <span className="avatar">EX</span>
-              <span className="label">Barbearias usando agora</span>
-            </FloatingGroup>
-          </Hero>
-
-          {/* Trust strip */}
-          <TrustStrip>
-            <TrustItem><span className="emoji">📱</span> App para iOS e Android</TrustItem>
-            <TrustItem><span className="emoji">🔔</span> Notificações push em tempo real</TrustItem>
-            <TrustItem><span className="emoji">💬</span> Integração com WhatsApp disponível</TrustItem>
-            <TrustItem><span className="emoji">🔒</span> Cancele quando quiser</TrustItem>
-          </TrustStrip>
-
-          {/* Problem */}
-          <ProblemSection>
-            <SectionLabel>Reconhece isso?</SectionLabel>
-            <SectionHeading>Dores que toda barbearia pequena conhece</SectionHeading>
-            <ProblemGrid>
-              {problemCards.map((card, i) => (
-                <ProblemCard key={card.title} $delay={`${0.07 * i}s`}>
-                  <span className="icon">{card.icon}</span>
-                  <h3>{card.title}</h3>
-                  <p>{card.text}</p>
-                </ProblemCard>
-              ))}
-            </ProblemGrid>
-          </ProblemSection>
-
-          {/* Demo */}
-          <DemoSection id="demo">
-            <SectionLabel>Veja ao vivo</SectionLabel>
-            <SectionHeading>Seu cliente agenda em menos de 1 minuto</SectionHeading>
-
-            <DemoLayout>
-              <DemoStepsList>
-                <DemoStepItem $active={demoStep >= 1}>
-                  <DemoStepNum $active={demoStep >= 1}>01</DemoStepNum>
-                  <div>
-                    <h4>Acessa a sua página</h4>
-                    <p>O cliente abre o link da sua barbearia pelo celular — sem app, sem cadastro, sem complicação.</p>
-                  </div>
-                </DemoStepItem>
-                <DemoStepItem $active={demoStep >= 2}>
-                  <DemoStepNum $active={demoStep >= 2}>02</DemoStepNum>
-                  <div>
-                    <h4>Escolhe e confirma o horário</h4>
-                    <p>Toca no horário disponível, informa nome e serviço. Menos de 30 segundos.</p>
-                  </div>
-                </DemoStepItem>
-                <DemoStepItem $active={demoStep >= 3}>
-                  <DemoStepNum $active={demoStep >= 3}>03</DemoStepNum>
-                  <div>
-                    <h4>Você recebe a notificação na hora</h4>
-                    <p>Push no seu celular em segundos. Agenda atualizada automaticamente, sem você fazer nada.</p>
-                  </div>
-                </DemoStepItem>
-              </DemoStepsList>
-
-              <DemoPhoneWrapper>
-                <DemoPhone>
-                  <DemoScreenBase $visible={demoStep <= 2}>
-                    <div style={{ height:54, background:'#fff', borderBottom:'1px solid #e5e7eb', display:'flex', alignItems:'center', padding:'0 12px', gap:10, paddingTop:22 }}>
-                      <div style={{ width:28, height:28, borderRadius:'50%', background:'#1f2937', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontSize:9, fontWeight:700, flexShrink:0 }}>EL</div>
-                      <div style={{ flex:1 }}>
-                        <div style={{ fontSize:11, fontWeight:700, color:'#111827', lineHeight:1.2 }}>Elevato Barbearia</div>
-                        <div style={{ fontSize:8, color:'#6b7280', marginTop:1 }}>horariocerto.elevatohub.com.br/elevatohub</div>
-                      </div>
-                    </div>
-
-                    <div style={{ padding:'8px 10px 4px', fontSize:8, fontWeight:700, color:'#6b7280', letterSpacing:1, textTransform:'uppercase' }}>Segunda — 16 Jun</div>
-                    <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:5, padding:'0 10px' }}>
-                      {[
-                        { time:'09:00', avail:false },
-                        { time:'10:00', avail:true, sel:demoStep===2 },
-                        { time:'11:00', avail:false },
-                        { time:'14:00', avail:true },
-                        { time:'15:00', avail:false },
-                        { time:'16:00', avail:true },
-                      ].map((s) => (
-                        <div key={s.time} style={{ borderRadius:8, border:`1.5px solid ${s.sel?'#111827':s.avail?'#d1d5db':'#e5e7eb'}`, background:s.sel?'#111827':s.avail?'#f3f4f6':'#fff', padding:'6px 4px', textAlign:'center', opacity:s.avail||s.sel?1:0.4 }}>
-                          <div style={{ fontSize:11, fontWeight:700, color:s.sel?'#fff':s.avail?'#111827':'#111827' }}>{s.time}</div>
-                          <div style={{ fontSize:7, fontWeight:600, color:s.sel?'rgba(255,255,255,.7)':s.avail?'#6b7280':'#6b7280', marginTop:2 }}>{s.sel?'Selecionado':s.avail?'Disponível':'Ocupado'}</div>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div style={{ padding:'8px 10px 4px', fontSize:8, fontWeight:700, color:'#6b7280', letterSpacing:1, textTransform:'uppercase', marginTop:6 }}>Terça — 17 Jun</div>
-                    <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:5, padding:'0 10px' }}>
-                      {[{ time:'09:00', avail:true },{ time:'10:00', avail:true },{ time:'11:00', avail:false }].map((s) => (
-                        <div key={s.time} style={{ borderRadius:8, border:`1.5px solid ${s.avail?'#d1d5db':'#e5e7eb'}`, background:s.avail?'#f3f4f6':'#fff', padding:'6px 4px', textAlign:'center', opacity:s.avail?1:0.4 }}>
-                          <div style={{ fontSize:11, fontWeight:700, color:s.avail?'#111827':'#111827' }}>{s.time}</div>
-                          <div style={{ fontSize:7, fontWeight:600, color:s.avail?'#6b7280':'#6b7280', marginTop:2 }}>{s.avail?'Disponível':'Ocupado'}</div>
-                        </div>
-                      ))}
-                    </div>
-
-                    <DemoSheetOverlay $visible={demoStep===2}>
-                      <DemoSheet $open={demoStep===2}>
-                        <div style={{ width:30, height:3, borderRadius:999, background:'#e5e7eb', margin:'8px auto 12px' }} />
-                        <div style={{ fontSize:13, fontWeight:800, color:'#111827', marginBottom:3 }}>Confirmar agendamento</div>
-                        <div style={{ fontSize:9, color:'#6b7280', marginBottom:12 }}>Preencha seus dados para reservar</div>
-                        <div style={{ display:'inline-flex', alignItems:'center', gap:5, background:'#f3f4f6', border:'1px solid #e5e7eb', borderRadius:999, padding:'4px 10px', fontSize:9, fontWeight:700, color:'#111827', marginBottom:12 }}>📅 Segunda, 16 Jun às 10:00</div>
-                        <div style={{ fontSize:8, fontWeight:700, color:'#374151', textTransform:'uppercase', letterSpacing:0.5, marginBottom:4 }}>Nome</div>
-                        <div style={{ height:30, border:'1.5px solid #d1d5db', borderRadius:8, padding:'0 10px', fontSize:11, color:'#111827', background:'#f9fafb', display:'flex', alignItems:'center', marginBottom:8 }}>Carlos Mendes</div>
-                        <div style={{ fontSize:8, fontWeight:700, color:'#374151', textTransform:'uppercase', letterSpacing:0.5, marginBottom:4 }}>Telefone</div>
-                        <div style={{ height:30, border:'1.5px solid #d1d5db', borderRadius:8, padding:'0 10px', fontSize:11, color:'#111827', background:'#f9fafb', display:'flex', alignItems:'center', marginBottom:8 }}>(31) 99847-2210</div>
-                        <div style={{ fontSize:8, fontWeight:700, color:'#374151', textTransform:'uppercase', letterSpacing:0.5, marginBottom:4 }}>Serviço</div>
-                        <div style={{ height:32, border:'1.5px solid #d1d5db', borderRadius:8, padding:'0 10px', fontSize:11, color:'#111827', background:'#f9fafb', display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14 }}>
-                          <span>✂️ Corte + Barba</span>
-                          <span style={{ fontSize:10, fontWeight:700, color:'#111827' }}>R$ 45</span>
-                        </div>
-                        <button style={{ width:'100%', height:36, background:'#111827', borderRadius:999, color:'#fff', fontSize:12, fontWeight:700, border:'none' }}>Confirmar agendamento</button>
-                      </DemoSheet>
-                    </DemoSheetOverlay>
-                  </DemoScreenBase>
-
-                  <DemoScreenBase $visible={demoStep===3}>
-                    <div style={{ height:54, background:'#fff', borderBottom:'1px solid #e5e7eb', display:'flex', alignItems:'center', padding:'0 12px', gap:10, paddingTop:22 }}>
-                      <div style={{ width:28, height:28, borderRadius:'50%', background:'#1f2937', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontSize:9, fontWeight:700, flexShrink:0 }}>EL</div>
-                      <div style={{ flex:1 }}>
-                        <div style={{ fontSize:11, fontWeight:700, color:'#111827', lineHeight:1.2 }}>Elevato Barbearia</div>
-                        <div style={{ fontSize:8, color:'#6b7280', marginTop:1 }}>Agendamento confirmado</div>
-                      </div>
-                    </div>
-                    <div style={{ display:'flex', flexDirection:'column', alignItems:'center', padding:'24px 16px 0', textAlign:'center' }}>
-                      <DemoSuccessIcon key={demoStep===3?'play':'idle'} $play={demoStep===3}>✓</DemoSuccessIcon>
-                      <div style={{ fontSize:15, fontWeight:800, color:'#111827', marginBottom:6 }}>Horário reservado!</div>
-                      <div style={{ fontSize:10, color:'#6b7280', lineHeight:1.5, marginBottom:16, maxWidth:200 }}>Agendamento confirmado. Você receberá uma notificação de lembrete.</div>
-                      <div style={{ width:'100%', background:'#fff', border:'1.5px solid #e5e7eb', borderRadius:10, padding:12, textAlign:'left' }}>
-                        {[['Cliente','Carlos Mendes',false],['Serviço','Corte + Barba',false],['Data','Seg, 16 Jun · 10:00',false],['Valor','R$ 45,00',true]].map(([label,value,green]) => (
-                          <div key={label} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'5px 0', borderBottom:'1px solid #f3f4f6' }}>
-                            <span style={{ fontSize:9, color:'#6b7280' }}>{label}</span>
-                            <span style={{ fontSize:10, fontWeight:600, color:green?'#111827':'#111827' }}>{value}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </DemoScreenBase>
-
-                  <DemoProgressBar $pct={demoPct} $duration={DEMO_DELAY} />
-                </DemoPhone>
-
-                <DemoDotsRow>
-                  {[1,2,3].map((n) => (
-                    <DemoDot key={n} type="button" $active={demoStep===n} onClick={() => setDemoStep(n)} aria-label={`Etapa ${n}`} />
-                  ))}
-                </DemoDotsRow>
-              </DemoPhoneWrapper>
-            </DemoLayout>
-          </DemoSection>
-
-          {/* Como funciona */}
-          <HowSection>
-            <SectionLabel>Como funciona</SectionLabel>
-            <SectionHeading>Pronto para receber agendamentos em 3 passos</SectionHeading>
-            <HowGrid>
-              {howSteps.map((step, i) => (
-                <HowStep key={step.number} $delay={`${0.08*i}s`}>
-                  <HowNumber>{step.number}</HowNumber>
-                  <h3>{step.title}</h3>
-                  <p>{step.text}</p>
-                </HowStep>
-              ))}
-            </HowGrid>
-          </HowSection>
-
-          {/* Features */}
-          <Features>
-            <SectionLabel>O que você ganha</SectionLabel>
-            <SectionHeading>Tudo que sua barbearia precisa, sem complicar</SectionHeading>
-            <FeatureGrid>
-              {featureCards.map((card, i) => (
-                <FeatureCard key={card.title} $delay={`${0.08*i}s`}>
-                  <Dot $tone={card.tone}>{i+1}</Dot>
-                  <h3>{card.title}</h3>
-                  <p>{card.text}</p>
-                </FeatureCard>
-              ))}
-              <HighlightCard>
-                <span className="tag">Diferencial</span>
-                <h3>App nativo. Não é site disfarcado de app.</h3>
-                <p>Disponível na App Store e Google Play. Notificações push reais, experiência fluida no celular — sem depender de navegador para gerenciar sua barbearia.</p>
-              </HighlightCard>
-            </FeatureGrid>
-          </Features>
-
-          {/* Plans */}
-          <PlansSection>
-            <PlansHeader>
-              <div>
-                <h2>Planos e preços</h2>
-                <p style={{ margin:'0.35rem 0 0', color:theme.textM, fontSize:'0.9rem' }}>
-                  Todos incluem <strong style={{ color:theme.accent }}>14 dias grátis</strong> para testar sem compromisso.
-                </p>
-              </div>
-              <PlansMeta>
-                {!plansLoading && plans.length > 1 && (
-                  <>
-                    <ControlButton type="button" onClick={() => scrollPlans('prev')} aria-label="Plano anterior" disabled={activePlan===0}>{'<'}</ControlButton>
-                    <ControlButton type="button" onClick={() => scrollPlans('next')} aria-label="Próximo plano" disabled={activePlan>=plans.length-1}>{'>'}</ControlButton>
-                  </>
+          <CompareCard>
+            <CompareTable>
+              <thead>
+                <tr>
+                  <th />
+                  <th className="ours">Horário Certo</th>
+                  <th>Marketplaces de beleza</th>
+                </tr>
+              </thead>
+              <tbody>
+                {comparison.map(([label, ours, theirs]) => (
+                  <tr key={label}>
+                    <td>{label}</td>
+                    <td className="ours">
+                      <div className="cell"><Check size={16} color="#16a34a" />{ours}</div>
+                    </td>
+                    <td className="theirs">
+                      <div className="cell"><X size={16} color="#9ca3af" />{theirs}</div>
+                    </td>
+                  </tr>
+                ))}
+                {lowestPrice !== null && (
+                  <tr>
+                    <td>Investimento</td>
+                    <td className="ours">
+                      <div className="cell"><Check size={16} color="#16a34a" />A partir de {formatBRL(lowestPrice)}/mês</div>
+                    </td>
+                    <td className="theirs">
+                      <div className="cell"><X size={16} color="#9ca3af" />Mensalidade mais cobrança por profissional</div>
+                    </td>
+                  </tr>
                 )}
-              </PlansMeta>
-            </PlansHeader>
+              </tbody>
+            </CompareTable>
+          </CompareCard>
+          <CompareNote>Comparação com o modelo geral dos marketplaces de agendamento de beleza.</CompareNote>
+        </Container>
+      </Section>
 
-            <PlansCarousel>
-              {plansLoading ? (
-                <PlansFallbackText>Carregando planos...</PlansFallbackText>
-              ) : plans.length===0 ? (
-                <PlansFallbackText>Nenhum plano disponível no momento.</PlansFallbackText>
-              ) : (
-                <>
-                  <PlansTrack ref={plansTrackRef} onScroll={handlePlanScroll} $singleItem={plans.length===1}>
-                    {plans.map((plan) => (
-                      <PlanCard key={plan.id} data-plan-card="true" $recommended={plan.recommended}>
-                        <PlanTag>{plan.name}</PlanTag>
-                        <PlanText>{plan.description}</PlanText>
-                        <PlanPriceBox>
-                          <strong>{Number(plan.monthly||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:2})}</strong>
-                          <span>/ mês</span>
-                        </PlanPriceBox>
-                        <PlanAction type="button" $recommended={plan.recommended} onClick={() => navigate('/registro')}>
-                          {plan.button} — 14 dias grátis
-                        </PlanAction>
-                        <PlanFeatureList>
-                          {plan.features.map((feature) => {
-                            const isWa = feature.toLowerCase().includes('via whatsapp');
-                            return (
-                              <li key={feature} className={isWa?'addon':undefined}>
-                                <span>{feature}</span>
-                                {isWa && <AddonBadge>recurso adicional</AddonBadge>}
-                              </li>
-                            );
-                          })}
-                        </PlanFeatureList>
-                      </PlanCard>
-                    ))}
-                  </PlansTrack>
-                  <PlansDots>
-                    {plans.map((plan, i) => (
-                      <DotButton key={plan.id} type="button" $active={activePlan===i} onClick={() => scrollToPlan(i)} aria-label={`Ir para plano ${plan.name}`} />
-                    ))}
-                  </PlansDots>
-                </>
-              )}
-            </PlansCarousel>
-          </PlansSection>
+      {/* RECURSOS (blocos alternados) */}
+      <Section id="recursos" style={{ background: '#fff', borderTop: '1px solid var(--ui-border)', borderBottom: '1px solid var(--ui-border)' }}>
+        <Container>
+          <Row>
+            <RowText>
+              <Eyebrow>Agendamento online</Eyebrow>
+              <h3>Seu cliente agenda em menos de 1 minuto</h3>
+              <p>
+                Ele abre o seu link, escolhe o serviço, o profissional e o horário livre. Sem ligação, sem
+                troca de mensagens e sem você parar o atendimento.
+              </p>
+              <DemoSteps>
+                {[
+                  ['Escolhe o serviço', 'Vê os serviços com preço e duração.'],
+                  ['Escolhe profissional e horário', 'Só aparecem horários realmente livres.'],
+                  ['Pronto, está agendado', 'Confirmação no WhatsApp e o horário já cai na sua agenda.'],
+                ].map(([title, text], i) => (
+                  <DemoStep key={title} type="button" $active={demoStep === i + 1} onClick={() => setDemoStep(i + 1)}>
+                    <span className="num">{i + 1}</span>
+                    <div>
+                      <h4>{title}</h4>
+                      <p>{text}</p>
+                    </div>
+                  </DemoStep>
+                ))}
+              </DemoSteps>
+            </RowText>
 
-          {/* Reviews */}
-          <ReviewsSection>
-            <SectionLabel>Avaliações</SectionLabel>
-            <SectionHeading>O que dizem quem já usa</SectionHeading>
-            <ReviewsGrid>
-              {reviewCards.map((review, i) => (
-                <ReviewCard key={review.author} $delay={`${0.07*i}s`}>
-                  <Stars>★★★★★</Stars>
-                  <ReviewText>"{review.text}"</ReviewText>
-                  <ReviewAuthor>
-                    <ReviewAvatar $tone={review.tone}>{review.initials}</ReviewAvatar>
-                    <ReviewMeta>
-                      <strong>{review.author}</strong>
-                      <span>{review.role}</span>
-                    </ReviewMeta>
-                  </ReviewAuthor>
-                </ReviewCard>
-              ))}
-            </ReviewsGrid>
-          </ReviewsSection>
-
-          {/* FAQ */}
-          <FaqSection>
-            <SectionLabel>Dúvidas frequentes</SectionLabel>
-            <SectionHeading>Perguntas que todo mundo faz</SectionHeading>
-            <FaqList>
-              {faqItems.map((item, i) => {
-                const isOpen = faqOpen===i;
-                return (
-                  <FaqItem key={i} $open={isOpen}>
-                    <FaqQuestion type="button" $open={isOpen} onClick={() => setFaqOpen(isOpen?null:i)} aria-expanded={isOpen}>
-                      {item.question}
-                      <span className="chevron">▾</span>
-                    </FaqQuestion>
-                    <FaqAnswer $open={isOpen}>
-                      <p>{item.answer}</p>
-                    </FaqAnswer>
-                  </FaqItem>
-                );
-              })}
-            </FaqList>
-          </FaqSection>
-
-          {/* Final CTA */}
-          <CtaBand>
             <div>
-              <h3>Barbearia organizada começa hoje, não amanhã.</h3>
-              <p>14 dias pra testar tudo, sem cartão e sem burocracia. Se não gostar, é só não assinar — sem multa, sem explicação.</p>
-            </div>
-            <CtaActions>
-              <CtaFinalButton type="button" onClick={() => navigate('/registro')}>
-                Começar teste gratuito
-              </CtaFinalButton>
-              <CtaNote>Grátis por 14 dias • Cancele quando quiser</CtaNote>
-            </CtaActions>
-          </CtaBand>
+              <Phone aria-hidden="true">
+                <PhoneScreen $visible={demoStep === 1}>
+                  <PhoneHeader>
+                    <span className="logo">EB</span>
+                    <div><b>Elevato Barbearia</b><small>{BOOKING_HOST}elevato</small></div>
+                  </PhoneHeader>
+                  <PhoneLabel>Escolha o serviço</PhoneLabel>
+                  <PhoneOption>Corte <span>30 min · R$ 35</span></PhoneOption>
+                  <PhoneOption $selected>Corte + Barba <span>50 min · R$ 50</span></PhoneOption>
+                  <PhoneOption>Barba <span>20 min · R$ 25</span></PhoneOption>
+                  <PhoneOption>Sobrancelha <span>10 min · R$ 15</span></PhoneOption>
+                </PhoneScreen>
 
-        </Shell>
-      </Page>
-    </ThemeProvider>
+                <PhoneScreen $visible={demoStep === 2}>
+                  <PhoneHeader>
+                    <span className="logo">EB</span>
+                    <div><b>Corte + Barba</b><small>Escolha profissional e horário</small></div>
+                  </PhoneHeader>
+                  <PhoneLabel>Profissional</PhoneLabel>
+                  <PhoneOption $selected>Lucas <span>R$ 50</span></PhoneOption>
+                  <PhoneOption>Sem preferência <span>Primeiro livre</span></PhoneOption>
+                  <PhoneLabel>Segunda, 16/06</PhoneLabel>
+                  <PhoneSlots>
+                    <PhoneSlot $off>09:00</PhoneSlot>
+                    <PhoneSlot $selected>10:00</PhoneSlot>
+                    <PhoneSlot $off>11:00</PhoneSlot>
+                    <PhoneSlot>14:00</PhoneSlot>
+                    <PhoneSlot>15:00</PhoneSlot>
+                    <PhoneSlot>16:00</PhoneSlot>
+                  </PhoneSlots>
+                  <PhoneCta>Confirmar agendamento</PhoneCta>
+                </PhoneScreen>
+
+                <PhoneScreen $visible={demoStep === 3} style={{ textAlign: 'center' }}>
+                  <PhoneHeader style={{ textAlign: 'left' }}>
+                    <span className="logo">EB</span>
+                    <div><b>Elevato Barbearia</b><small>Agendamento confirmado</small></div>
+                  </PhoneHeader>
+                  <SuccessIcon key={demoStep} $play={demoStep === 3}><Check size={28} /></SuccessIcon>
+                  <div style={{ fontSize: '0.95rem', fontWeight: 800 }}>Horário reservado!</div>
+                  <div style={{ fontSize: '0.7rem', color: 'var(--ui-muted)', margin: '0.4rem 1.5rem 1rem' }}>
+                    Você vai receber a confirmação e o lembrete no WhatsApp.
+                  </div>
+                  <PhoneOption>Serviço <span>Corte + Barba</span></PhoneOption>
+                  <PhoneOption>Profissional <span>Lucas</span></PhoneOption>
+                  <PhoneOption>Data <span>Seg, 16/06 · 10:00</span></PhoneOption>
+                </PhoneScreen>
+              </Phone>
+              <PhoneDots>
+                {[1, 2, 3].map((n) => (
+                  <button
+                    key={n}
+                    type="button"
+                    className={demoStep === n ? 'active' : undefined}
+                    onClick={() => setDemoStep(n)}
+                    aria-label={`Etapa ${n}`}
+                  />
+                ))}
+              </PhoneDots>
+            </div>
+          </Row>
+
+          <Row $reverse>
+            <RowText>
+              <Eyebrow>Menos faltas</Eyebrow>
+              <h3>Lembrete no WhatsApp, sem você digitar nada</h3>
+              <p>
+                O cliente recebe a confirmação assim que agenda e um lembrete antes do horário. Menos
+                cadeira vazia e menos tempo respondendo mensagem.
+              </p>
+              <CheckList>
+                <li><Check size={16} />Confirmação automática a cada agendamento</li>
+                <li><Check size={16} />Lembrete antes do horário marcado</li>
+                <li><Check size={16} />Cancelamento pelo próprio cliente, com código</li>
+                <li><Check size={16} />Lista de espera para os dias lotados</li>
+              </CheckList>
+            </RowText>
+            <Visual aria-hidden="true">
+              <VisualTitle>WhatsApp do cliente <span>agora</span></VisualTitle>
+              <WhatsBubble>
+                Olá, Carlos! Seu horário na <b>Elevato Barbearia</b> está confirmado: segunda, 16/06 às 10:00 (Corte + Barba).
+                <small>09:12</small>
+              </WhatsBubble>
+              <WhatsBubble>
+                Lembrete: seu horário é hoje às 10:00. Até já! ✂️
+                <small>08:00</small>
+              </WhatsBubble>
+            </Visual>
+          </Row>
+
+          <Row>
+            <RowText>
+              <Eyebrow>Equipe e financeiro</Eyebrow>
+              <h3>Equipe organizada e o faturamento na palma da mão</h3>
+              <p>
+                Cada profissional com a própria agenda, serviços e preços. Você define a parte da barbearia
+                em cada serviço e acompanha tudo no Dashboard e nos relatórios.
+              </p>
+              <CheckList>
+                <li><Check size={16} />Agenda e login para cada profissional</li>
+                <li><Check size={16} />Preço do serviço diferente por profissional</li>
+                <li><Check size={16} />Parte da barbearia calculada em cada atendimento</li>
+                <li><Check size={16} />Relatórios com exportação em PDF</li>
+              </CheckList>
+            </RowText>
+            <Visual aria-hidden="true">
+              <VisualTitle>Equipe <span>esta semana</span></VisualTitle>
+              <ProRow>
+                <span className="avatar">LU</span>
+                <div>Lucas<small>18 atendimentos</small></div>
+                <b>R$ 980,00<small>Parte da barbearia: R$ 294,00</small></b>
+              </ProRow>
+              <ProRow>
+                <span className="avatar">PE</span>
+                <div>Pedro<small>14 atendimentos</small></div>
+                <b>R$ 720,00<small>Parte da barbearia: R$ 216,00</small></b>
+              </ProRow>
+              <ProRow>
+                <span className="avatar">RA</span>
+                <div>Rafael<small>10 atendimentos</small></div>
+                <b>R$ 480,00<small>Parte da barbearia: R$ 144,00</small></b>
+              </ProRow>
+              <StatGrid $cols={2} style={{ marginTop: '1rem' }}>
+                <Stat><small><Wallet size={13} /> Faturamento</small><strong>R$ 2.180,00</strong></Stat>
+                <Stat><small><Percent size={13} /> Parte da barbearia</small><strong>R$ 654,00</strong></Stat>
+              </StatGrid>
+            </Visual>
+          </Row>
+        </Container>
+      </Section>
+
+      {/* COMO FUNCIONA */}
+      <Section id="como-funciona">
+        <Container>
+          <SectionHead>
+            <Eyebrow>Como funciona</Eyebrow>
+            <H2>Recebendo agendamentos ainda hoje</H2>
+          </SectionHead>
+          <Steps>
+            {howSteps.map((step, i) => (
+              <Card key={step.title}>
+                <StepNumber>{i + 1}</StepNumber>
+                <h3>{step.title}</h3>
+                <p>{step.text}</p>
+              </Card>
+            ))}
+          </Steps>
+        </Container>
+      </Section>
+
+      {/* PLANOS */}
+      <Section id="planos" style={{ paddingTop: 0 }}>
+        <Container>
+          <SectionHead>
+            <Eyebrow>Planos</Eyebrow>
+            <H2>Preço simples, sem taxa por agendamento</H2>
+            <Lead>Todos os planos começam com 14 dias grátis. Sem fidelidade.</Lead>
+          </SectionHead>
+
+          {plansLoading ? (
+            <Muted>Carregando planos...</Muted>
+          ) : plans.length === 0 ? (
+            <Muted>Os planos estão indisponíveis no momento. Comece o teste grátis e escolha depois.</Muted>
+          ) : (
+            <PlansGrid>
+              {plans.map((plan) => (
+                <PlanCard key={plan.id} $featured={plan.featured}>
+                  {plan.featured && <PlanBadge>Mais escolhido</PlanBadge>}
+                  <PlanName>{plan.name}</PlanName>
+                  {plan.description && <PlanDescription>{plan.description}</PlanDescription>}
+                  <PlanPrice>
+                    <strong>{formatBRL(plan.monthly)}</strong> <span>/ mês</span>
+                  </PlanPrice>
+                  <Button $outline={!plan.featured} type="button" onClick={() => startTrial()}>
+                    Testar 14 dias grátis
+                  </Button>
+                  {plan.features.length > 0 && (
+                    <PlanFeatures>
+                      {plan.features.map((feature) => (
+                        <li key={feature}><Check size={16} />{feature}</li>
+                      ))}
+                    </PlanFeatures>
+                  )}
+                </PlanCard>
+              ))}
+            </PlansGrid>
+          )}
+        </Container>
+      </Section>
+
+      {/* DÚVIDAS */}
+      <Section id="duvidas" style={{ paddingTop: 0 }}>
+        <Container>
+          <SectionHead>
+            <Eyebrow>Dúvidas frequentes</Eyebrow>
+            <H2>Perguntas que todo barbeiro faz</H2>
+          </SectionHead>
+          <FaqList>
+            {faqItems.map((item, i) => {
+              const open = faqOpen === i;
+              return (
+                <FaqItem key={item.question}>
+                  <FaqQuestion type="button" $open={open} aria-expanded={open} onClick={() => setFaqOpen(open ? null : i)}>
+                    {item.question}
+                    <ChevronDown size={18} />
+                  </FaqQuestion>
+                  <FaqAnswer $open={open}>{item.answer}</FaqAnswer>
+                </FaqItem>
+              );
+            })}
+          </FaqList>
+        </Container>
+      </Section>
+
+      {/* CHAMADA FINAL */}
+      <Container>
+        <CtaBand>
+          <div>
+            <h3>Sua agenda, seus clientes, seu link.</h3>
+            <p>
+              Teste por 14 dias com a implantação feita junto com a nossa equipe. Se não fizer sentido para a sua
+              barbearia, é só não assinar.
+            </p>
+          </div>
+          <div>
+            <Button $light $large type="button" onClick={() => startTrial()}>
+              Começar teste grátis <ArrowRight size={16} />
+            </Button>
+            <small><ShieldCheck size={12} style={{ verticalAlign: '-2px' }} /> Sem cartão • Sem fidelidade</small>
+          </div>
+        </CtaBand>
+      </Container>
+
+      <Footer>
+        <FooterInner>
+          <Logo />
+          <nav>
+            <a href="#diferenciais" onClick={(e) => { e.preventDefault(); scrollTo('diferenciais'); }}>Diferenciais</a>
+            <a href="#planos" onClick={(e) => { e.preventDefault(); scrollTo('planos'); }}>Planos</a>
+            <a href="/login">Entrar</a>
+            <a href="/termos-de-uso">Termos de uso</a>
+          </nav>
+          <span>© {new Date().getFullYear()} ElevatoHub</span>
+        </FooterInner>
+      </Footer>
+    </Page>
   );
 }
 

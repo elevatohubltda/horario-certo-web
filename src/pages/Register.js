@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ToastContainer, toast } from "react-toastify";
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import "react-toastify/dist/ReactToastify.css";
 import { login } from '../services/endpoints/auth';
 import { registerUser } from '../services/endpoints/user';
@@ -344,6 +344,8 @@ const TrialBadge = styled.div`
 
 function Register() {
     const navigate = useNavigate();
+    // Endereço digitado na barra da landing chega pré-preenchido
+    const location = useLocation();
         const [isMobileViewport, setIsMobileViewport] = useState(window.innerWidth <= 768);
     const [loading, setLoading] = useState(false);
     const [step, setStep] = useState(0);
@@ -355,7 +357,7 @@ function Register() {
 
     const [companyData, setCompanyData] = useState({
         name: '',
-        url: '',
+        url: location.state?.url || '',
         whatsapp: '',
         instagram: '',
         discountCode: '',
