@@ -180,6 +180,16 @@ const Sidebar = ({ children }) => {
     }
   }, []);
 
+  // No desktop quem rola é a área de conteúdo; a janela fica travada para não surgir uma segunda barra de rolagem
+  useEffect(() => {
+    if (mobile !== false) return;
+    const previous = document.documentElement.style.overflow;
+    document.documentElement.style.overflow = "hidden";
+    return () => {
+      document.documentElement.style.overflow = previous;
+    };
+  }, [mobile]);
+
   if (mobile) return <>{children}</>;
   return (
     <Layout>
