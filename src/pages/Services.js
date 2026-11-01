@@ -343,6 +343,20 @@ export default function Services() {
     return digits ? Number(digits) / 100 : 0;
   };
 
+  const formatPercent = (value) => `${Number(value || 0).toLocaleString("pt-BR")}%`;
+  // Quanto o profissional recebe: o valor do atendimento menos a parte da barbearia
+  const professionalShare = (price, percent) => Number(price || 0) * (1 - Number(percent || 0) / 100);
+
+  // Exemplo com o valor e o percentual digitados, para o dono ver na hora como fica a divisão
+  const commissionExample = (() => {
+    const percent = Number(String(newServiceCommission || "").replace(",", "."));
+    const price = parsePriceInput(newServicePrice || "");
+    if (!price || !percent || percent < 0 || percent > 100) return null;
+    return `Exemplo: num atendimento de ${formatCurrency(price)}, a barbearia fica com ${formatCurrency(
+      price * (percent / 100)
+    )} e o profissional com ${formatCurrency(professionalShare(price, percent))}.`;
+  })();
+
   const fetchServices = async () => {
     try {
       const response = await getServices(companyUrl);
@@ -496,7 +510,7 @@ export default function Services() {
     }
     const parsedCommission = newServiceCommission === "" ? 0 : Number(String(newServiceCommission).replace(",", "."));
     if (multiProfessional && (Number.isNaN(parsedCommission) || parsedCommission < 0 || parsedCommission > 100)) {
-      toast.error("A comissão deve ficar entre 0% e 100%.", { containerId: TOAST_CONTAINER_ID });
+      toast.error("A parte da barbearia deve ficar entre 0% e 100%.", { containerId: TOAST_CONTAINER_ID });
       return;
     }
     setSaving(true);
@@ -678,7 +692,12 @@ export default function Services() {
                           : `${formatCurrency(service.price)} · ${service.durationMinutes} min`}
                         {isProfessional() && service.canEditDetails === false ? " · compartilhado" : ""}
                         {multiProfessional && Number(service.commissionPercent) > 0
-                          ? ` · comissão ${Number(service.commissionPercent).toLocaleString("pt-BR")}%`
+                          ? ` · barbearia fica com ${formatPercent(service.commissionPercent)} nos atendimentos da equipe`
+                          : ""}
+                        {isProfessional() && Number(service.commissionPercent) > 0
+                          ? ` · barbearia fica com ${formatPercent(service.commissionPercent)} · você recebe ${formatCurrency(
+                              professionalShare(service.price, service.commissionPercent)
+                            )}`
                           : ""}
                       </ServicePrice>
                     </ServiceTexts>
@@ -788,6 +807,14 @@ export default function Services() {
             inputMode="numeric"
             />
             {priceError && <ErrorMessage>{priceError}</ErrorMessage>}
+            {isProfessional() && Number(editingService?.commissionPercent) > 0 && (
+              <ErrorMessage style={{ color: "#6b7280", marginTop: 0 }}>
+                A barbearia fica com {formatPercent(editingService.commissionPercent)} de cada atendimento deste
+                serviço (definido pelo dono). Com esse valor, você recebe{" "}
+                {formatCurrency(professionalShare(parsePriceInput(newServicePrice || ""), editingService.commissionPercent))}{" "}
+                por atendimento.
+              </ErrorMessage>
+            )}
 
             {multiProfessional && (
               <>
@@ -819,7 +846,7 @@ export default function Services() {
                   Deixe o valor em branco para usar o valor padrão.
                 </ErrorMessage>
 
-                <ModalLabel htmlFor="service-commission">Comissão da barbearia (%)</ModalLabel>
+                <ModalLabel htmlFor="service-commission">Parte da barbearia nos atendimentos da equipe (%)</ModalLabel>
                 <ModalInput
                   id="service-commission"
                   type="number"
@@ -831,8 +858,9 @@ export default function Services() {
                   onChange={(e) => setNewServiceCommission(e.target.value)}
                 />
                 <ErrorMessage style={{ color: "#6b7280", marginTop: 0 }}>
-                  Parte do valor que fica com você quando o serviço é feito por um profissional da equipe.
-                  Nos seus próprios atendimentos o valor é todo seu.
+                  Quanto do valor do atendimento fica com a barbearia (você) quando um profissional da equipe faz
+                  este serviço. O profissional fica com o restante. Nos seus próprios atendimentos o valor é todo seu.
+                  {commissionExample && <><br />{commissionExample}</>}
                 </ErrorMessage>
               </>
             )}

@@ -296,8 +296,8 @@ export default function Dashboard() {
     : hasTeam
     ? [
         { title: "Faturamento (seus atendimentos)", value: formatMoney(finance.revenue), icon: <Wallet size={18} />, description: selectedPeriod },
-        { title: "Comissão da equipe", value: formatMoney(finance.commission), icon: <Percent size={18} />, description: selectedPeriod },
-        { title: "Faturamento total", value: formatMoney(finance.total), icon: <TrendingUp size={18} />, description: "faturamento + comissão" },
+        { title: "Parte da barbearia (equipe)", value: formatMoney(finance.commission), icon: <Percent size={18} />, description: `${selectedPeriod} · sua parte nos atendimentos da equipe` },
+        { title: "Faturamento total", value: formatMoney(finance.total), icon: <TrendingUp size={18} />, description: "seus atendimentos + parte da barbearia" },
       ]
     : [
         { title: "Faturamento", value: formatMoney(finance.revenue), icon: <Wallet size={18} />, description: selectedPeriod },

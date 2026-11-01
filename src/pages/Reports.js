@@ -454,7 +454,7 @@ export default function Reports() {
       `${csvEscape(hasTeam ? "Faturamento (seus atendimentos)" : "Faturamento")};${csvEscape(formatMoney(finance.revenue))}`,
       ...(hasTeam
         ? [
-            `${csvEscape("Comissao da equipe")};${csvEscape(formatMoney(finance.commission))}`,
+            `${csvEscape("Parte da barbearia (atendimentos da equipe)")};${csvEscape(formatMoney(finance.commission))}`,
             `${csvEscape("Faturamento total")};${csvEscape(formatMoney(finance.total))}`,
           ]
         : []),
@@ -466,7 +466,7 @@ export default function Reports() {
         "Servico",
         ...(hasTeam ? ["Profissional"] : []),
         "Valor",
-        ...(hasTeam ? ["Comissao"] : []),
+        ...(hasTeam ? ["Parte da barbearia"] : []),
         "Cliente",
         "Telefone",
       ].map(csvEscape).join(";"),
@@ -530,7 +530,7 @@ export default function Reports() {
     );
     doc.text(
       hasTeam
-        ? `Faturamento: ${formatMoney(finance.revenue)} | Comissao: ${formatMoney(finance.commission)} | Faturamento total: ${formatMoney(finance.total)}`
+        ? `Seus atendimentos: ${formatMoney(finance.revenue)} | Parte da barbearia (equipe): ${formatMoney(finance.commission)} | Faturamento total: ${formatMoney(finance.total)}`
         : `Faturamento: ${formatMoney(finance.revenue)}`,
       14,
       58
@@ -540,7 +540,7 @@ export default function Reports() {
       "Data", "Hora", "Status", "Servico",
       ...(hasTeam ? ["Profissional"] : []),
       "Valor",
-      ...(hasTeam ? ["Comissao"] : []),
+      ...(hasTeam ? ["Parte da barbearia"] : []),
       "Cliente", "Telefone",
     ];
     const rows = sortedSchedules.map((item) => ([
@@ -719,7 +719,7 @@ export default function Reports() {
                     {hasTeam && (
                       <>
                         <SummaryCard>
-                          <SummaryLabel>Comissão da equipe</SummaryLabel>
+                          <SummaryLabel>Parte da barbearia (equipe)</SummaryLabel>
                           <SummaryValue>{loading ? "-" : formatMoney(finance.commission)}</SummaryValue>
                         </SummaryCard>
                         <SummaryCard>
@@ -749,7 +749,7 @@ export default function Reports() {
                             </th>
                             {hasTeam && <th>Profissional</th>}
                             <th>Valor</th>
-                            {hasTeam && <th>Comissão</th>}
+                            {hasTeam && <th title="Quanto fica com a barbearia nos atendimentos da equipe">Parte da barbearia</th>}
                             <th>
                               <SortHeaderButton type="button" onClick={() => handleSort("name")}>Cliente {getSortArrow("name")}</SortHeaderButton>
                             </th>
