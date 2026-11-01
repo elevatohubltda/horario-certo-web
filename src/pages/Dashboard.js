@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { getClientStatus } from "../services/endpoints/payment";
 import { Clock, CalendarDays, Check, Filter, Wallet, Percent, TrendingUp } from "lucide-react";
-import { getCompany, getCompanySchedulesAuth } from "../services/endpoints/company";
+import { getCompany, getCompanyProperties, getCompanySchedulesAuth } from "../services/endpoints/company";
 import { fetchMaxProfessionals } from "../services/endpoints/professional";
 import { formatMoney, summarizeProfessionalRevenue, summarizeRevenue } from "../util/revenue";
 import { expiresAt } from "../util/date";
@@ -204,6 +204,8 @@ export default function Dashboard() {
   const [companyInfo, setCompanyInfo] = useState(Cookies.get("companyInfo") ? JSON.parse(Cookies.get("companyInfo")) : undefined);
   const [paymentStatus, setPaymentStatus] = useState();
   const [selectedPeriod, setSelectedPeriod] = useState("essa semana");
+  // No modo de agenda "Simples" a lista completa fica na agenda semanal
+  const [scheduleMode, setScheduleMode] = useState("PADRAO");
   const [openFilterMenu, setOpenFilterMenu] = useState(false);
   const [schedules, setSchedules] = useState([]);
   // Plano com equipe: mostra comissão e faturamento total além do faturamento do dono
@@ -346,6 +348,9 @@ export default function Dashboard() {
       }
       // Situação da assinatura é assunto do dono, não do profissional da equipe
       if (!isProfessional()) getClientStatusInfo();
+      getCompanyProperties(companyUrl)
+        .then((response) => setScheduleMode(response.data?.scheduleMode || "PADRAO"))
+        .catch(() => {});
     } else {
       navigate("/" + companyUrl);
     }
@@ -428,7 +433,7 @@ export default function Dashboard() {
                     <ContentCard style={{ marginTop: '1.5rem' }}>
                       <CardHeader>
                         <CardTitle>Próximos Agendamentos</CardTitle>
-                        <FakeBadge style={{ cursor: 'pointer' }} onClick={() => navigate('/agendamentos')}>
+                        <FakeBadge style={{ cursor: 'pointer' }} onClick={() => navigate(scheduleMode === "SIMPLES" ? '/agenda-semanal' : '/agendamentos')}>
                           Ver tudo
                         </FakeBadge>
                       </CardHeader>
