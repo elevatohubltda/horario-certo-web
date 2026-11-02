@@ -289,13 +289,13 @@ export default function PushNotifications() {
                     <ExampleBlock>
                       <strong>Agendamento realizado!</strong>
                       <br />
-                      Maria agendou um Corte de cabelo em Segunda-feira, 10/06/2026 às 14:00.
+                      Maria agendou uma Consulta em Segunda-feira, 10/06/2026 às 14:00.
                     </ExampleBlock>
 
                     <ExampleBlock>
                       <strong>Agendamento cancelado!</strong>
                       <br />
-                      Maria cancelou o Corte de cabelo de Segunda-feira, 10/06/2026 às 14:00.
+                      Maria cancelou a Consulta de Segunda-feira, 10/06/2026 às 14:00.
                     </ExampleBlock>
 
                     <p style={{ margin: "0.6rem 0 0 0" }}>

@@ -33,19 +33,19 @@ export function summarizeRevenue(schedules = []) {
 
 // Resumo financeiro do profissional da equipe (sobre os agendamentos dele):
 // - bruto: valor total dos atendimentos;
-// - parte da barbearia: o que fica com o dono (gravado em cada agendamento);
-// - líquido: bruto − parte da barbearia.
+// - parte do estabelecimento: o que fica com o dono (gravado em cada agendamento);
+// - líquido: bruto − parte do estabelecimento.
 export function summarizeProfessionalRevenue(schedules = []) {
   return schedules
     .filter((item) => item?.available === false)
     .reduce(
       (acc, item) => {
         acc.gross += bookingAmount(item);
-        acc.barbershopShare += toNumber(item?.commissionAmount);
-        acc.net = acc.gross - acc.barbershopShare;
+        acc.establishmentShare += toNumber(item?.commissionAmount);
+        acc.net = acc.gross - acc.establishmentShare;
         return acc;
       },
-      { gross: 0, barbershopShare: 0, net: 0 }
+      { gross: 0, establishmentShare: 0, net: 0 }
     );
 }
 

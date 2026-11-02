@@ -278,7 +278,7 @@ export default function CustomerPanel() {
       <Content>
         <PageHeader
           title="Meus agendamentos"
-          subtitle={`Olá, ${customer.name.split(" ")[0]}! Aqui ficam os seus horários em todas as barbearias.`}
+          subtitle={`Olá, ${customer.name.split(" ")[0]}! Aqui ficam os seus horários com todos os prestadores de serviço.`}
           actions={
             <Button $variant="outline" type="button" onClick={openProfile}>
               <UserCog size={14} /> Meus dados
@@ -334,7 +334,7 @@ export default function CustomerPanel() {
                     </Meta>
                     {isUpcoming && !appointment.canChange && (
                       <Note>
-                        Alterações só até {appointment.cancelLimitMinutes} minutos antes do horário. Fale direto com a barbearia.
+                        Alterações só até {appointment.cancelLimitMinutes} minutos antes do horário. Fale direto com o prestador de serviço.
                       </Note>
                     )}
                   </Info>

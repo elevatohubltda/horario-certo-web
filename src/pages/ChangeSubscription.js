@@ -186,7 +186,7 @@ export default function ChangeSubscription() {
 
   return (
     <>
-      <PageLayout title="Mudar assinatura" subtitle="Escolha o plano e os recursos adicionais da sua barbearia.">
+      <PageLayout title="Mudar assinatura" subtitle="Escolha o plano e os recursos adicionais do seu negócio.">
           <PageContent>
             <Card>
               <ItemTitle>Escolha seu plano</ItemTitle>

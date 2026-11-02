@@ -259,7 +259,7 @@ const topics = [
     items: [
       {
         q: 'Como adiciono um novo serviço?',
-        a: 'Acesse "Serviços" no menu lateral e clique em "Novo serviço". Preencha o nome (ex.: Corte, Barba, Corte + Barba) e o valor em reais. O serviço fica disponível imediatamente para seus clientes escolherem ao agendar.'
+        a: 'Acesse "Serviços" no menu lateral e clique em "Novo serviço". Preencha o nome (ex.: Consulta, Sessão completa, Avaliação) e o valor em reais. O serviço fica disponível imediatamente para seus clientes escolherem ao agendar.'
       },
       {
         q: 'Como altero o nome ou o preço de um serviço?',

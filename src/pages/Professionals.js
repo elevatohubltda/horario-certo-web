@@ -222,7 +222,7 @@ function Professionals() {
           {data.maxProfessionals <= 1 ? (
             <Notice>
               Seu plano permite 1 profissional (você). Para cadastrar sua equipe, mude para o plano
-              <strong> Barbearia</strong> em "Assinatura".
+              <strong> com mais profissionais</strong> em "Assinatura".
             </Notice>
           ) : (
             <Notice>
@@ -393,7 +393,7 @@ function Professionals() {
             {editForm.isOwner && !editForm.active && (
               <Muted style={{ marginTop: 0 }}>
                 Desativando você mesmo, seus clientes deixam de poder agendar com você. Você continua
-                administrando a barbearia normalmente.
+                administrando o negócio normalmente.
               </Muted>
             )}
           </>

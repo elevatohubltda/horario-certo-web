@@ -839,7 +839,6 @@ export default function Home() {
           !!companyInfo && companyInfo.active !== false && !reschedule &&
           !loadingCustomer && !customer && !accessChoiceClosed && !hasChosenGuest()
         }
-        companyName={companyInfo?.name}
         onClose={() => setAccessChoiceClosed(true)}
       />
 

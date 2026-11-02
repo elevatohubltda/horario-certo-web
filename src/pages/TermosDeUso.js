@@ -277,8 +277,8 @@ export default function TermosDeUso() {
         <H2>10. Termos de Uso do Serviço</H2>
         <P>
           O <strong>Horário Certo</strong> é uma plataforma SaaS destinada a
-          estabelecimentos que realizam atendimentos com hora marcada (barbearias, salões,
-          clínicas, etc.). Ao contratar o serviço, o estabelecimento:
+          estabelecimentos que realizam atendimentos com hora marcada (salões, clínicas,
+          consultórios, estúdios, etc.). Ao contratar o serviço, o estabelecimento:
         </P>
         <Ul>
           <li>Declara ser o responsável pelos dados dos seus clientes finais inseridos na plataforma, atuando como <strong>operador</strong> em relação a esses dados.</li>

@@ -4,7 +4,7 @@ import { ReactComponent as Logo } from '../assets/horario-certo-logo-horizontal.
 import { useNavigate } from 'react-router-dom';
 import {
   ArrowRight, BarChart3, Bell, CalendarClock, Check, ChevronDown, Clock, FileText, Home,
-  LifeBuoy, Link2, MessageCircle, Percent, Scissors, Settings, ShieldCheck, Smartphone,
+  Briefcase, LifeBuoy, Link2, MessageCircle, Percent, Settings, ShieldCheck, Smartphone,
   Store, Users, Wallet, X,
 } from 'lucide-react';
 import { getPublicSubscriptionPlans } from '../services/endpoints/payment';
@@ -214,7 +214,7 @@ const HeroSub = styled.p`
   animation: ${revealUp} 0.5s ease 0.1s both;
 `;
 
-// Barra no estilo "busca" da Booksy, aqui para o barbeiro criar o próprio link
+// Barra no estilo "busca" da Booksy, aqui para o prestador de serviços criar o próprio link
 const LinkBar = styled.form`
   && {
     display: flex;
@@ -1188,12 +1188,12 @@ const heroChips = [
   { icon: BarChart3, label: 'Faturamento e relatórios' },
 ];
 
-// O que nos separa dos marketplaces de beleza
+// O que nos separa dos marketplaces de agendamento
 const differentials = [
   {
     icon: Store,
     title: 'Sua clientela é só sua',
-    text: 'Seu link mostra apenas a sua barbearia. Nada de vitrine com a concorrência do bairro ao lado do seu perfil.',
+    text: 'Seu link mostra apenas o seu negócio. Nada de vitrine com a concorrência ao lado do seu perfil.',
   },
   {
     icon: MessageCircle,
@@ -1213,7 +1213,7 @@ const differentials = [
 ];
 
 const comparison = [
-  ['Onde o cliente agenda', 'No seu link exclusivo, só com a sua barbearia', 'Em uma vitrine com outras barbearias da região'],
+  ['Onde o cliente agenda', 'No seu link exclusivo, só com o seu negócio', 'Em uma vitrine com outros prestadores da região'],
   ['O cliente precisa baixar app?', 'Não. Abre direto no navegador do celular', 'Normalmente é levado a instalar o app'],
   ['Lembrete do horário', 'No WhatsApp do cliente', 'Notificação do app ou e-mail'],
   ['Implantação', 'Feita junto com a nossa equipe', 'Você configura sozinho'],
@@ -1233,15 +1233,15 @@ const faqItems = [
   },
   {
     question: 'Meu cliente precisa baixar algum aplicativo?',
-    answer: 'Não. Ele abre o link da sua barbearia no navegador do celular, escolhe o serviço, o profissional e o horário. Sem cadastro e sem instalar nada.',
+    answer: 'Não. Ele abre o seu link no navegador do celular, escolhe o serviço, o profissional e o horário. Sem cadastro e sem instalar nada.',
   },
   {
-    question: 'Qual a diferença para um marketplace de beleza?',
-    answer: 'Num marketplace o seu perfil fica numa vitrine junto com outras barbearias, e o cliente é incentivado a usar o app da plataforma. No Horário Certo o link é só seu: o cliente agenda direto com você e o relacionamento continua sendo seu.',
+    question: 'Qual a diferença para um marketplace de agendamento?',
+    answer: 'Num marketplace o seu perfil fica numa vitrine junto com outros prestadores de serviço, e o cliente é incentivado a usar o app da plataforma. No Horário Certo o link é só seu: o cliente agenda direto com você e o relacionamento continua sendo seu.',
   },
   {
     question: 'Funciona para quem trabalha sozinho? E para equipe?',
-    answer: 'Funciona para os dois. O barbeiro autônomo usa sozinho, sem complicação. Barbearias com equipe cadastram os profissionais, cada um com sua agenda, seus serviços e seus preços, e acompanham a parte da barbearia em cada atendimento.',
+    answer: 'Funciona para os dois. O profissional autônomo usa sozinho, sem complicação. Negócios com equipe cadastram os profissionais, cada um com sua agenda, seus serviços e seus preços, e acompanham a parte do estabelecimento em cada atendimento.',
   },
   {
     question: 'Como funcionam os lembretes no WhatsApp?',
@@ -1355,9 +1355,9 @@ function Landing() {
       <Hero>
         <Container>
           <HeroBadge>
-            <Scissors size={14} /> Feito para barbeiros e barbearias
+            <Briefcase size={14} /> Feito para prestadores de serviço
           </HeroBadge>
-          <HeroTitle>Seus clientes marcam sozinhos. Você só se preocupa com o corte.</HeroTitle>
+          <HeroTitle>Seus clientes marcam sozinhos. Você só se preocupa com o atendimento.</HeroTitle>
           <HeroSub>
             Um link de agendamento só seu, lembrete no WhatsApp para o cliente não faltar e um painel
             simples com agenda, equipe e faturamento.
@@ -1369,8 +1369,8 @@ function Landing() {
             <input
               value={slug}
               onChange={(e) => setSlug(slugify(e.target.value))}
-              placeholder="suabarbearia"
-              aria-label="Endereço da sua barbearia"
+              placeholder="seunegocio"
+              aria-label="Endereço do seu negócio"
             />
             <Button type="submit">
               Criar meu link <ArrowRight size={16} />
@@ -1399,13 +1399,13 @@ function Landing() {
                 <span><CalendarClock size={16} /></span>
                 <span><BarChart3 size={16} /></span>
                 <span><FileText size={16} /></span>
-                <span><Scissors size={16} /></span>
+                <span><Briefcase size={16} /></span>
                 <span><Users size={16} /></span>
                 <span><Settings size={16} /></span>
               </AppSidebar>
               <AppMain>
                 <h4>Dashboard</h4>
-                <p>Resumo da sua barbearia nesta semana</p>
+                <p>Resumo do seu negócio nesta semana</p>
                 <StatGrid>
                   <Stat>
                     <small><CalendarClock size={13} /> Agendamentos</small>
@@ -1421,9 +1421,9 @@ function Landing() {
                   </Stat>
                 </StatGrid>
                 <MiniList>
-                  <MiniRow><b>09:00</b><span>Corte + Barba · Lucas</span><Pill $tone="green">Confirmado</Pill></MiniRow>
-                  <MiniRow><b>10:00</b><span>Corte degradê · Pedro</span><Pill $tone="green">Confirmado</Pill></MiniRow>
-                  <MiniRow><b>11:30</b><span>Barba · Rafael</span><Pill>Lembrete enviado</Pill></MiniRow>
+                  <MiniRow><b>09:00</b><span>Sessão completa · Lucas</span><Pill $tone="green">Confirmado</Pill></MiniRow>
+                  <MiniRow><b>10:00</b><span>Consulta · Pedro</span><Pill $tone="green">Confirmado</Pill></MiniRow>
+                  <MiniRow><b>11:30</b><span>Avaliação · Rafael</span><Pill>Lembrete enviado</Pill></MiniRow>
                 </MiniList>
               </AppMain>
             </AppBody>
@@ -1438,7 +1438,7 @@ function Landing() {
             <Eyebrow>Nosso diferencial</Eyebrow>
             <H2>Agenda própria, não vitrine de marketplace</H2>
             <Lead>
-              Nos marketplaces de beleza, o seu perfil divide a tela com a concorrência e o cliente é empurrado
+              Nos marketplaces de agendamento, o seu perfil divide a tela com a concorrência e o cliente é empurrado
               para o app da plataforma. Aqui o cliente é seu do começo ao fim.
             </Lead>
           </SectionHead>
@@ -1459,7 +1459,7 @@ function Landing() {
                 <tr>
                   <th />
                   <th className="ours">Horário Certo</th>
-                  <th>Marketplaces de beleza</th>
+                  <th>Marketplaces de agendamento</th>
                 </tr>
               </thead>
               <tbody>
@@ -1488,7 +1488,7 @@ function Landing() {
               </tbody>
             </CompareTable>
           </CompareCard>
-          <CompareNote>Comparação com o modelo geral dos marketplaces de agendamento de beleza.</CompareNote>
+          <CompareNote>Comparação com o modelo geral dos marketplaces de agendamento.</CompareNote>
         </Container>
       </Section>
 
@@ -1525,22 +1525,22 @@ function Landing() {
                 <PhoneScreen $visible={demoStep === 1}>
                   <PhoneHeader>
                     <span className="logo">EB</span>
-                    <div><b>Elevato Barbearia</b><small>{BOOKING_HOST}elevato</small></div>
+                    <div><b>Studio Elevato</b><small>{BOOKING_HOST}elevato</small></div>
                   </PhoneHeader>
                   <PhoneLabel>Escolha o serviço</PhoneLabel>
-                  <PhoneOption>Corte <span>30 min · R$ 35</span></PhoneOption>
-                  <PhoneOption $selected>Corte + Barba <span>50 min · R$ 50</span></PhoneOption>
-                  <PhoneOption>Barba <span>20 min · R$ 25</span></PhoneOption>
-                  <PhoneOption>Sobrancelha <span>10 min · R$ 15</span></PhoneOption>
+                  <PhoneOption>Consulta <span>30 min · R$ 80</span></PhoneOption>
+                  <PhoneOption $selected>Sessão completa <span>60 min · R$ 150</span></PhoneOption>
+                  <PhoneOption>Avaliação <span>20 min · R$ 50</span></PhoneOption>
+                  <PhoneOption>Retorno <span>15 min · R$ 40</span></PhoneOption>
                 </PhoneScreen>
 
                 <PhoneScreen $visible={demoStep === 2}>
                   <PhoneHeader>
                     <span className="logo">EB</span>
-                    <div><b>Corte + Barba</b><small>Escolha profissional e horário</small></div>
+                    <div><b>Sessão completa</b><small>Escolha profissional e horário</small></div>
                   </PhoneHeader>
                   <PhoneLabel>Profissional</PhoneLabel>
-                  <PhoneOption $selected>Lucas <span>R$ 50</span></PhoneOption>
+                  <PhoneOption $selected>Lucas <span>R$ 150</span></PhoneOption>
                   <PhoneOption>Sem preferência <span>Primeiro livre</span></PhoneOption>
                   <PhoneLabel>Segunda, 16/06</PhoneLabel>
                   <PhoneSlots>
@@ -1557,14 +1557,14 @@ function Landing() {
                 <PhoneScreen $visible={demoStep === 3} style={{ textAlign: 'center' }}>
                   <PhoneHeader style={{ textAlign: 'left' }}>
                     <span className="logo">EB</span>
-                    <div><b>Elevato Barbearia</b><small>Agendamento confirmado</small></div>
+                    <div><b>Studio Elevato</b><small>Agendamento confirmado</small></div>
                   </PhoneHeader>
                   <SuccessIcon key={demoStep} $play={demoStep === 3}><Check size={28} /></SuccessIcon>
                   <div style={{ fontSize: '0.95rem', fontWeight: 800 }}>Horário reservado!</div>
                   <div style={{ fontSize: '0.7rem', color: 'var(--ui-muted)', margin: '0.4rem 1.5rem 1rem' }}>
                     Você vai receber a confirmação e o lembrete no WhatsApp.
                   </div>
-                  <PhoneOption>Serviço <span>Corte + Barba</span></PhoneOption>
+                  <PhoneOption>Serviço <span>Sessão completa</span></PhoneOption>
                   <PhoneOption>Profissional <span>Lucas</span></PhoneOption>
                   <PhoneOption>Data <span>Seg, 16/06 · 10:00</span></PhoneOption>
                 </PhoneScreen>
@@ -1601,11 +1601,11 @@ function Landing() {
             <Visual aria-hidden="true">
               <VisualTitle>WhatsApp do cliente <span>agora</span></VisualTitle>
               <WhatsBubble>
-                Olá, Carlos! Seu horário na <b>Elevato Barbearia</b> está confirmado: segunda, 16/06 às 10:00 (Corte + Barba).
+                Olá, Carlos! Seu horário no <b>Studio Elevato</b> está confirmado: segunda, 16/06 às 10:00 (Sessão completa).
                 <small>09:12</small>
               </WhatsBubble>
               <WhatsBubble>
-                Lembrete: seu horário é hoje às 10:00. Até já! ✂️
+                Lembrete: seu horário é hoje às 10:00. Até já! 👋
                 <small>08:00</small>
               </WhatsBubble>
             </Visual>
@@ -1616,13 +1616,13 @@ function Landing() {
               <Eyebrow>Equipe e financeiro</Eyebrow>
               <h3>Equipe organizada e o faturamento na palma da mão</h3>
               <p>
-                Cada profissional com a própria agenda, serviços e preços. Você define a parte da barbearia
+                Cada profissional com a própria agenda, serviços e preços. Você define a parte do estabelecimento
                 em cada serviço e acompanha tudo no Dashboard e nos relatórios.
               </p>
               <CheckList>
                 <li><Check size={16} />Agenda e login para cada profissional</li>
                 <li><Check size={16} />Preço do serviço diferente por profissional</li>
-                <li><Check size={16} />Parte da barbearia calculada em cada atendimento</li>
+                <li><Check size={16} />Parte do estabelecimento calculada em cada atendimento</li>
                 <li><Check size={16} />Relatórios com exportação em PDF</li>
               </CheckList>
             </RowText>
@@ -1631,21 +1631,21 @@ function Landing() {
               <ProRow>
                 <span className="avatar">LU</span>
                 <div>Lucas<small>18 atendimentos</small></div>
-                <b>R$ 980,00<small>Parte da barbearia: R$ 294,00</small></b>
+                <b>R$ 980,00<small>Parte do estabelecimento: R$ 294,00</small></b>
               </ProRow>
               <ProRow>
                 <span className="avatar">PE</span>
                 <div>Pedro<small>14 atendimentos</small></div>
-                <b>R$ 720,00<small>Parte da barbearia: R$ 216,00</small></b>
+                <b>R$ 720,00<small>Parte do estabelecimento: R$ 216,00</small></b>
               </ProRow>
               <ProRow>
                 <span className="avatar">RA</span>
                 <div>Rafael<small>10 atendimentos</small></div>
-                <b>R$ 480,00<small>Parte da barbearia: R$ 144,00</small></b>
+                <b>R$ 480,00<small>Parte do estabelecimento: R$ 144,00</small></b>
               </ProRow>
               <StatGrid $cols={2} style={{ marginTop: '1rem' }}>
                 <Stat><small><Wallet size={13} /> Faturamento</small><strong>R$ 2.180,00</strong></Stat>
-                <Stat><small><Percent size={13} /> Parte da barbearia</small><strong>R$ 654,00</strong></Stat>
+                <Stat><small><Percent size={13} /> Parte do estabelecimento</small><strong>R$ 654,00</strong></Stat>
               </StatGrid>
             </Visual>
           </Row>
@@ -1716,7 +1716,7 @@ function Landing() {
         <Container>
           <SectionHead>
             <Eyebrow>Dúvidas frequentes</Eyebrow>
-            <H2>Perguntas que todo barbeiro faz</H2>
+            <H2>Perguntas que todo prestador de serviço faz</H2>
           </SectionHead>
           <FaqList>
             {faqItems.map((item, i) => {
@@ -1741,8 +1741,8 @@ function Landing() {
           <div>
             <h3>Sua agenda, seus clientes, seu link.</h3>
             <p>
-              Teste por 14 dias com a implantação feita junto com a nossa equipe. Se não fizer sentido para a sua
-              barbearia, é só não assinar.
+              Teste por 14 dias com a implantação feita junto com a nossa equipe. Se não fizer sentido para o seu
+              negócio, é só não assinar.
             </p>
           </div>
           <div>

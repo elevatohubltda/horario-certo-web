@@ -280,14 +280,14 @@ export default function Dashboard() {
   const financeCards = isProfessional()
     ? [
         { title: "Faturamento dos seus atendimentos", value: formatMoney(professionalFinance.gross), icon: <Wallet size={18} />, description: `${selectedPeriod} · valor total cobrado` },
-        { title: "Parte da barbearia", value: formatMoney(professionalFinance.barbershopShare), icon: <Percent size={18} />, description: `${selectedPeriod} · definida pelo dono em cada serviço` },
-        { title: "Seu faturamento líquido", value: formatMoney(professionalFinance.net), icon: <TrendingUp size={18} />, description: "faturamento − parte da barbearia" },
+        { title: "Parte do estabelecimento", value: formatMoney(professionalFinance.establishmentShare), icon: <Percent size={18} />, description: `${selectedPeriod} · definida pelo dono em cada serviço` },
+        { title: "Seu faturamento líquido", value: formatMoney(professionalFinance.net), icon: <TrendingUp size={18} />, description: "faturamento − parte do estabelecimento" },
       ]
     : hasTeam
     ? [
         { title: "Faturamento (seus atendimentos)", value: formatMoney(finance.revenue), icon: <Wallet size={18} />, description: selectedPeriod },
-        { title: "Parte da barbearia (equipe)", value: formatMoney(finance.commission), icon: <Percent size={18} />, description: `${selectedPeriod} · sua parte nos atendimentos da equipe` },
-        { title: "Faturamento total", value: formatMoney(finance.total), icon: <TrendingUp size={18} />, description: "seus atendimentos + parte da barbearia" },
+        { title: "Parte do estabelecimento (equipe)", value: formatMoney(finance.commission), icon: <Percent size={18} />, description: `${selectedPeriod} · sua parte nos atendimentos da equipe` },
+        { title: "Faturamento total", value: formatMoney(finance.total), icon: <TrendingUp size={18} />, description: "seus atendimentos + parte do estabelecimento" },
       ]
     : [
         { title: "Faturamento", value: formatMoney(finance.revenue), icon: <Wallet size={18} />, description: selectedPeriod },

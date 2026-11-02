@@ -260,7 +260,7 @@ function Layout1({ name, qrValue, url }) {
       </L1Body>
       <L1Footer>
         <L1FooterBrand>HORÁRIO CERTO</L1FooterBrand>
-        <L1FooterNote>Agendamento inteligente para barbearias</L1FooterNote>
+        <L1FooterNote>Agendamento inteligente para prestadores de serviço</L1FooterNote>
       </L1Footer>
     </L1Wrap>
   );

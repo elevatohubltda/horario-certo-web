@@ -167,7 +167,7 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
           event.currentTarget.onerror = null;
           event.currentTarget.src = businessLogo;
         }}
-        alt="Barbearia Seu Zé"
+        alt="Logo do estabelecimento"
       />
       <div className="content">
         <span>{name}</span>
@@ -191,7 +191,7 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
               <button onClick={() => handleNavigate('/area-do-cliente')}>Meus agendamentos</button>
             </div>
             <div className="dropdown-item">
-              <button onClick={() => handleNavigate('/login')}>Sou barbearia</button>
+              <button onClick={() => handleNavigate('/login')}>Sou prestador de serviços</button>
             </div>
           </div>
         )}
