@@ -437,7 +437,7 @@ export default function SimpleScheduleFlow({ companyUrl, companyInfo, mobile, cu
   const isScheduleFormInvalid = !selectedSchedule.nome || !selectedSchedule.telefone;
 
   return (
-    <div style={{ backgroundColor: "var(--ui-page-bg)", minHeight: "100dvh", paddingBottom: "2rem" }}>
+    <div style={{ backgroundColor: "var(--ui-page-bg)", minHeight: "100dvh", paddingBottom: "2rem", overflowX: "hidden" }}>
       <Topbar
         name={companyInfo.name}
         imagem={companyInfo.imagem}

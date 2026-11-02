@@ -29,6 +29,7 @@ export const TopbarStyle = styled.div`
 
   .menu{
     width: 100%;
+    box-sizing: border-box;
     padding-right: 1rem;
     display: flex;
     justify-content: flex-end;

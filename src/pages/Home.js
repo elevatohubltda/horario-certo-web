@@ -381,7 +381,7 @@ export default function Home() {
         <SimpleScheduleFlow companyUrl={companyUrl} companyInfo={companyInfo} mobile={mobile} customer={customer} reschedule={reschedule} />
       }
       {companyInfo && companyInfo.active !== false && scheduleMode !== "SIMPLES" &&
-        <div style={{ backgroundColor: 'var(--ui-page-bg)', minHeight: '100dvh', paddingBottom: '2rem' }}>
+        <div style={{ backgroundColor: 'var(--ui-page-bg)', minHeight: '100dvh', paddingBottom: '2rem', overflowX: 'hidden' }}>
           <Topbar
             name={companyInfo.name}
             imagem={companyInfo.imagem}

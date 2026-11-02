@@ -128,6 +128,24 @@
   align-items: center;
 }
 
+/* No celular o card de horários ocupa quase toda a largura: as setas (por padrão 25px para fora
+   do carrossel) vão para dentro do card, na altura da data, para não gerar rolagem horizontal */
+@media (max-width: 768px) {
+  .slick-prev,
+  .slick-next {
+    top: 2.25rem;
+    z-index: 2;
+  }
+
+  .slick-prev {
+    left: 1rem;
+  }
+
+  .slick-next {
+    right: 1rem;
+  }
+}
+
 /* Formulários no padrão dos cards e campos do sistema */
 form{
   display: flex;
