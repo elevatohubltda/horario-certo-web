@@ -215,9 +215,9 @@ export const Button = styled.button`
   font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
-  background: ${(props) => (props.$variant === "outline" ? "#fff" : props.$variant === "danger" ? "#dc2626" : "#111827")};
+  background: ${(props) => (props.$variant === "outline" ? "#fff" : props.$variant === "danger" ? "#dc2626" : "var(--ui-primary)")};
   color: ${(props) => (props.$variant === "outline" ? "#111827" : "#fff")};
-  border: 1px solid ${(props) => (props.$variant === "outline" ? "#d1d5db" : props.$variant === "danger" ? "#dc2626" : "#111827")};
+  border: 1px solid ${(props) => (props.$variant === "outline" ? "#d1d5db" : props.$variant === "danger" ? "#dc2626" : "var(--ui-primary)")};
 
   &:disabled {
     opacity: 0.6;
@@ -273,7 +273,7 @@ const fieldControl = `
 
   &:focus {
     outline: none;
-    border-color: #111827;
+    border-color: var(--ui-primary);
   }
 `;
 

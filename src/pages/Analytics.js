@@ -14,12 +14,12 @@ import {
 
 /* ─── palette ─── */
 const CARD_THEMES = [
-  { bg: "#e6ede4", text: "#2a4228", badgeBg: "rgba(255,255,255,0.55)" },
-  { bg: "#1e2c28", text: "#ffffff", badgeBg: "rgba(255,255,255,0.15)" },
-  { bg: "#f5ede1", text: "#5c3d1e", badgeBg: "rgba(255,255,255,0.55)" },
+  { bg: "#eceefa", text: "#1e2240", badgeBg: "rgba(255,255,255,0.6)" },
+  { bg: "#1e2240", text: "#ffffff", badgeBg: "rgba(255,255,255,0.15)" },
+  { bg: "#fdf2df", text: "#7a4a08", badgeBg: "rgba(255,255,255,0.6)" },
   { bg: "#e9edf3", text: "#253447", badgeBg: "rgba(255,255,255,0.6)" },
 ];
-const PIE_COLORS = ["#8ca085", "#c4a882", "#5c8070", "#d4b896", "#4a6b45", "#e8c8a8", "#7a9e8c"];
+const PIE_COLORS = ["#1e2240", "#f0a030", "#5b6bb5", "#f6c779", "#8f9bd6", "#c9761a", "#3d4680"];
 
 /* ─── animations ─── */
 const fadeUp = keyframes`
@@ -267,7 +267,7 @@ const BarTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
     <div style={{
-      background: "#1e2c28", color: "#fff",
+      background: "#1e2240", color: "#fff",
       borderRadius: 12, padding: "0.5rem 0.85rem", fontSize: "0.82rem",
     }}>
       <div style={{ marginBottom: 2, opacity: 0.7 }}>{label}</div>
@@ -516,7 +516,7 @@ export default function Analytics() {
                               content={<BarTooltip />}
                               cursor={{ fill: "rgba(140,160,133,0.1)", radius: 8 }}
                             />
-                            <Bar dataKey="total" fill="#1e2c28" radius={[8, 8, 0, 0]} />
+                            <Bar dataKey="total" fill="#1e2240" radius={[8, 8, 0, 0]} />
                           </BarChart>
                         </ResponsiveContainer>
                       )}

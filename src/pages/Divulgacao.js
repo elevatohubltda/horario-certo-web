@@ -86,7 +86,7 @@ const DownloadBtn = styled.button`
   transition: background 0.15s;
 
   &:hover:not(:disabled) {
-    background: #374151;
+    background: var(--ui-primary-hover);
   }
   &:disabled {
     opacity: 0.55;
@@ -160,7 +160,7 @@ const L1Wrap = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-family: 'Montserrat', 'Helvetica Neue', sans-serif;
+  font-family: var(--ui-font);
   position: relative;
   overflow: hidden;
 `;
@@ -276,7 +276,7 @@ const L2Wrap = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-family: 'Montserrat', 'Helvetica Neue', sans-serif;
+  font-family: var(--ui-font);
   position: relative;
   overflow: hidden;
 `;
@@ -402,7 +402,7 @@ const L3Wrap = styled.div`
   background: #f7f5f0;
   display: flex;
   flex-direction: column;
-  font-family: 'Montserrat', 'Helvetica Neue', sans-serif;
+  font-family: var(--ui-font);
   overflow: hidden;
 `;
 const L3Header = styled.div`
@@ -567,7 +567,7 @@ const L4Wrap = styled.div`
   width: 794px; height: 1123px;
   background: linear-gradient(160deg, #c8dfc2 0%, #3d5c36 55%, #1e2e1a 100%);
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  font-family: 'Montserrat','Helvetica Neue',sans-serif;
+  font-family: var(--ui-font);
   gap: 36px; padding: 60px; box-sizing: border-box; position: relative; overflow: hidden;
 `;
 const L4Ring = styled.div`
@@ -690,7 +690,7 @@ function Layout5({ name, qrValue, url }) {
    ═════════════════════════════════════════════════════════════════════ */
 const L6Wrap = styled.div`
   width: 794px; height: 1123px; background: #f5f5f0;
-  font-family: 'Montserrat','Helvetica Neue',sans-serif;
+  font-family: var(--ui-font);
   display: flex; flex-direction: column; overflow: hidden;
 `;
 const L6Top = styled.div`
@@ -753,7 +753,7 @@ function Layout6({ name, qrValue, url }) {
    ═════════════════════════════════════════════════════════════════════ */
 const L7Wrap = styled.div`
   width: 794px; height: 1123px; background: #0c0c0c;
-  font-family: 'Montserrat','Helvetica Neue',sans-serif;
+  font-family: var(--ui-font);
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   padding: 64px; box-sizing: border-box; gap: 40px; position: relative; overflow: hidden;
 `;
@@ -808,7 +808,7 @@ function Layout7({ name, qrValue, url }) {
    ═════════════════════════════════════════════════════════════════════ */
 const L8Wrap = styled.div`
   width: 794px; height: 1123px;
-  font-family: 'Montserrat','Helvetica Neue',sans-serif;
+  font-family: var(--ui-font);
   display: flex; flex-direction: row; overflow: hidden;
 `;
 const L8Left = styled.div`
@@ -868,7 +868,7 @@ function Layout8({ name, qrValue, url }) {
    ═════════════════════════════════════════════════════════════════════ */
 const L9Wrap = styled.div`
   width: 794px; height: 1123px; background: #fff;
-  font-family: 'Montserrat','Helvetica Neue',sans-serif;
+  font-family: var(--ui-font);
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   padding: 60px; box-sizing: border-box; gap: 32px; position: relative; overflow: hidden;
 `;
@@ -928,7 +928,7 @@ function Layout9({ name, qrValue, url }) {
    ═════════════════════════════════════════════════════════════════════ */
 const L10Wrap = styled.div`
   width: 794px; height: 1123px; background: #080f08;
-  font-family: 'Montserrat','Helvetica Neue',sans-serif;
+  font-family: var(--ui-font);
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   padding: 60px; box-sizing: border-box; gap: 36px; position: relative; overflow: hidden;
 `;

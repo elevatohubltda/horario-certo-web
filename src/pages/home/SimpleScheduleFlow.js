@@ -456,7 +456,7 @@ export default function SimpleScheduleFlow({ companyUrl, companyInfo, mobile, cu
           </StepHeader>
           {loadingServices && (
             <div className="loading-slide">
-              <ThreeDots color="#111827" height={20} width={60} />
+              <ThreeDots color="#1E2240" height={20} width={60} />
               <p>Buscando serviços...</p>
             </div>
           )}
@@ -592,7 +592,7 @@ export default function SimpleScheduleFlow({ companyUrl, companyInfo, mobile, cu
               )}
               {loadingAvailability && (
                 <div className="loading-slide">
-                  <ThreeDots color="#111827" height={20} width={60} />
+                  <ThreeDots color="#1E2240" height={20} width={60} />
                   <p>Buscando horários...</p>
                 </div>
               )}

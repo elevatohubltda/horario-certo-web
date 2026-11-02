@@ -117,7 +117,7 @@ const PrimaryButton = styled(Button)`
   cursor: pointer;
 
   &:hover:not(:disabled) {
-    background: #374151 !important;
+    background: var(--ui-primary-hover) !important;
   }
 
   &:disabled {

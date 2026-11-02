@@ -24,7 +24,7 @@ const GuestOption = styled.button`
   transition: background 0.15s ease;
 
   &:hover {
-    background: #374151;
+    background: var(--ui-primary-hover);
   }
 
   strong {

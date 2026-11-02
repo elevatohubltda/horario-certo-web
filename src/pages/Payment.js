@@ -183,7 +183,7 @@ const PixCode = styled.div`
 
 const CopyButton = styled.button`
   width: 100%;
-  background: #111827;
+  background: var(--ui-primary);
   color: #fff;
   border: none;
   border-radius: 0.5rem;
@@ -252,9 +252,9 @@ const ButtonSkeleton = styled.div`
 
 const CardActionButton = styled.button`
   width: fit-content;
-  background: ${(props) => (props.$outline ? "transparent" : "#111827")};
+  background: ${(props) => (props.$outline ? "transparent" : "var(--ui-primary)")};
   color: ${(props) => (props.$outline ? "var(--ui-text)" : "#fff")};
-  border: 1px solid ${(props) => (props.$outline ? "var(--ui-input-border)" : "#111827")};
+  border: 1px solid ${(props) => (props.$outline ? "var(--ui-input-border)" : "var(--ui-primary)")};
   border-radius: 999px;
   padding: 0.5rem 1rem;
   font-size: 0.8rem;

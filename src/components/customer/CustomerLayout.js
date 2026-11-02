@@ -38,7 +38,7 @@ const Brand = styled.button`
   cursor: pointer;
 
   svg {
-    height: 36px;
+    height: 30px;
     width: auto;
   }
 `;

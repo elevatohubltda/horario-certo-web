@@ -225,7 +225,7 @@ const SubmitButton = styled.button`
     cursor: pointer;
 
     &:hover {
-        background: #374151;
+        background: var(--ui-primary-hover);
     }
 
     &:disabled {

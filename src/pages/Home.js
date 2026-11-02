@@ -513,7 +513,7 @@ export default function Home() {
               )}
               {loadingSchedule &&
                 <div className="loading-slide">
-                  <ThreeDots color="#111827" height={20} width={60} />
+                  <ThreeDots color="#1E2240" height={20} width={60} />
                   <p>Buscando horários...</p>
                 </div>
               }

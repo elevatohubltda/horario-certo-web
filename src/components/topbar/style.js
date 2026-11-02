@@ -18,9 +18,10 @@ export const TopbarStyle = styled.div`
   }
   
   svg.logo {
-    width: max-content;
-    height: 80px;
+    width: auto;
+    height: 32px;
     margin-left: 20px;
+    flex: none;
   }
 
   p{
@@ -40,7 +41,7 @@ export const TopbarStyle = styled.div`
       padding: 0;
       border: none;
       background: none;
-      font-family: Montserrat;
+      font-family: var(--ui-font);
       padding: .25rem 1rem;
       border-radius: 1.25rem;
       height: 2.5rem;
@@ -57,7 +58,7 @@ export const TopbarStyle = styled.div`
       color: var(--ui-primary);
     }
     .be-a-partner:hover{
-      background-color: #374151;
+      background-color: var(--ui-primary-hover);
       color: #fff;
     }
 
@@ -68,7 +69,7 @@ export const TopbarStyle = styled.div`
     }
 
     .my-area:hover{
-      background-color: #374151;
+      background-color: var(--ui-primary-hover);
       border: 1px solid var(--ui-primary);
       color: #fff;
     }
@@ -127,7 +128,7 @@ export const TopbarStyle = styled.div`
 
     h3{
       color: black;
-      font-family: 'Montserrat';
+      font-family: var(--ui-font);
       font-weight: 500;
       text-transform: uppercase;
     }
@@ -148,7 +149,7 @@ export const TopbarStyle = styled.div`
 
       span{
         color: black;
-        font-family: 'Montserrat';
+        font-family: var(--ui-font);
         text-transform: capitalize;
         font-size: 0.8rem;
         margin-left: 1rem;
@@ -182,7 +183,7 @@ export const TopbarStyle = styled.div`
 
     h3{
       color: black;
-      font-family: 'Montserrat';
+      font-family: var(--ui-font);
       font-weight: 500;
       text-transform: uppercase;
     }
@@ -203,7 +204,7 @@ export const TopbarStyle = styled.div`
 
       span{
         color: black;
-        font-family: 'Montserrat';
+        font-family: var(--ui-font);
         text-transform: capitalize;
         font-size: 0.8rem;
         margin-left: 1rem;

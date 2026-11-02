@@ -351,7 +351,7 @@ const SortedTable = ({ data, loading, isMobile, onChange, showServiceColumn = tr
     if (loading) {
         return (
             <div className="loading-slide-dashboard">
-                <ThreeDots height={20} width={60} color="#111827" />
+                <ThreeDots height={20} width={60} color="#1E2240" />
                 <p>Buscando horários...</p>
             </div>
         );

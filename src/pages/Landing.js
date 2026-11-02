@@ -98,7 +98,7 @@ const Button = styled.button`
   transition: background 0.15s ease, border-color 0.15s ease;
 
   &:hover {
-    background: ${(p) => (p.$outline ? '#f3f4f6' : p.$light ? '#f3f4f6' : '#374151')};
+    background: ${(p) => (p.$outline ? '#f3f4f6' : p.$light ? '#f3f4f6' : 'var(--ui-primary-hover)')};
   }
 `;
 
@@ -130,7 +130,7 @@ const Brand = styled.button`
   cursor: pointer;
 
   svg {
-    height: 40px;
+    height: 34px;
     width: auto;
   }
 `;
@@ -218,6 +218,7 @@ const HeroSub = styled.p`
 const LinkBar = styled.form`
   && {
     display: flex;
+    flex-direction: row;
     align-items: center;
     gap: 0.5rem;
     max-width: 620px;
@@ -806,7 +807,7 @@ const Phone = styled.div`
   height: 560px;
   margin: 0 auto;
   border-radius: 40px;
-  border: 10px solid #111827;
+  border: 10px solid var(--ui-primary);
   background: #f9fafb;
   box-shadow: 0 30px 60px rgba(17, 24, 39, 0.2);
   overflow: hidden;
@@ -890,9 +891,9 @@ const PhoneSlots = styled.div`
 const PhoneSlot = styled.div`
   padding: 0.45rem 0;
   border-radius: 999px;
-  border: 1px solid ${(p) => (p.$selected ? 'var(--ui-primary)' : p.$off ? 'var(--ui-border)' : 'var(--ui-input-border)')};
-  background: ${(p) => (p.$selected ? 'var(--ui-primary)' : '#fff')};
-  color: ${(p) => (p.$selected ? '#fff' : p.$off ? '#9ca3af' : 'var(--ui-text)')};
+  border: 1px solid ${(p) => (p.$selected ? 'var(--ui-accent)' : p.$off ? 'var(--ui-border)' : 'var(--ui-input-border)')};
+  background: ${(p) => (p.$selected ? 'var(--ui-accent-soft)' : '#fff')};
+  color: ${(p) => (p.$selected ? 'var(--ui-accent-ink)' : p.$off ? '#9ca3af' : 'var(--ui-text)')};
   text-decoration: ${(p) => (p.$off ? 'line-through' : 'none')};
   font-size: 0.7rem;
   font-weight: 600;
@@ -1156,7 +1157,7 @@ const FooterInner = styled(Container)`
   color: var(--ui-muted);
 
   svg {
-    height: 36px;
+    height: 28px;
     width: auto;
   }
 
