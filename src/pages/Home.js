@@ -30,6 +30,7 @@ import SimpleScheduleFlow from "./home/SimpleScheduleFlow";
 import AccessChoiceDialog from "../components/customer/AccessChoiceDialog";
 import { RescheduleBanner, RescheduleConfirm } from "../components/customer/Reschedule";
 import { hasChosenGuest, useCustomer } from "../util/customerSession";
+import { isAvailableLogin } from "../util/auth";
 import {
   DateHeader,
   WaitlistButton,
@@ -837,7 +838,8 @@ export default function Home() {
       <AccessChoiceDialog
         open={
           !!companyInfo && companyInfo.active !== false && !reschedule &&
-          !loadingCustomer && !customer && !accessChoiceClosed && !hasChosenGuest()
+          // Prestador logado (ex.: "Minha agenda" no app) vê a própria agenda sem a pergunta
+          !loadingCustomer && !customer && !accessChoiceClosed && !hasChosenGuest() && !isAvailableLogin()
         }
         onClose={() => setAccessChoiceClosed(true)}
       />

@@ -1,10 +1,12 @@
 import { useEffect, useRef } from "react";
+import { isMobileApp } from "../../services/api";
 
 const CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 const SCRIPT_SRC = "https://accounts.google.com/gsi/client";
 
-// Sem REACT_APP_GOOGLE_CLIENT_ID configurado, o botão do Google não aparece
-export const googleSignInEnabled = Boolean(CLIENT_ID);
+// Sem REACT_APP_GOOGLE_CLIENT_ID configurado, o botão do Google não aparece. Dentro do app (WebView)
+// também não: o Google bloqueia login em navegador embutido (erro 403 disallowed_useragent).
+export const googleSignInEnabled = Boolean(CLIENT_ID) && !isMobileApp();
 
 let scriptPromise = null;
 const loadScript = () => {
@@ -33,7 +35,7 @@ export default function GoogleSignInButton({ onCredential }) {
   callbackRef.current = onCredential;
 
   useEffect(() => {
-    if (!CLIENT_ID) return undefined;
+    if (!googleSignInEnabled) return undefined;
     let cancelled = false;
     loadScript()
       .then(() => {
@@ -58,6 +60,6 @@ export default function GoogleSignInButton({ onCredential }) {
     };
   }, []);
 
-  if (!CLIENT_ID) return null;
+  if (!googleSignInEnabled) return null;
   return <div ref={containerRef} style={{ width: "100%", display: "flex", justifyContent: "center", minHeight: 44 }} />;
 }
