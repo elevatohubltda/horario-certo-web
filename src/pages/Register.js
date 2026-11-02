@@ -779,10 +779,10 @@ function Register() {
                                                 <span style={{ fontSize: '0.75rem', color: 'var(--ui-muted)', display: 'block', marginBottom: '0.4rem' }}>
                                                     Incluso no plano:
                                                 </span>
-                                                {plan.features.map((f, i) => (
+                                                {[...(plan.highlights || []), ...(plan.displayFeatures?.length ? plan.displayFeatures : plan.features)].map((f, i) => (
                                                     <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', marginBottom: '0.25rem' }}>
                                                         <span style={{ color: 'var(--ui-primary)', fontSize: '0.8rem', marginTop: '0.05rem' }}>✓</span>
-                                                        <span style={{ color: 'var(--ui-muted)', fontSize: '0.8rem' }}>{f}</span>
+                                                        <span style={{ color: i < (plan.highlights || []).length ? 'var(--ui-text)' : 'var(--ui-muted)', fontWeight: i < (plan.highlights || []).length ? 600 : 400, fontSize: '0.8rem' }}>{f}</span>
                                                     </div>
                                                 ))}
                                             </div>

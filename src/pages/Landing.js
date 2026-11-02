@@ -1033,13 +1033,50 @@ const PlanPrice = styled.div`
 `;
 
 const PlanFeatures = styled(CheckList)`
-  margin: 1.25rem 0 0;
-  padding-top: 1.25rem;
-  border-top: 1px solid var(--ui-border);
+  margin: 0.75rem 0 0;
 
   li {
     font-size: 0.85rem;
   }
+`;
+
+// O que muda entre os planos; o ponto âmbar é o "horário aceso" da marca
+const PlanHighlights = styled.ul`
+  list-style: none;
+  margin: 0 0 1.25rem;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+
+  li {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--ui-text);
+  }
+
+  li::before {
+    content: '';
+    flex: none;
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: var(--ui-accent);
+    transform: translateY(-0.05rem);
+  }
+`;
+
+const PlanIncludedLabel = styled.p`
+  margin: 1.25rem 0 0;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--ui-border);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ui-muted);
 `;
 
 const Muted = styled.p`
@@ -1285,8 +1322,10 @@ function Landing() {
 
   useEffect(() => {
     const normalizePlan = (plan, index) => {
-      const features = Array.isArray(plan.features)
-        ? plan.features.map((f) => (typeof f === 'string' ? f : f?.name)).filter(Boolean)
+      // displayFeatures traz os nomes amigáveis; features (nomes do banco) fica de reserva
+      const rawFeatures = Array.isArray(plan.displayFeatures) && plan.displayFeatures.length > 0 ? plan.displayFeatures : plan.features;
+      const features = Array.isArray(rawFeatures)
+        ? rawFeatures.map((f) => (typeof f === 'string' ? f : f?.name)).filter(Boolean)
         : [];
       return {
         id: plan.id || plan._id || `${plan.name || 'plano'}-${index}`,
@@ -1294,6 +1333,7 @@ function Landing() {
         monthly: Number(plan.price || plan.monthlyPrice || plan.amount || 0),
         description: plan.description || '',
         featured: Boolean(plan.recommended || plan.popular || plan.highlighted || plan.isMostPopular),
+        highlights: Array.isArray(plan.highlights) ? plan.highlights : [],
         features,
       };
     };
@@ -1695,9 +1735,15 @@ function Landing() {
                   <PlanPrice>
                     <strong>{formatBRL(plan.monthly)}</strong> <span>/ mês</span>
                   </PlanPrice>
+                  {plan.highlights.length > 0 && (
+                    <PlanHighlights>
+                      {plan.highlights.map((item) => <li key={item}>{item}</li>)}
+                    </PlanHighlights>
+                  )}
                   <Button $outline={!plan.featured} type="button" onClick={() => startTrial()}>
                     Testar 14 dias grátis
                   </Button>
+                  {plan.features.length > 0 && <PlanIncludedLabel>Incluso no plano</PlanIncludedLabel>}
                   {plan.features.length > 0 && (
                     <PlanFeatures>
                       {plan.features.map((feature) => (

@@ -210,7 +210,10 @@ export default function ChangeSubscription() {
                     </Price>
                     <Separator $margin="0.75rem 0" $width="100%" $style="dotted" />
 
-                    {plan.features.map((feature) => (
+                    {(plan.highlights || []).map((item) => (
+                      <Bullet key={item} style={{ fontWeight: 600, color: "var(--ui-text)" }}>- {item}</Bullet>
+                    ))}
+                    {(plan.displayFeatures?.length ? plan.displayFeatures : plan.features).map((feature) => (
                       <Bullet key={feature}>- {feature}</Bullet>
                     ))}
                   </PlanCard>
