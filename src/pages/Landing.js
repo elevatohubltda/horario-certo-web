@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { ReactComponent as Logo } from '../assets/horario-certo-logo-horizontal.svg?component';
 import { useNavigate } from 'react-router-dom';
@@ -981,11 +981,20 @@ const PlansGrid = styled.div`
   align-items: stretch;
 `;
 
+// Subgrid alinha nome, preço, destaques, botão e itens exclusivos entre os cards, mesmo com quantidades diferentes
 const PlanCard = styled.article`
   position: relative;
   display: flex;
   flex-direction: column;
   padding: 1.5rem;
+
+  @supports (grid-template-rows: subgrid) {
+    display: grid;
+    grid-row: span 5;
+    grid-template-rows: subgrid;
+    row-gap: 0;
+  }
+
   border-radius: var(--ui-radius);
   background: #fff;
   border: ${(p) => (p.$featured ? '2px solid var(--ui-primary)' : '1px solid var(--ui-border)')};
@@ -998,8 +1007,8 @@ const PlanBadge = styled.span`
   left: 1.5rem;
   padding: 0.2rem 0.7rem;
   border-radius: 999px;
-  background: var(--ui-primary);
-  color: #fff;
+  background: ${(p) => (p.$launch ? 'var(--ui-accent)' : 'var(--ui-primary)')};
+  color: ${(p) => (p.$launch ? 'var(--ui-primary)' : '#fff')};
   font-size: 0.7rem;
   font-weight: 700;
 `;
@@ -1008,14 +1017,6 @@ const PlanName = styled.h3`
   margin: 0;
   font-size: 1rem;
   font-weight: 700;
-`;
-
-const PlanDescription = styled.p`
-  margin: 0.35rem 0 0;
-  min-height: 2.6em;
-  font-size: 0.85rem;
-  line-height: 1.5;
-  color: var(--ui-muted);
 `;
 
 const PlanPrice = styled.div`
@@ -1046,6 +1047,7 @@ const PlanHighlights = styled.ul`
   margin: 0 0 1.25rem;
   padding: 0;
   display: grid;
+  align-content: start;
   gap: 0.5rem;
 
   li {
@@ -1077,6 +1079,40 @@ const PlanIncludedLabel = styled.p`
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--ui-muted);
+`;
+
+// Itens comuns a todos os planos, mostrados uma vez abaixo dos cards
+const AllPlans = styled.div`
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  border-radius: var(--ui-radius);
+  background: #fff;
+  border: 1px solid var(--ui-border);
+  box-shadow: var(--ui-card-shadow);
+
+  h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  small {
+    display: block;
+    margin-top: 1.25rem;
+    font-size: 0.8rem;
+    color: var(--ui-muted);
+  }
+`;
+
+const AllPlansList = styled(CheckList)`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 0.75rem 1.5rem;
+  margin: 1rem 0 0;
+
+  li {
+    font-size: 0.88rem;
+  }
 `;
 
 const Muted = styled.p`
@@ -1283,13 +1319,17 @@ const faqItems = [
   },
   {
     question: 'Como funcionam os lembretes no WhatsApp?',
-    answer: 'Quando o cliente agenda, ele recebe a confirmação no WhatsApp e, perto do horário, um lembrete. Isso reduz as faltas sem você precisar mandar mensagem um por um. Confira na seção de planos o que está incluso em cada plano.',
+    answer: 'Quando o cliente agenda, ele recebe a confirmação no WhatsApp e, perto do horário, um lembrete. Isso reduz as faltas sem você precisar mandar mensagem um por um. O envio pelo WhatsApp começa depois do pagamento da primeira mensalidade; no teste grátis você usa todo o resto do sistema.',
   },
   {
     question: 'Como cancelo se não gostar?',
     answer: 'Direto pelo painel, a qualquer momento, sem multa e sem precisar falar com ninguém. Não existe fidelidade mínima.',
   },
 ];
+
+const isWhatsAppFeature = (feature) => /whatsapp/i.test(feature);
+// Marca os itens de WhatsApp com * (a nota explica que o envio começa após a primeira mensalidade)
+const withWhatsAppMark = (feature) => (isWhatsAppFeature(feature) ? `${feature} *` : feature);
 
 const formatBRL = (value) =>
   Number(value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2 });
@@ -1311,6 +1351,13 @@ function Landing() {
   const [plans, setPlans] = useState([]);
   const [plansLoading, setPlansLoading] = useState(true);
   const [faqOpen, setFaqOpen] = useState(0);
+
+  // Itens que todos os planos têm: saem dos cards e aparecem uma vez só, abaixo deles
+  const commonFeatures = useMemo(
+    () => (plans.length === 0 ? [] : plans[0].features.filter((f) => plans.every((p) => p.features.includes(f)))),
+    [plans]
+  );
+  const hasWhatsAppFeature = plans.some((p) => p.features.some(isWhatsAppFeature));
 
   const DEMO_DELAY = 3500;
   const [demoStep, setDemoStep] = useState(1);
@@ -1334,6 +1381,8 @@ function Landing() {
         description: plan.description || '',
         featured: Boolean(plan.recommended || plan.popular || plan.highlighted || plan.isMostPopular),
         highlights: Array.isArray(plan.highlights) ? plan.highlights : [],
+        founder: Boolean(plan.founder),
+        recommended: Boolean(plan.recommended),
         features,
       };
     };
@@ -1345,11 +1394,14 @@ function Landing() {
         const payload = response?.data;
         const source = Array.isArray(payload?.plans) ? payload.plans : Array.isArray(payload) ? payload : [];
         const mapped = source.map(normalizePlan).sort((a, b) => a.monthly - b.monthly);
-        if (mapped.length > 1 && !mapped.some((p) => p.featured)) {
-          const mid = Math.floor(mapped.length / 2);
-          mapped[mid] = { ...mapped[mid], featured: true };
-        }
-        setPlans(mapped);
+        // Enquanto houver vagas de Fundador (o backend só o envia nesse caso), ele é a oferta em destaque
+        const hasFounder = mapped.some((p) => p.founder);
+        setPlans(
+          mapped.map((p) => {
+            if (hasFounder) return { ...p, featured: p.founder, badge: p.founder ? 'Oferta de lançamento' : null };
+            return { ...p, featured: p.recommended, badge: p.recommended ? 'Recomendado' : null };
+          })
+        );
       } catch {
         setPlans([]);
       } finally {
@@ -1726,34 +1778,54 @@ function Landing() {
           ) : plans.length === 0 ? (
             <Muted>Os planos estão indisponíveis no momento. Comece o teste grátis e escolha depois.</Muted>
           ) : (
-            <PlansGrid>
-              {plans.map((plan) => (
-                <PlanCard key={plan.id} $featured={plan.featured}>
-                  {plan.featured && <PlanBadge>Mais escolhido</PlanBadge>}
-                  <PlanName>{plan.name}</PlanName>
-                  {plan.description && <PlanDescription>{plan.description}</PlanDescription>}
-                  <PlanPrice>
-                    <strong>{formatBRL(plan.monthly)}</strong> <span>/ mês</span>
-                  </PlanPrice>
-                  {plan.highlights.length > 0 && (
-                    <PlanHighlights>
-                      {plan.highlights.map((item) => <li key={item}>{item}</li>)}
-                    </PlanHighlights>
+            <>
+              <PlansGrid>
+                {plans.map((plan) => {
+                  const ownFeatures = plan.features.filter((f) => !commonFeatures.includes(f));
+                  return (
+                    <PlanCard key={plan.id} $featured={plan.featured}>
+                      {plan.badge && <PlanBadge $launch={plan.founder}>{plan.badge}</PlanBadge>}
+                      <PlanName>{plan.name}</PlanName>
+                      <PlanPrice>
+                        <strong>{formatBRL(plan.monthly)}</strong> <span>/ mês</span>
+                      </PlanPrice>
+                      <PlanHighlights>
+                        {plan.highlights.map((item) => <li key={item}>{item}</li>)}
+                      </PlanHighlights>
+                      <Button $outline={!plan.featured} type="button" onClick={() => startTrial()}>
+                        Testar 14 dias grátis
+                      </Button>
+                      <div>
+                        {ownFeatures.length > 0 && (
+                          <>
+                            <PlanIncludedLabel>Também incluso</PlanIncludedLabel>
+                            <PlanFeatures>
+                              {ownFeatures.map((feature) => (
+                                <li key={feature}><Check size={16} />{withWhatsAppMark(feature)}</li>
+                              ))}
+                            </PlanFeatures>
+                          </>
+                        )}
+                      </div>
+                    </PlanCard>
+                  );
+                })}
+              </PlansGrid>
+
+              {commonFeatures.length > 0 && (
+                <AllPlans>
+                  <h3>Todos os planos incluem</h3>
+                  <AllPlansList>
+                    {commonFeatures.map((feature) => (
+                      <li key={feature}><Check size={16} />{withWhatsAppMark(feature)}</li>
+                    ))}
+                  </AllPlansList>
+                  {hasWhatsAppFeature && (
+                    <small>* O envio de mensagens pelo WhatsApp é liberado após o pagamento da primeira mensalidade.</small>
                   )}
-                  <Button $outline={!plan.featured} type="button" onClick={() => startTrial()}>
-                    Testar 14 dias grátis
-                  </Button>
-                  {plan.features.length > 0 && <PlanIncludedLabel>Incluso no plano</PlanIncludedLabel>}
-                  {plan.features.length > 0 && (
-                    <PlanFeatures>
-                      {plan.features.map((feature) => (
-                        <li key={feature}><Check size={16} />{feature}</li>
-                      ))}
-                    </PlanFeatures>
-                  )}
-                </PlanCard>
-              ))}
-            </PlansGrid>
+                </AllPlans>
+              )}
+            </>
           )}
         </Container>
       </Section>

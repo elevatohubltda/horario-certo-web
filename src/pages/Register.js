@@ -785,6 +785,9 @@ function Register() {
                                                         <span style={{ color: i < (plan.highlights || []).length ? 'var(--ui-text)' : 'var(--ui-muted)', fontWeight: i < (plan.highlights || []).length ? 600 : 400, fontSize: '0.8rem' }}>{f}</span>
                                                     </div>
                                                 ))}
+                                                <span style={{ display: 'block', marginTop: '0.5rem', fontSize: '0.75rem', color: 'var(--ui-accent-ink)' }}>
+                                                    O envio de mensagens pelo WhatsApp é liberado após o pagamento da primeira mensalidade.
+                                                </span>
                                             </div>
                                         )}
                                     </div>

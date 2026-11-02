@@ -157,6 +157,31 @@ export const Message = styled(Card)`
   font-size: 0.9rem;
 `;
 
+// Aviso de regra que o cliente precisa saber (ex.: WhatsApp só após a primeira mensalidade), no âmbar da marca
+export const Notice = styled.div`
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  padding: 0.9rem 1rem;
+  margin-bottom: 1rem;
+  border-radius: var(--ui-radius-sm);
+  background: var(--ui-accent-soft);
+  border: 1px solid #f6d49a;
+  color: var(--ui-accent-ink);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  text-align: left;
+
+  strong {
+    color: #5c3906;
+  }
+
+  svg {
+    flex: none;
+    margin-top: 0.1rem;
+  }
+`;
+
 export const SummaryGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

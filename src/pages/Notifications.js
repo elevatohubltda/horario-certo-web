@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import "../styles/index.css";
-import { Message, PageLayout } from "../components/admin";
+import { Clock } from "lucide-react";
+import { Message, Notice, PageLayout } from "../components/admin";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { isAvailableLogin } from "../util/auth";
@@ -275,6 +276,8 @@ export default function Notifications() {
   const [retentionDays, setRetentionDays] = useState(3);
   const [reminderEnabled, setReminderEnabled] = useState(false);
   const [reminderHours, setReminderHours] = useState(2);
+  // false no teste grátis: dá para configurar, mas o envio só começa após a primeira mensalidade
+  const [whatsappAvailable, setWhatsappAvailable] = useState(true);
 
   useEffect(() => {
     if (!isAvailableLogin()) {
@@ -299,6 +302,7 @@ export default function Notifications() {
           setRetentionDays(res.data.daysBefore);
           setReminderEnabled(res.data.reminderEnabled);
           setReminderHours(res.data.reminderHoursBefore);
+          setWhatsappAvailable(res.data.whatsappAvailable !== false);
         }
       }
     } catch (err) {
@@ -381,6 +385,14 @@ export default function Notifications() {
             </AccessDenied>
           ) : (
             <>
+              {!whatsappAvailable && (
+                <Notice>
+                  <Clock size={18} />
+                  <span>
+                    <strong>As mensagens começam após a primeira mensalidade.</strong> Durante o teste grátis seus clientes não recebem confirmação, lembrete nem mensagem de retorno pelo WhatsApp. Assim que o pagamento da primeira mensalidade for confirmado, o envio começa automaticamente. Você já pode deixar tudo configurado.
+                  </span>
+                </Notice>
+              )}
               <div>
                 <NotificationCard
                   title="Notificação de retorno"

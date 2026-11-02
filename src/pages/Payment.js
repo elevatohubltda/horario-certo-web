@@ -3,7 +3,8 @@ import styled, { keyframes } from "styled-components";
 import Cookies from "js-cookie";
 
 import { Container } from "../components/container/style";
-import { PageLayout, Button as UiButton } from "../components/admin";
+import { Clock } from "lucide-react";
+import { Notice, PageLayout, Button as UiButton } from "../components/admin";
 import { Button } from "../components/button";
 import { Separator } from "../components/separator/style";
 import { Title } from "../components/title";
@@ -181,6 +182,17 @@ const PixCode = styled.div`
   margin-bottom: 0.75rem;
 `;
 
+const PendingTag = styled.span`
+  margin-left: auto;
+  padding: 0.1rem 0.55rem;
+  border-radius: 999px;
+  background: var(--ui-accent-soft);
+  color: var(--ui-accent-ink);
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+`;
+
 const CopyButton = styled.button`
   width: 100%;
   background: var(--ui-primary);
@@ -310,6 +322,8 @@ function Payment() {
   const [returnedFromCheckout] = useState(() => searchParams.has("preapproval_id"));
 
   const cardStatus = paymentProps?.cardSubscriptionStatus;
+  // No teste grátis os recursos de WhatsApp aparecem, mas só funcionam após a primeira mensalidade
+  const isWhatsAppPending = (feature) => paymentProps?.whatsappAvailable === false && /whatsapp/i.test(feature);
   const isCardActive = cardStatus === "authorized";
 
   const hasPayment = paymentProps?.status === "paid" || paymentProps?.status === "pending";
@@ -867,6 +881,15 @@ function Payment() {
                 Recursos inclusos no plano
               </div>
 
+              {paymentProps?.whatsappAvailable === false && (
+                <Notice>
+                  <Clock size={18} />
+                  <span>
+                    <strong>O WhatsApp é liberado após a primeira mensalidade.</strong> Durante o teste grátis seus clientes não recebem confirmação, lembrete nem mensagem de retorno pelo WhatsApp. Assim que o pagamento da primeira mensalidade for confirmado, o envio começa automaticamente.
+                  </span>
+                </Notice>
+              )}
+
               <FeatureList>
                 {paymentProps?.features.map((item, index) => (
                   <div
@@ -882,7 +905,7 @@ function Payment() {
                   >
                     <span
                       style={{
-                        color: "#16a34a",
+                        color: isWhatsAppPending(item) ? "#9ca3af" : "#16a34a",
                         fontWeight: 700,
                         fontSize: "0.85rem",
                       }}
@@ -890,6 +913,7 @@ function Payment() {
                       ✓
                     </span>
                     <span>{item}</span>
+                    {isWhatsAppPending(item) && <PendingTag>Após a 1ª mensalidade</PendingTag>}
                   </div>
                 ))}
               </FeatureList>
