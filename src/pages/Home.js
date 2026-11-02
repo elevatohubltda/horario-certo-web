@@ -10,7 +10,7 @@ import { getWeekDay } from "../util/date";
 import Topbar from "../components/topbar";
 import { Container } from "../components/container/style";
 import { CustomFilterStyle } from "../components/filter/style";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { getCompany, getCompanyProperties, getCompanySchedules, registerCompanyScheduleView } from "../services/endpoints/company";
 import { getServicesPublic } from "../services/endpoints/service";
 import { formataNumeroTelefone, formatSchedulesToISO, transformarHorariosPorData } from "../util/format";
@@ -27,6 +27,9 @@ import { WhatsApp } from '@mui/icons-material';
 import FilterDropdown from "../components/filterDropdown";
 import { Button } from "../components/button";
 import SimpleScheduleFlow from "./home/SimpleScheduleFlow";
+import AccessChoiceDialog from "../components/customer/AccessChoiceDialog";
+import { RescheduleBanner, RescheduleConfirm } from "../components/customer/Reschedule";
+import { hasChosenGuest, useCustomer } from "../util/customerSession";
 import {
   DateHeader,
   WaitlistButton,
@@ -53,6 +56,12 @@ export default function Home() {
     endDate: new Date(new Date().setDate(new Date().getDate() + 2)).toISOString().split('T')[0],
   });
   const { companyUrl } = useParams();
+  const location = useLocation();
+  const { customer, loading: loadingCustomer } = useCustomer();
+  // Remarcação vinda da área do cliente (só vale para a agenda da mesma empresa)
+  const reschedule = location.state?.reschedule?.companyUrl === companyUrl ? location.state.reschedule : null;
+  const [rescheduleTarget, setRescheduleTarget] = React.useState(null);
+  const [accessChoiceClosed, setAccessChoiceClosed] = React.useState(false);
   const [mobile, setMobile] = React.useState();
   const [loading, setLoading] = React.useState(true);
   const [loadingSchedule, setLoadingSchedule] = React.useState(true);
@@ -174,9 +183,17 @@ export default function Home() {
   }
 
   const selectSchedule = (data, horario, available, nome, service) => {
+    if (reschedule) {
+      if (available) setRescheduleTarget({ data, horario });
+      return;
+    }
     const selectedServiceId = service?.id || service?.servicoId || service?._id || "";
     setAvailable(available);
-    setSelectedSchedule({ data, horario, nome, service, servicoId: selectedServiceId });
+    // Cliente logado já chega com nome e WhatsApp preenchidos
+    const prefill = available && customer
+      ? { nome: customer.name, telefone: formataNumeroTelefone(customer.telephone || "") }
+      : { nome };
+    setSelectedSchedule({ data, horario, ...prefill, service, servicoId: selectedServiceId });
     setCode('');
     setOpen(true);
   }
@@ -361,7 +378,7 @@ export default function Home() {
     <>
       {companyInfo && companyInfo.active === false && <BlockedAccessPage variant="public" />}
       {companyInfo && companyInfo.active !== false && scheduleMode === "SIMPLES" &&
-        <SimpleScheduleFlow companyUrl={companyUrl} companyInfo={companyInfo} mobile={mobile} />
+        <SimpleScheduleFlow companyUrl={companyUrl} companyInfo={companyInfo} mobile={mobile} customer={customer} reschedule={reschedule} />
       }
       {companyInfo && companyInfo.active !== false && scheduleMode !== "SIMPLES" &&
         <div style={{ backgroundColor: 'var(--ui-page-bg)', minHeight: '100dvh', paddingBottom: '2rem' }}>
@@ -391,6 +408,7 @@ export default function Home() {
               }}
             />
           </CustomFilterStyle>
+          {reschedule && <RescheduleBanner appointment={reschedule} width={mobile ? "calc(100% - 2rem)" : "80%"} />}
           <Container
             $width={mobile ? "calc(100% - 2rem)" : "80%"}
             $padding="0 0 1.5em 0"
@@ -814,6 +832,25 @@ export default function Home() {
           <span className="loader"></span>
         </Container>
       }
+
+      {/* PRIMEIRO ACESSO: SEGUIR SEM CONTA OU ENTRAR */}
+      <AccessChoiceDialog
+        open={
+          !!companyInfo && companyInfo.active !== false && !reschedule &&
+          !loadingCustomer && !customer && !accessChoiceClosed && !hasChosenGuest()
+        }
+        companyName={companyInfo?.name}
+        onClose={() => setAccessChoiceClosed(true)}
+      />
+
+      {/* REMARCAÇÃO (MODO PADRÃO) */}
+      {reschedule && (
+        <RescheduleConfirm
+          appointment={reschedule}
+          target={rescheduleTarget}
+          onClose={() => { setRescheduleTarget(null); handleCompanySchedules(); }}
+        />
+      )}
     </>
   );
 }

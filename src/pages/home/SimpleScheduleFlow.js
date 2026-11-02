@@ -26,6 +26,7 @@ import { createReservedSchedule, removeReservedSchedule } from "../../services/e
 import { formataNumeroTelefone, formatSchedulesToISO } from "../../util/format";
 import { computeAvailableSlots } from "../../util/simpleSchedule";
 import { getWeekDay } from "../../util/date";
+import { RescheduleBanner, RescheduleConfirm } from "../../components/customer/Reschedule";
 
 const ANY_PROFESSIONAL = "ANY";
 
@@ -119,7 +120,8 @@ const sliderSettings = {
   prevArrow: <button><ArrowLeft/></button>
 };
 
-export default function SimpleScheduleFlow({ companyUrl, companyInfo, mobile }) {
+// customer: cliente logado (preenche nome e WhatsApp); reschedule: agendamento sendo remarcado pela área do cliente
+export default function SimpleScheduleFlow({ companyUrl, companyInfo, mobile, customer, reschedule }) {
   const [filter, setFilter] = useState({
     name: "3 dias",
     indexActive: 0,
@@ -137,6 +139,7 @@ export default function SimpleScheduleFlow({ companyUrl, companyInfo, mobile }) 
   const [professionals, setProfessionals] = useState([]);
   const [selectedProfessional, setSelectedProfessional] = useState(null);
   const [selectedOption, setSelectedOption] = useState(null);
+  const [rescheduleTarget, setRescheduleTarget] = useState(null);
   const multiProfessional = professionals.length > 1;
   const anyProfessional = selectedProfessional === ANY_PROFESSIONAL;
 
@@ -254,6 +257,18 @@ export default function SimpleScheduleFlow({ companyUrl, companyInfo, mobile }) 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companyUrl]);
 
+  // Remarcação: já abre nos horários do mesmo serviço e do mesmo profissional
+  useEffect(() => {
+    if (!reschedule || loadingServices || selectedService) return;
+    const service = services.find((s) => s.id === reschedule.serviceId);
+    if (!service) return;
+    setSelectedService(service);
+    if (multiProfessional && reschedule.professionalId) {
+      setSelectedProfessional({ id: reschedule.professionalId, name: reschedule.professionalName });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reschedule, loadingServices]);
+
   useEffect(() => {
     if (!readyToSchedule) return;
     fetchAvailability();
@@ -352,9 +367,18 @@ export default function SimpleScheduleFlow({ companyUrl, companyInfo, mobile }) 
   };
 
   const selectSchedule = (data, horario, isAvailable, option) => {
+    if (reschedule) {
+      if (isAvailable) setRescheduleTarget({ data, horario });
+      return;
+    }
     setAvailable(isAvailable);
     setSelectedOption(option || null);
-    setSelectedSchedule({ data, horario, nome: "", telefone: "" });
+    setSelectedSchedule({
+      data,
+      horario,
+      nome: isAvailable && customer ? customer.name : "",
+      telefone: isAvailable && customer ? formataNumeroTelefone(customer.telephone || "") : ""
+    });
     setCode("");
     setOpen(true);
   };
@@ -420,6 +444,8 @@ export default function SimpleScheduleFlow({ companyUrl, companyInfo, mobile }) 
         whatsapp={companyInfo.whatsapp}
         instagram={companyInfo.instagram}
       />
+
+      {reschedule && <RescheduleBanner appointment={reschedule} width={mobile ? "calc(100% - 2rem)" : "80%"} />}
 
       {/* PASSO 1: SERVIÇO */}
       {!selectedService && (
@@ -507,10 +533,12 @@ export default function SimpleScheduleFlow({ companyUrl, companyInfo, mobile }) 
                 <> · {anyProfessional ? "Sem preferência" : selectedProfessional.name}</>
               )}
             </span>
-            <button className="filter-button" onClick={resetService}>
-              Trocar serviço
-            </button>
-            {needsProfessionalChoice && (
+            {!reschedule && (
+              <button className="filter-button" onClick={resetService}>
+                Trocar serviço
+              </button>
+            )}
+            {needsProfessionalChoice && !reschedule && (
               <button className="filter-button" onClick={resetProfessional}>
                 Trocar profissional
               </button>
@@ -691,6 +719,14 @@ export default function SimpleScheduleFlow({ companyUrl, companyInfo, mobile }) 
           </Container>
         </form>
       </Dialog>
+
+      {reschedule && (
+        <RescheduleConfirm
+          appointment={reschedule}
+          target={rescheduleTarget}
+          onClose={() => { setRescheduleTarget(null); fetchAvailability(); }}
+        />
+      )}
 
       <ToastContainer
         position={mobile ? "bottom-center" : "top-right"}

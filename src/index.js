@@ -4,6 +4,8 @@ import {
   RouterProvider,
 } from 'react-router-dom';
 import Landing from './pages/Landing';
+import CustomerPanel from './pages/customer/CustomerPanel';
+import CustomerAuth from './pages/customer/CustomerAuth';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import ForgotPassword from './pages/ForgotPassword';
@@ -40,6 +42,9 @@ const router = createBrowserRouter(
     { path: '/esqueci-senha',     element: <ForgotPassword /> },
     { path: '/registro',          element: <Register /> },
     { path: '/termos-de-uso',     element: <TermosDeUso /> },
+    // Área do cliente final (hífen no caminho: o link de empresa só aceita letras e números)
+    { path: '/area-do-cliente',   element: <CustomerPanel /> },
+    { path: '/area-do-cliente/entrar', element: <CustomerAuth /> },
     { path: '/:companyUrl',       element: <Home /> },
     { path: '/dashboard',         element: <Dashboard /> },
     { path: '/agendamentos',      element: <MyAppointments /> },

@@ -188,7 +188,10 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
         {open && (
           <div className="user-dropdown">
             <div className="dropdown-item">
-              <button onClick={() => handleNavigate('/login')}>Acessar</button>
+              <button onClick={() => handleNavigate('/area-do-cliente')}>Meus agendamentos</button>
+            </div>
+            <div className="dropdown-item">
+              <button onClick={() => handleNavigate('/login')}>Sou barbearia</button>
             </div>
           </div>
         )}
