@@ -9,6 +9,18 @@ import { isAvailableLogin } from "../util/auth";
 import { toast } from "react-toastify";
 import { getNotificationSettings, updateNotificationSettings } from "../services/endpoints/notifications";
 
+const NoticeLink = styled.button`
+  margin-top: 0.35rem;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-weight: 600;
+  color: var(--ui-primary);
+  text-decoration: underline;
+  cursor: pointer;
+`;
+
 const hasWhatsAppFeature = (feature) =>
   feature.name.toLowerCase().includes("whatsapp");
 
@@ -390,6 +402,10 @@ export default function Notifications() {
                   <Clock size={18} />
                   <span>
                     <strong>As mensagens começam após a primeira mensalidade.</strong> Durante o teste grátis seus clientes não recebem confirmação, lembrete nem mensagem de retorno pelo WhatsApp. Assim que o pagamento da primeira mensalidade for confirmado, o envio começa automaticamente. Você já pode deixar tudo configurado.
+                    <br />
+                    <NoticeLink type="button" onClick={() => navigate("/assinatura")}>
+                      Não quer esperar? Assine agora
+                    </NoticeLink>
                   </span>
                 </Notice>
               )}

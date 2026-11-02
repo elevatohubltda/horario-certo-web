@@ -39,6 +39,12 @@ export const generateOverdueInvoice = (companyUrl) => {
     return api.post(`/payment/overdue-invoice?${params}`, {}, { withAuth: true });
 };
 
+// Pula o teste grátis: gera agora o Pix da primeira mensalidade (valor calculado no backend)
+export const subscribeNow = (companyUrl) => {
+    const params = new URLSearchParams({ companyUrl }).toString();
+    return api.post(`/payment/subscribe-now?${params}`, {}, { withAuth: true });
+};
+
 export const createCardSubscription = (companyUrl) => {
     const params = new URLSearchParams({ companyUrl }).toString();
     return api.post(`/payment/card-subscription?${params}`, {}, { withAuth: true });

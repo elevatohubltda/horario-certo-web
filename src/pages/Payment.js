@@ -15,6 +15,7 @@ import {
   getClientStatus,
   generateOverdueInvoice,
   createCardSubscription,
+  subscribeNow,
   cancelCardSubscription,
 } from "../services/endpoints/payment";
 import { toast } from "react-toastify";
@@ -180,6 +181,24 @@ const PixCopyBox = styled.div`
 const PixCode = styled.div`
   word-break: break-word;
   margin-bottom: 0.75rem;
+`;
+
+const SubscribeNowBox = styled.div`
+  display: grid;
+  gap: 0.5rem;
+  justify-items: start;
+  margin-top: 1.25rem;
+  padding: 1rem;
+  border-radius: var(--ui-radius-sm);
+  background: var(--ui-accent-soft);
+  border: 1px solid #f6d49a;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--ui-text-secondary);
+
+  strong {
+    color: var(--ui-text);
+  }
 `;
 
 const PendingTag = styled.span`
@@ -386,6 +405,26 @@ function Payment() {
     toast.info("Recebemos seu cartão! A confirmação do Mercado Pago pode levar alguns minutos.");
     setSearchParams({}, { replace: true });
   }, [returnedFromCheckout, setSearchParams]);
+
+  const [isSubscribing, setIsSubscribing] = useState(false);
+  // Quem ainda não pagou nada pode encerrar o teste e assinar já (libera o WhatsApp assim que o Pix for pago)
+  const canSubscribeNow = paymentProps?.status === "trial" && paymentProps?.whatsappAvailable === false && !isCardActive;
+
+  const handleSubscribeNow = async () => {
+    if (isSubscribing) return;
+    const dueDay = new Date().getDate();
+    if (!window.confirm(`Encerrar o teste grátis e gerar agora o Pix da primeira mensalidade? A partir do pagamento, sua mensalidade passa a vencer todo dia ${dueDay}.`)) return;
+    try {
+      setIsSubscribing(true);
+      await subscribeNow(companyUrl);
+      await Promise.all([fetchPaymentData(), fetchClientStatus()]);
+      toast.success("Pix gerado! Assim que o pagamento for confirmado, sua assinatura e o WhatsApp são ativados.");
+    } catch (error) {
+      toast.error(error?.response?.data || "Não foi possível gerar o Pix da assinatura");
+    } finally {
+      setIsSubscribing(false);
+    }
+  };
 
   const handleActivateCard = async () => {
     if (isUpdatingCard) return;
@@ -727,6 +766,19 @@ function Payment() {
                   >
                     {formatAmount(paymentProps?.amount)}
                   </div>
+
+                  {canSubscribeNow && (
+                    <SubscribeNowBox>
+                      <strong>Não quer esperar o fim do teste?</strong>
+                      <span>
+                        Assine agora e libere o envio de mensagens pelo WhatsApp assim que o pagamento for confirmado.
+                        O teste grátis termina e sua mensalidade passa a vencer todo dia {new Date().getDate()}.
+                      </span>
+                      <UiButton type="button" onClick={handleSubscribeNow} disabled={isSubscribing}>
+                        {isSubscribing ? "Gerando Pix..." : `Assinar agora por ${formatAmount(paymentProps?.amount)}`}
+                      </UiButton>
+                    </SubscribeNowBox>
+                  )}
                 </>
               )}
             </InvoiceCard>
@@ -885,7 +937,7 @@ function Payment() {
                 <Notice>
                   <Clock size={18} />
                   <span>
-                    <strong>O WhatsApp é liberado após a primeira mensalidade.</strong> Durante o teste grátis seus clientes não recebem confirmação, lembrete nem mensagem de retorno pelo WhatsApp. Assim que o pagamento da primeira mensalidade for confirmado, o envio começa automaticamente.
+                    <strong>O WhatsApp é liberado após a primeira mensalidade.</strong> {canSubscribeNow && "Se não quiser esperar o fim do teste, use o botão Assinar agora. "}Durante o teste grátis seus clientes não recebem confirmação, lembrete nem mensagem de retorno pelo WhatsApp. Assim que o pagamento da primeira mensalidade for confirmado, o envio começa automaticamente.
                   </span>
                 </Notice>
               )}
