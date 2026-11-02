@@ -8,7 +8,7 @@ import businessLogo from '../../assets/images/corporate-building.png';
 import { isAdmin, isAvailableLogin, isProfessional, logout } from '../../util/auth';
 import { ADMIN_MENU_ITEMS, professionalMenuItems } from '../sidebar';
 import {Separator} from '../separator/style';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import { isMobile, openInstagram, openWhatsApp } from '../../util/util';
 import { isMobileApp } from '../../services/api';
@@ -17,6 +17,18 @@ import Dialog from '../dialog';
 import styled from 'styled-components';
 import { getCompanyProperties } from '../../services/endpoints/company';
 import { fetchMaxProfessionals } from '../../services/endpoints/professional';
+import { logoutCurrentCustomer, useCustomer } from '../../util/customerSession';
+
+// Nome do cliente final logado, ao lado do botão da conta (agenda pública)
+const CustomerName = styled.span`
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ui-text);
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
 
 const DialogTitle = styled.h3`
   margin: 0 0 1rem 0;
@@ -86,6 +98,9 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const menuRef = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation();
+  // Cliente final logado (área do cliente); só vale quando não há login de prestador
+  const { customer } = useCustomer();
   const [mobile, setMobile] = useState();
   const [hasWhatsApp, setHasWhatsApp] = useState(false);
   const [scheduleMode, setScheduleMode] = useState("PADRAO");
@@ -179,6 +194,39 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
     </div>
   );
 
+  // Login de cliente volta para a mesma página (ex.: a agenda do prestador) depois de entrar
+  const customerLoginPath = `/area-do-cliente/entrar?redirect=${encodeURIComponent(location.pathname)}`;
+
+  const handleCustomerLogout = async () => {
+    setOpen(false);
+    await logoutCurrentCustomer();
+    toast.success('Você saiu da sua conta.');
+  };
+
+  const renderMenuCustomer = () => (
+    <div className="menu" ref={menuRef}>
+      {!mobile && <CustomerName>Olá, {customer.name.split(' ')[0]}</CustomerName>}
+      <button
+        className={mobile ? 'menu-button' : 'user-button'}
+        onClick={() => setOpen(!open)}
+        aria-label="Minha conta"
+      >
+        {mobile ? <MenuLogo /> : <UserLogo />}
+      </button>
+      {open && (
+        <div className="user-dropdown">
+          <div className="dropdown-item">
+            <button onClick={() => handleNavigate('/area-do-cliente')}>Meus agendamentos</button>
+          </div>
+          <Separator $width="100%" $bordercolor="#ccc" $margin="0" $style="dotted" />
+          <div className="dropdown-item">
+            <button onClick={handleCustomerLogout}>Sair</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
   const renderMenuNotAuth = () => (
     <>
       <div className="menu" ref={menuRef}>
@@ -188,7 +236,7 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
         {open && (
           <div className="user-dropdown">
             <div className="dropdown-item">
-              <button onClick={() => handleNavigate('/area-do-cliente')}>Meus agendamentos</button>
+              <button onClick={() => handleNavigate(customerLoginPath)}>Entrar</button>
             </div>
             <div className="dropdown-item">
               <button onClick={() => handleNavigate('/login')}>Sou prestador de serviços</button>
@@ -329,16 +377,16 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
 
           {isAuth && <Logo className='logo' />}
 
-          {!mobile && !isAuth && (
+          {!mobile && !isAuth && !customer && (
             <div className="menu">
-              {/* <button className="be-a-partner">Seja Parceiro</button> */}
-              <button className="my-area" onClick={() => handleNavigate('/login')}>
+              <button className="my-area" onClick={() => handleNavigate(customerLoginPath)}>
                 Entrar
               </button>
             </div>
           )}
 
-          {mobile && !isAuth && renderMenuNotAuth()}
+          {mobile && !isAuth && !customer && renderMenuNotAuth()}
+          {!isAuth && customer && renderMenuCustomer()}
           {isAuth && renderMenuAuth()}
 
           <Dialog open={shareDialogOpen} onClose={() => setShareDialogOpen(false)} mobile={mobile}>
