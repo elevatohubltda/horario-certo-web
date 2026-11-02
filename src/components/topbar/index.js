@@ -239,7 +239,7 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
               <button onClick={() => handleNavigate(customerLoginPath)}>Entrar</button>
             </div>
             <div className="dropdown-item">
-              <button onClick={() => handleNavigate('/login')}>Sou prestador de serviços</button>
+              <button onClick={() => handleNavigate('/login')}>Sou empresa</button>
             </div>
           </div>
         )}
