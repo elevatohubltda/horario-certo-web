@@ -9,6 +9,33 @@ import { validateDiscountCode, getPublicSubscriptionPlans, updateSubscription } 
 import { formataNumeroTelefone } from '../util/format';
 import styled from 'styled-components';
 
+// Faixa de quem chega pelo link de uma empresa parceira
+const PartnerBanner = styled.div`
+    margin: 0 0 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: var(--ui-radius-sm);
+    background: var(--ui-accent-soft);
+    border: 1px solid #f6d49a;
+    color: var(--ui-accent-ink);
+    font-size: 0.85rem;
+    line-height: 1.5;
+
+    strong {
+        color: #5c3906;
+    }
+`;
+
+// Link de parceria: /registro?cupom=CODIGO
+// "20% de desconto" / "R$ 10,00 de desconto", sem repetir o código como o displayText faz
+const describeDiscount = (data) => {
+    if (!data) return '';
+    const value = Number(data.discountValue);
+    return data.discountType === 'PERCENTAGE'
+        ? `${value.toLocaleString('pt-BR')}% de desconto`
+        : `${value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} de desconto`;
+};
+const readLinkCoupon = (search) => (new URLSearchParams(search).get('cupom') || '').trim().toUpperCase();
+
 const Page = styled.main`
     min-height: 100vh;
     width: 100%;
@@ -40,8 +67,8 @@ const Shell = styled.section`
 const StoryPanel = styled.div`
     position: relative;
     padding: 2.4rem;
-    background: radial-gradient(circle at 70% 80%, rgba(62, 170, 143, 0.65) 0%, rgba(5, 64, 58, 0.3) 30%, rgba(4, 36, 33, 0.95) 70%),
-        linear-gradient(145deg, #0f8066 0%, #06584d 45%, #042d2a 100%);
+    background: radial-gradient(circle at 70% 80%, rgba(240, 160, 48, 0.32) 0%, rgba(46, 52, 99, 0.35) 32%, rgba(20, 23, 46, 0.96) 72%),
+        linear-gradient(145deg, #2e3463 0%, #1e2240 50%, #14172e 100%);
     color: #eaf3f0;
     display: flex;
     flex-direction: column;
@@ -62,7 +89,7 @@ const StoryTitle = styled.h2`
 const StoryDescription = styled.p`
     margin: 1rem 0 0;
     max-width: 360px;
-    color: rgba(234, 243, 240, 0.86);
+    color: rgba(232, 234, 246, 0.86);
     line-height: 1.5;
 `;
 
@@ -81,9 +108,9 @@ const StepCard = styled.div`
     border-radius: 0.85rem;
     padding: 0.95rem;
     min-height: 96px;
-    border: 1px solid ${({ $active }) => ($active ? 'rgba(255, 255, 255, 0.4)' : 'rgba(209, 236, 231, 0.16)')};
-    background: ${({ $active }) => ($active ? 'rgba(255, 255, 255, 0.92)' : 'rgba(245, 255, 252, 0.12)')};
-    color: ${({ $active }) => ($active ? '#131a19' : 'rgba(239, 249, 246, 0.92)')};
+    border: 1px solid ${({ $active }) => ($active ? 'rgba(255, 255, 255, 0.4)' : 'rgba(220, 224, 245, 0.16)')};
+    background: ${({ $active }) => ($active ? 'rgba(255, 255, 255, 0.92)' : 'rgba(245, 246, 255, 0.12)')};
+    color: ${({ $active }) => ($active ? '#1e2240' : 'rgba(240, 242, 252, 0.92)')};
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -98,7 +125,7 @@ const StepBadge = styled.span`
     justify-content: center;
     font-size: 0.72rem;
     font-weight: 700;
-    background: ${({ $active }) => ($active ? '#131a19' : 'rgba(255, 255, 255, 0.2)')};
+    background: ${({ $active }) => ($active ? '#1e2240' : 'rgba(255, 255, 255, 0.2)')};
     color: ${({ $active }) => ($active ? '#e9f4ef' : '#f4fffc')};
 `;
 
@@ -360,7 +387,7 @@ function Register() {
         url: location.state?.url || '',
         whatsapp: '',
         instagram: '',
-        discountCode: '',
+        discountCode: readLinkCoupon(location.search),
         email: '',
         cpfCnpj: ''
     });
@@ -370,6 +397,9 @@ function Register() {
     const [discountInfo, setDiscountInfo] = useState(null);
     const [discountData, setDiscountData] = useState(null);
     const [discountError, setDiscountError] = useState('');
+    // Parceiro dono do cupom que veio no link (só aparece se o cupom for válido)
+    const [partnerName, setPartnerName] = useState(null);
+    const [linkCouponApplied, setLinkCouponApplied] = useState(false);
 
     const [plans, setPlans] = useState([]);
     const [extraFeatures, setExtraFeatures] = useState([]);
@@ -481,6 +511,20 @@ function Register() {
             setDiscountError('Código inválido ou expirado');
         }
     };
+
+    // Cupom do link de parceria: valida assim que a página abre, para o desconto já aparecer no resumo
+    useEffect(() => {
+        const code = readLinkCoupon(location.search);
+        if (!code) return;
+        validateDiscountCode(code)
+            .then((res) => {
+                setDiscountInfo(res.data.displayText);
+                setDiscountData(res.data);
+                setPartnerName(res.data.partnerName || null);
+                setLinkCouponApplied(true);
+            })
+            .catch(() => setDiscountError('O cupom deste link não é mais válido'));
+    }, [location.search]);
 
     const handleNext = async () => {
         if (step === 0) {
@@ -628,6 +672,13 @@ function Register() {
                     <FormSubtitle>
                         Preencha os campos para registrar sua conta de administracao.
                     </FormSubtitle>
+
+                    {linkCouponApplied && discountInfo && companyData.discountCode === readLinkCoupon(location.search) && (
+                        <PartnerBanner>
+                            {partnerName ? <><strong>Indicação de {partnerName}.</strong> </> : null}
+                            Seu cupom <strong>{companyData.discountCode}</strong> já está aplicado: {describeDiscount(discountData)} na mensalidade.
+                        </PartnerBanner>
+                    )}
 
                     <Form>
                         {step === 0 && (

@@ -1,7 +1,8 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { QRCodeCanvas } from "qrcode.react";
 import styled from "styled-components";
 import { toast } from "react-toastify";
-import { Plus } from "lucide-react";
+import { Copy, Download, Pencil, Plus, QrCode } from "lucide-react";
 import {
   AdminLayout,
   Badge,
@@ -18,7 +19,7 @@ import {
   formatDate,
   formatMoney,
 } from "../components/admin";
-import { createDiscountCode, getDiscountCodes } from "../services/endpoints/admin";
+import { createDiscountCode, getDiscountCodes, updateDiscountCode } from "../services/endpoints/admin";
 
 const FormRow = styled.div`
   display: grid;
@@ -39,7 +40,52 @@ const CheckboxLabel = styled.label`
   cursor: pointer;
 `;
 
-const EMPTY_FORM = { name: "", discountType: "FIXED", discountValue: "", expiry: "", isActive: true };
+const RowActions = styled.div`
+  display: flex;
+  gap: 0.4rem;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+`;
+
+const ShareBox = styled.div`
+  display: grid;
+  justify-items: center;
+  gap: 1rem;
+  text-align: center;
+
+  canvas {
+    border: 1px solid var(--ui-border);
+    border-radius: var(--ui-radius-sm);
+    padding: 0.5rem;
+    background: #fff;
+  }
+`;
+
+const LinkRow = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+
+  input {
+    flex: 1;
+    min-width: 0;
+  }
+`;
+
+const EMPTY_FORM = { name: "", partnerName: "", discountType: "FIXED", discountValue: "", expiry: "", isActive: true };
+
+// Link que a empresa parceira divulga: abre o cadastro com o cupom já preenchido
+const partnerLink = (code) => `${window.location.origin}/registro?cupom=${encodeURIComponent(code.name)}`;
+
+const toForm = (code) => ({
+  id: code.id,
+  name: code.name,
+  partnerName: code.partnerName || "",
+  discountType: code.discountType,
+  discountValue: String(code.discountValue).replace(".", ","),
+  expiry: code.expiry ? code.expiry.slice(0, 10) : "",
+  isActive: Boolean(isCodeActive(code)),
+});
 
 // O backend devolve o campo booleano como "isActive" ou "active", dependendo da serialização
 const isCodeActive = (code) => code.isActive ?? code.active;
@@ -61,6 +107,8 @@ function AdminDiscountCodes() {
   const [error, setError] = useState(null);
   const [form, setForm] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [sharing, setSharing] = useState(null);
+  const qrRef = useRef(null);
 
   const fetchCodes = useCallback(async () => {
     try {
@@ -86,28 +134,53 @@ function AdminDiscountCodes() {
 
     setSaving(true);
     try {
-      await createDiscountCode({
+      const payload = {
         name: form.name.trim(),
+        partnerName: form.partnerName.trim() || null,
         discountType: form.discountType,
         discountValue: value,
         // Vale até o fim do dia escolhido
         expiry: form.expiry ? `${form.expiry}T23:59:59` : null,
         isActive: form.isActive,
-      });
-      toast.success("Cupom criado");
+      };
+      if (form.id) {
+        await updateDiscountCode(form.id, payload);
+        toast.success("Cupom atualizado");
+      } else {
+        await createDiscountCode(payload);
+        toast.success("Cupom criado");
+      }
       setForm(null);
       await fetchCodes();
     } catch (err) {
-      toast.error(errorMessage(err, "Não foi possível criar o cupom. Verifique se o código já existe."));
+      toast.error(errorMessage(err, "Não foi possível salvar o cupom. Verifique se o código já existe."));
     } finally {
       setSaving(false);
     }
   };
 
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(partnerLink(sharing));
+      toast.success("Link copiado");
+    } catch {
+      toast.error("Não foi possível copiar. Selecione o link e copie manualmente.");
+    }
+  };
+
+  const handleDownloadQr = () => {
+    const canvas = qrRef.current;
+    if (!canvas) return;
+    const link = document.createElement("a");
+    link.href = canvas.toDataURL("image/png");
+    link.download = `qrcode-cupom-${sharing.name.toLowerCase()}.png`;
+    link.click();
+  };
+
   return (
     <AdminLayout
       title="Cupons de desconto"
-      subtitle="Cupons disponíveis para os clientes informarem no cadastro."
+      subtitle="Cupons para o cadastro. Para parcerias, gere o link ou o QR Code que já abre o cadastro com o cupom preenchido."
       actions={
         <Button onClick={() => setForm({ ...EMPTY_FORM })}>
           <Plus size={16} /> Novo cupom
@@ -122,14 +195,16 @@ function AdminDiscountCodes() {
         <Message>Nenhum cupom cadastrado.</Message>
       ) : (
         <TableCard>
-          <Table $minWidth="680px">
+          <Table $minWidth="900px">
             <thead>
               <tr>
                 <th>Código</th>
+                <th>Parceiro</th>
                 <th>Desconto</th>
                 <th>Validade</th>
                 <th>Clientes usando</th>
                 <th>Status</th>
+                <th aria-label="Ações" />
               </tr>
             </thead>
             <tbody>
@@ -141,6 +216,7 @@ function AdminDiscountCodes() {
                       <strong>{code.name}</strong>
                       <Muted>Criado em {formatDate(code.createdAt)}</Muted>
                     </td>
+                    <td>{code.partnerName || <Muted style={{ marginTop: 0 }}>—</Muted>}</td>
                     <td>
                       {formatValue(code)}
                       <Muted>{code.discountType === "PERCENTAGE" ? "Percentual" : "Valor fixo"} na mensalidade</Muted>
@@ -149,6 +225,16 @@ function AdminDiscountCodes() {
                     <td>{code.usageCount ?? 0}</td>
                     <td>
                       <Badge $tone={status.tone}>{status.label}</Badge>
+                    </td>
+                    <td>
+                      <RowActions>
+                        <Button $variant="outline" onClick={() => setSharing(code)}>
+                          <QrCode size={15} /> Link e QR Code
+                        </Button>
+                        <Button $variant="outline" onClick={() => setForm(toForm(code))} aria-label={`Editar ${code.name}`}>
+                          <Pencil size={15} />
+                        </Button>
+                      </RowActions>
                     </td>
                   </tr>
                 );
@@ -160,7 +246,7 @@ function AdminDiscountCodes() {
 
       <Modal
         open={Boolean(form)}
-        title="Novo cupom"
+        title={form?.id ? "Editar cupom" : "Novo cupom"}
         onClose={() => !saving && setForm(null)}
         footer={
           <>
@@ -168,7 +254,7 @@ function AdminDiscountCodes() {
               Cancelar
             </Button>
             <Button onClick={handleSave} disabled={saving}>
-              {saving ? "Salvando..." : "Criar cupom"}
+              {saving ? "Salvando..." : form?.id ? "Salvar" : "Criar cupom"}
             </Button>
           </>
         }
@@ -182,6 +268,20 @@ function AdminDiscountCodes() {
                 placeholder="Ex.: FUNDADOR20"
                 maxLength={50}
                 onChange={(e) => setForm({ ...form, name: e.target.value.toUpperCase() })}
+              />
+            </Field>
+            {form.id && (
+              <Muted style={{ marginTop: 0 }}>
+                Mudar o código invalida links e QR Codes que já foram divulgados.
+              </Muted>
+            )}
+            <Field>
+              Empresa parceira (opcional)
+              <Input
+                value={form.partnerName}
+                placeholder="Ex.: Escola de Estética Bella"
+                maxLength={120}
+                onChange={(e) => setForm({ ...form, partnerName: e.target.value })}
               />
             </Field>
             <FormRow>
@@ -225,6 +325,39 @@ function AdminDiscountCodes() {
               O desconto é aplicado sobre a mensalidade enquanto o cupom estiver ativo e dentro da validade.
             </Muted>
           </>
+        )}
+      </Modal>
+
+      <Modal
+        open={Boolean(sharing)}
+        title={sharing?.partnerName ? `Link de parceria: ${sharing.partnerName}` : "Link de parceria"}
+        onClose={() => setSharing(null)}
+        footer={
+          <Button $variant="outline" onClick={() => setSharing(null)}>
+            Fechar
+          </Button>
+        }
+      >
+        {sharing && (
+          <ShareBox>
+            <Muted style={{ marginTop: 0 }}>
+              Quem abrir este link ou ler o QR Code vai direto para o cadastro com o cupom <strong>{sharing.name}</strong>{" "}
+              ({formatValue(sharing)} de desconto) já preenchido.
+            </Muted>
+            {codeStatus(sharing).tone !== "green" && (
+              <Badge $tone="red">Cupom {codeStatus(sharing).label.toLowerCase()}: o desconto não será aplicado</Badge>
+            )}
+            <QRCodeCanvas ref={qrRef} value={partnerLink(sharing)} size={220} marginSize={2} level="M" />
+            <LinkRow>
+              <Input readOnly value={partnerLink(sharing)} onFocus={(e) => e.target.select()} aria-label="Link de parceria" />
+              <Button onClick={handleCopyLink}>
+                <Copy size={15} /> Copiar
+              </Button>
+            </LinkRow>
+            <Button $variant="outline" onClick={handleDownloadQr}>
+              <Download size={15} /> Baixar QR Code (PNG)
+            </Button>
+          </ShareBox>
         )}
       </Modal>
     </AdminLayout>

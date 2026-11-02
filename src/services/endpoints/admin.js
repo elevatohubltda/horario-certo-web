@@ -23,3 +23,5 @@ export const updateAdminPlan = (planId, payload) =>
 export const getDiscountCodes = () => api.get("/discount-code", { withAuth: true });
 
 export const createDiscountCode = (payload) => api.post("/discount-code", payload, { withAuth: true });
+
+export const updateDiscountCode = (id, payload) => api.put(`/discount-code/${id}`, payload, { withAuth: true });
