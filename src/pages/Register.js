@@ -26,14 +26,20 @@ const PartnerBanner = styled.div`
 `;
 
 // Link de parceria: /registro?cupom=CODIGO
-// "20% de desconto" / "R$ 10,00 de desconto", sem repetir o código como o displayText faz
+// "20% de desconto na mensalidade", "1ª mensalidade grátis"... sem repetir o código como o displayText faz
 const describeDiscount = (data) => {
     if (!data) return '';
+    if (data.discountType === 'FIRST_MONTH_FREE') return '1ª mensalidade grátis';
     const value = Number(data.discountValue);
     return data.discountType === 'PERCENTAGE'
-        ? `${value.toLocaleString('pt-BR')}% de desconto`
-        : `${value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} de desconto`;
+        ? `${value.toLocaleString('pt-BR')}% de desconto na mensalidade`
+        : `${value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} de desconto na mensalidade`;
 };
+
+// O backend explica por que o cupom não vale (prazo, limite de cadastros, inativo...)
+const couponError = (err, fallback) => (typeof err?.response?.data === 'string' && err.response.data) || fallback;
+
+const formatDay = (iso) => (iso ? new Date(iso).toLocaleDateString('pt-BR') : '');
 const readLinkCoupon = (search) => (new URLSearchParams(search).get('cupom') || '').trim().toUpperCase();
 
 const Page = styled.main`
@@ -412,6 +418,8 @@ function Register() {
         return d.toLocaleDateString('pt-BR');
     })();
 
+    const firstMonthFree = discountData?.discountType === 'FIRST_MONTH_FREE';
+
     const { subtotal, discountAmount, totalAmount } = (() => {
         const planPrice = Number(selectedPlan?.price ?? 0);
         const extrasPrice = selectedExtras.reduce((sum, name) => {
@@ -507,8 +515,8 @@ function Register() {
             const res = await validateDiscountCode(code);
             setDiscountInfo(res.data.displayText);
             setDiscountData(res.data);
-        } catch {
-            setDiscountError('Código inválido ou expirado');
+        } catch (err) {
+            setDiscountError(couponError(err, 'Código inválido ou expirado'));
         }
     };
 
@@ -523,7 +531,7 @@ function Register() {
                 setPartnerName(res.data.partnerName || null);
                 setLinkCouponApplied(true);
             })
-            .catch(() => setDiscountError('O cupom deste link não é mais válido'));
+            .catch((err) => setDiscountError(couponError(err, 'O cupom deste link não é mais válido')));
     }, [location.search]);
 
     const handleNext = async () => {
@@ -552,8 +560,8 @@ function Register() {
                     const res = await validateDiscountCode(code);
                     setDiscountInfo(res.data.displayText);
                     setDiscountError('');
-                } catch {
-                    setDiscountError('Código inválido ou expirado');
+                } catch (err) {
+                    setDiscountError(couponError(err, 'Código inválido ou expirado'));
                     setDiscountInfo(null);
                     setDiscountData(null);
                     return;
@@ -676,7 +684,8 @@ function Register() {
                     {linkCouponApplied && discountInfo && companyData.discountCode === readLinkCoupon(location.search) && (
                         <PartnerBanner>
                             {partnerName ? <><strong>Indicação de {partnerName}.</strong> </> : null}
-                            Seu cupom <strong>{companyData.discountCode}</strong> já está aplicado: {describeDiscount(discountData)} na mensalidade.
+                            Seu cupom <strong>{companyData.discountCode}</strong> já está aplicado: {describeDiscount(discountData)}.
+                            {discountData?.registrationDeadline && <> Válido para cadastros até {formatDay(discountData.registrationDeadline)}.</>}
                         </PartnerBanner>
                     )}
 
@@ -899,7 +908,11 @@ function Register() {
                                 <PriceSummary>
                                     <TrialBadge>🎁 14 dias grátis</TrialBadge>
                                     <div style={{ color: 'var(--ui-muted)', fontSize: '0.82rem', marginBottom: '0.75rem' }}>
-                                        Primeiro pagamento em <strong style={{ color: 'var(--ui-text)' }}>{trialEndDate}</strong>
+                                        {firstMonthFree ? (
+                                            <>Primeira mensalidade grátis; o primeiro pagamento fica para um mês depois de <strong style={{ color: 'var(--ui-text)' }}>{trialEndDate}</strong></>
+                                        ) : (
+                                            <>Primeiro pagamento em <strong style={{ color: 'var(--ui-text)' }}>{trialEndDate}</strong></>
+                                        )}
                                     </div>
                                     {discountData && (
                                         <>
@@ -914,16 +927,18 @@ function Register() {
                                                 border: '1px solid rgba(17, 24, 39, 0.18)'
                                             }}>
                                                 <span style={{ color: 'var(--ui-primary)', fontSize: '0.82rem', fontWeight: 600 }}>
-                                                    🏷️ Desconto ({discountData.name})
+                                                    🏷️ {firstMonthFree ? `1ª mensalidade grátis (${discountData.name})` : `Desconto (${discountData.name})`}
                                                 </span>
                                                 <span style={{ color: 'var(--ui-primary)', fontWeight: 700, fontSize: '1rem' }}>
-                                                    − R$ {discountAmount}
+                                                    {firstMonthFree ? `− R$ ${subtotal}` : `− R$ ${discountAmount}`}
                                                 </span>
                                             </div>
                                         </>
                                     )}
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: discountData ? '1px solid var(--ui-border)' : 'none', paddingTop: discountData ? '0.5rem' : 0 }}>
-                                        <span style={{ color: 'var(--ui-muted)', fontSize: '0.85rem' }}>Total mensal após o teste</span>
+                                        <span style={{ color: 'var(--ui-muted)', fontSize: '0.85rem' }}>
+                                            {firstMonthFree ? 'Total mensal a partir da 2ª mensalidade' : 'Total mensal após o teste'}
+                                        </span>
                                         <span style={{ color: 'var(--ui-text)', fontWeight: 700, fontSize: '1.15rem' }}>
                                             R$ {totalAmount}
                                         </span>

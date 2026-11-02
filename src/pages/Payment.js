@@ -409,16 +409,25 @@ function Payment() {
   const [isSubscribing, setIsSubscribing] = useState(false);
   // Quem ainda não pagou nada pode encerrar o teste e assinar já (libera o WhatsApp assim que o Pix for pago)
   const canSubscribeNow = paymentProps?.status === "trial" && paymentProps?.whatsappAvailable === false && !isCardActive;
+  // Cupom de 1ª mensalidade grátis ainda não usado: assinar não gera Pix
+  const firstMonthFree = Boolean(paymentProps?.firstMonthFree);
 
   const handleSubscribeNow = async () => {
     if (isSubscribing) return;
     const dueDay = new Date().getDate();
-    if (!window.confirm(`Encerrar o teste grátis e gerar agora o Pix da primeira mensalidade? A partir do pagamento, sua mensalidade passa a vencer todo dia ${dueDay}.`)) return;
+    const question = firstMonthFree
+      ? `Encerrar o teste grátis e ativar a assinatura agora? Seu cupom cobre a 1ª mensalidade e as próximas passam a vencer todo dia ${dueDay}.`
+      : `Encerrar o teste grátis e gerar agora o Pix da primeira mensalidade? A partir do pagamento, sua mensalidade passa a vencer todo dia ${dueDay}.`;
+    if (!window.confirm(question)) return;
     try {
       setIsSubscribing(true);
-      await subscribeNow(companyUrl);
+      const response = await subscribeNow(companyUrl);
       await Promise.all([fetchPaymentData(), fetchClientStatus()]);
-      toast.success("Pix gerado! Assim que o pagamento for confirmado, sua assinatura e o WhatsApp são ativados.");
+      toast.success(
+        response?.data?.status === "approved"
+          ? "Assinatura ativada! A 1ª mensalidade é por conta do cupom e o WhatsApp já está liberado."
+          : "Pix gerado! Assim que o pagamento for confirmado, sua assinatura e o WhatsApp são ativados."
+      );
     } catch (error) {
       toast.error(error?.response?.data || "Não foi possível gerar o Pix da assinatura");
     } finally {
@@ -770,12 +779,21 @@ function Payment() {
                   {canSubscribeNow && (
                     <SubscribeNowBox>
                       <strong>Não quer esperar o fim do teste?</strong>
-                      <span>
-                        Assine agora e libere o envio de mensagens pelo WhatsApp assim que o pagamento for confirmado.
-                        O teste grátis termina e sua mensalidade passa a vencer todo dia {new Date().getDate()}.
-                      </span>
+                      {firstMonthFree ? (
+                        <span>
+                          Seu cupom cobre a 1ª mensalidade. Ative agora e o WhatsApp é liberado na hora, sem pagar nada.
+                          As próximas mensalidades passam a vencer todo dia {new Date().getDate()}.
+                        </span>
+                      ) : (
+                        <span>
+                          Assine agora e libere o envio de mensagens pelo WhatsApp assim que o pagamento for confirmado.
+                          O teste grátis termina e sua mensalidade passa a vencer todo dia {new Date().getDate()}.
+                        </span>
+                      )}
                       <UiButton type="button" onClick={handleSubscribeNow} disabled={isSubscribing}>
-                        {isSubscribing ? "Gerando Pix..." : `Assinar agora por ${formatAmount(paymentProps?.amount)}`}
+                        {isSubscribing
+                          ? firstMonthFree ? "Ativando..." : "Gerando Pix..."
+                          : firstMonthFree ? "Ativar assinatura grátis" : `Assinar agora por ${formatAmount(paymentProps?.amount)}`}
                       </UiButton>
                     </SubscribeNowBox>
                   )}
