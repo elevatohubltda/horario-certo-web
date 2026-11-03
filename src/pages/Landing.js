@@ -1250,6 +1250,15 @@ const FooterInner = styled(Container)`
   }
 `;
 
+const FooterLegal = styled(Container)`
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--ui-border);
+  font-size: 0.72rem;
+  line-height: 1.6;
+  color: var(--ui-muted);
+`;
+
 /* ── conteúdo ────────────────────────────────────────────────────────── */
 
 const BOOKING_HOST = 'horariocerto.elevatohub.com.br/';
@@ -1884,6 +1893,11 @@ function Landing() {
           </nav>
           <span>© {new Date().getFullYear()} ElevatoHub</span>
         </FooterInner>
+        {/* Identificação exigida para venda online (Decreto 7.962/2013) */}
+        <FooterLegal>
+          L&amp;L Tecnologia Ltda · CNPJ 46.647.130/0001-11 · Rua Ruy dos Anjos Peirão, 189, Santo Antônio, Formiga/MG,
+          CEP 35574-076 · elevatohubltda@gmail.com
+        </FooterLegal>
       </Footer>
     </Page>
   );

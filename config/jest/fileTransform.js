@@ -7,6 +7,7 @@ const camelcase = require('camelcase');
 // http://facebook.github.io/jest/docs/en/webpack.html
 
 module.exports = {
+  // Jest 28+ exige que o transformer devolva um objeto com `code`
   process(src, filename) {
     const assetFilename = JSON.stringify(path.basename(filename));
 
@@ -17,7 +18,8 @@ module.exports = {
         pascalCase: true,
       });
       const componentName = `Svg${pascalCaseFilename}`;
-      return `const React = require('react');
+      return {
+        code: `const React = require('react');
       module.exports = {
         __esModule: true,
         default: ${assetFilename},
@@ -32,9 +34,10 @@ module.exports = {
             })
           };
         }),
-      };`;
+      };`,
+      };
     }
 
-    return `module.exports = ${assetFilename};`;
+    return { code: `module.exports = ${assetFilename};` };
   },
 };

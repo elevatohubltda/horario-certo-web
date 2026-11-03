@@ -235,7 +235,7 @@ export default function CookieConsent({ onAccept }) {
           <h3>1. Sobre a plataforma</h3>
           <p>
             O <strong>Horário Certo</strong> é uma plataforma SaaS de agendamentos online
-            operada pela <strong>Elevatohub</strong>. Ao utilizar nossos serviços, você concorda
+            operada pela <strong>L&amp;L Tecnologia Ltda</strong> (ElevatoHub), CNPJ 46.647.130/0001-11. Ao utilizar nossos serviços, você concorda
             com estes termos, em conformidade com a{' '}
             <a href="/termos-de-uso" target="_blank" rel="noopener noreferrer">
               Lei Geral de Proteção de Dados (LGPD — Lei nº 13.709/2018)
@@ -247,7 +247,7 @@ export default function CookieConsent({ onAccept }) {
             <li><strong>Cadastrais:</strong> nome da empresa, URL, WhatsApp, Instagram.</li>
             <li><strong>Acesso:</strong> usuário e senha (armazenada em hash irreversível).</li>
             <li><strong>Cobrança:</strong> e-mail e CPF/CNPJ, usados exclusivamente para emissão de cobranças via Mercado Pago.</li>
-            <li><strong>Clientes finais:</strong> nome e telefone inseridos pelo estabelecimento para gestão de agendamentos.</li>
+            <li><strong>Clientes finais:</strong> nome, telefone e agendamentos; na área do cliente, também e-mail e senha ou a conta Google.</li>
           </ul>
 
           <h3>3. Cookies utilizados</h3>
@@ -257,28 +257,28 @@ export default function CookieConsent({ onAccept }) {
             rastreamento ou publicidade é utilizado.
           </p>
           <ul>
-            <li><strong>token</strong> — autenticação JWT da sessão.</li>
-            <li><strong>companyUrl / companyInfo / companyFeatures</strong> — dados operacionais da sessão.</li>
+            <li><strong>Sessão do painel</strong>: token de acesso protegido e dados básicos da empresa logada.</li>
+            <li><strong>Sessão do cliente final</strong>: mantém a área do cliente conectada por até 1 ano, renovada com o uso.</li>
           </ul>
 
           <h3>4. Finalidade do tratamento</h3>
           <ul>
             <li>Prestação do serviço de agendamentos contratado.</li>
-            <li>Processamento de pagamentos mensais via PIX (Mercado Pago).</li>
-            <li>Envio de notificações via WhatsApp, quando habilitado pelo estabelecimento.</li>
+            <li>Cobrança da assinatura mensal por Pix ou cartão (Mercado Pago).</li>
+            <li>Mensagens pelo WhatsApp, quando habilitadas pelo estabelecimento e somente após o pagamento da primeira mensalidade.</li>
           </ul>
 
           <h3>5. Compartilhamento</h3>
           <p>
             Seus dados são compartilhados somente com: <strong>Mercado Pago</strong> (cobrança),
-            <strong> Z-API</strong> (WhatsApp), <strong>Railway</strong> (hospedagem) e{' '}
-            <strong>Google Cloud Storage</strong> (imagens). Não vendemos dados a terceiros.
+            <strong> Z-API</strong> (WhatsApp), <strong>Google</strong> (Firebase e login com Google),{' '}
+            <strong>Railway</strong> e <strong>Vercel</strong> (hospedagem). Não vendemos dados a terceiros.
           </p>
 
           <h3>6. Seus direitos (LGPD)</h3>
           <p>
             Você pode a qualquer momento solicitar acesso, correção, portabilidade ou exclusão
-            dos seus dados pelo e-mail <strong>privacidade@elevatohub.com.br</strong>.
+            dos seus dados pelo e-mail <strong>elevatohubltda@gmail.com</strong>.
           </p>
           <p>
             Consulte a{' '}

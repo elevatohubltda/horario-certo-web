@@ -122,6 +122,15 @@ const ContactBox = styled.div`
   }
 `;
 
+// Dados de identificação da empresa (exigidos pela LGPD e pelo Decreto 7.962/2013 do comércio eletrônico)
+const COMPANY = {
+  legalName: 'L&L Tecnologia Ltda',
+  brand: 'ElevatoHub',
+  cnpj: '46.647.130/0001-11',
+  address: 'Rua Ruy dos Anjos Peirão, 189, Santo Antônio, Formiga/MG, CEP 35574-076',
+  email: 'elevatohubltda@gmail.com',
+};
+
 export default function TermosDeUso() {
   const navigate = useNavigate();
 
@@ -132,188 +141,199 @@ export default function TermosDeUso() {
 
         <Logo>Horário Certo</Logo>
         <H1>Termos de Uso e Política de Privacidade</H1>
-        <Updated>Última atualização: junho de 2026</Updated>
+        <Updated>Última atualização: novembro de 2026</Updated>
 
         <P>
-          Bem-vindo ao <strong>Horário Certo</strong>, plataforma de agendamentos online
-          desenvolvida e operada pela Elevatohub. Ao utilizar nossos serviços, você concorda
-          com os termos descritos neste documento, em conformidade com a{' '}
-          <strong>Lei Geral de Proteção de Dados Pessoais (LGPD — Lei nº 13.709/2018)</strong>
-          {' '}e demais legislações aplicáveis.
+          Bem-vindo ao <strong>Horário Certo</strong>, plataforma de agendamentos online desenvolvida e
+          operada pela <strong>{COMPANY.legalName}</strong> ({COMPANY.brand}), inscrita no CNPJ{' '}
+          {COMPANY.cnpj}. Ao utilizar nossos serviços, você concorda com os termos descritos neste
+          documento, em conformidade com a{' '}
+          <strong>Lei Geral de Proteção de Dados Pessoais (LGPD, Lei nº 13.709/2018)</strong>, o Marco Civil
+          da Internet e o Código de Defesa do Consumidor.
+        </P>
+        <P>Este documento vale para dois públicos:</P>
+        <Ul>
+          <li><strong>Estabelecimentos</strong> (prestadores de serviço) que contratam o Horário Certo para organizar a agenda.</li>
+          <li><strong>Clientes finais</strong>, que agendam horários com esses estabelecimentos pelo link deles, com ou sem conta.</li>
+        </Ul>
+
+        <Hr />
+
+        <H2>1. Quem somos e papéis no tratamento dos dados</H2>
+        <P>
+          A <strong>{COMPANY.legalName}</strong> é a <strong>controladora</strong> dos dados das contas dos
+          estabelecimentos, das contas de clientes finais (área do cliente) e dos dados técnicos da plataforma.
+        </P>
+        <P>
+          Em relação aos dados dos clientes de cada estabelecimento (nome, telefone e agendamentos), o{' '}
+          <strong>estabelecimento é o controlador</strong> e a {COMPANY.legalName} atua como{' '}
+          <strong>operadora</strong>, tratando esses dados apenas para prestar o serviço contratado e conforme
+          as instruções do estabelecimento.
         </P>
 
         <Hr />
 
-        {/* ── 1. Quem somos ── */}
-        <H2>1. Controlador de Dados</H2>
-        <P>
-          O controlador responsável pelo tratamento dos seus dados pessoais é a{' '}
-          <strong>Elevatohub</strong>. Para exercer qualquer direito previsto na LGPD ou
-          obter esclarecimentos, utilize o canal de contato ao final deste documento.
-        </P>
-
-        <Hr />
-
-        {/* ── 2. Dados coletados ── */}
-        <H2>2. Dados Pessoais Coletados</H2>
+        <H2>2. Dados pessoais coletados</H2>
         <P>Coletamos apenas os dados necessários para a prestação do serviço:</P>
         <Ul>
-          <li><strong>Dados cadastrais da empresa:</strong> nome fantasia, URL de acesso, WhatsApp, Instagram.</li>
-          <li><strong>Dados do responsável:</strong> nome de usuário e senha (armazenada em hash irreversível).</li>
-          <li><strong>Dados de cobrança:</strong> e-mail e CPF ou CNPJ, utilizados exclusivamente para emissão de cobranças via Mercado Pago (processador de pagamentos terceiro).</li>
-          <li><strong>Dados dos clientes finais:</strong> nome, telefone/WhatsApp e horário de agendamento, inseridos diretamente pelo estabelecimento.</li>
-          <li><strong>Dados técnicos:</strong> logs de acesso e horários de requisição, armazenados temporariamente para segurança e diagnóstico.</li>
+          <li><strong>Dados da empresa:</strong> nome fantasia, endereço de acesso (link), WhatsApp, Instagram e logo.</li>
+          <li><strong>Dados do responsável e da equipe:</strong> nome de usuário e senha (guardada em hash irreversível).</li>
+          <li><strong>Dados de cobrança:</strong> e-mail e CPF ou CNPJ, usados exclusivamente para gerar as cobranças da assinatura no Mercado Pago.</li>
+          <li><strong>Dados dos clientes finais nos agendamentos:</strong> nome, telefone/WhatsApp, serviço e horário.</li>
+          <li><strong>Conta do cliente final (área do cliente):</strong> nome, e-mail, telefone, senha (em hash irreversível) ou, no login com o Google, nome, e-mail e o identificador da conta Google. Guardamos também o histórico de agendamentos feitos com a conta.</li>
+          <li><strong>Dados técnicos:</strong> registros de acesso e de envio de mensagens, mantidos para segurança, diagnóstico e controle de uso.</li>
         </Ul>
         <P>
-          Não coletamos dados sensíveis (raça, saúde, biometria, etc.) nem realizamos
-          rastreamento comportamental para fins publicitários.
+          Telefones e outros dados de contato são guardados criptografados. Não coletamos dados sensíveis
+          (origem racial, saúde, biometria etc.) nem fazemos rastreamento para publicidade.
         </P>
 
         <Hr />
 
-        {/* ── 3. Finalidade ── */}
-        <H2>3. Finalidade do Tratamento</H2>
+        <H2>3. Para que usamos os dados</H2>
         <Ul>
-          <li>Prestação do serviço de agendamentos online contratado.</li>
-          <li>Processamento de pagamentos mensais via PIX (Mercado Pago).</li>
-          <li>Envio de notificações via WhatsApp habilitadas pelo próprio estabelecimento.</li>
-          <li>Comunicações operacionais (lembretes, confirmações, cancelamentos).</li>
-          <li>Cumprimento de obrigações legais e regulatórias.</li>
+          <li>Prestar o serviço de agendamento online contratado pelo estabelecimento.</li>
+          <li>Permitir que o cliente final veja, cancele e remarque os próprios agendamentos na área do cliente.</li>
+          <li>Enviar confirmações, lembretes, avisos de remarcação ou cancelamento e mensagens de retorno pelo WhatsApp, quando o estabelecimento ativar esses recursos.</li>
+          <li>Enviar notificações no aplicativo para o estabelecimento e sua equipe.</li>
+          <li>Cobrar a assinatura mensal (Pix ou cartão de crédito) e controlar o acesso conforme o pagamento.</li>
+          <li>Cumprir obrigações legais e fiscais e prevenir fraudes.</li>
         </Ul>
 
         <Hr />
 
-        {/* ── 4. Base legal ── */}
-        <H2>4. Base Legal</H2>
-        <P>O tratamento dos dados é realizado com base nos seguintes fundamentos da LGPD:</P>
+        <H2>4. Base legal</H2>
+        <P>O tratamento é realizado com base nos seguintes fundamentos da LGPD:</P>
         <Ul>
-          <li><Tag>Art. 7º, I</Tag> Consentimento do titular, coletado no ato do cadastro.</li>
-          <li><Tag>Art. 7º, V</Tag> Execução de contrato, para entrega do serviço contratado.</li>
-          <li><Tag>Art. 7º, VI</Tag> Exercício regular de direitos, para emissão de cobranças.</li>
-          <li><Tag>Art. 7º, IX</Tag> Legítimo interesse do controlador, para segurança e prevenção de fraudes.</li>
+          <li><Tag>Art. 7º, V</Tag> Execução de contrato: entregar o serviço ao estabelecimento e a área do cliente a quem cria conta.</li>
+          <li><Tag>Art. 7º, II</Tag> Cumprimento de obrigação legal: guarda de registros fiscais e de acesso.</li>
+          <li><Tag>Art. 7º, VI</Tag> Exercício regular de direitos: cobranças e defesa em processos.</li>
+          <li><Tag>Art. 7º, IX</Tag> Legítimo interesse: segurança, prevenção de fraudes e melhoria do serviço.</li>
+          <li><Tag>Art. 7º, I</Tag> Consentimento: quando for pedido de forma específica, como no aceite deste documento.</li>
         </Ul>
 
         <Hr />
 
-        {/* ── 5. Cookies ── */}
-        <H2>5. Uso de Cookies</H2>
+        <H2>5. Cookies e armazenamento no navegador</H2>
         <P>
-          Utilizamos exclusivamente <strong>cookies funcionais e de sessão</strong>, estritamente
-          necessários para o funcionamento da plataforma. Não utilizamos cookies de rastreamento,
-          publicidade ou analytics de terceiros.
-        </P>
-        <P>Os cookies utilizados são:</P>
-        <Ul>
-          <li><strong>token</strong> — Token de autenticação JWT. Necessário para manter a sessão ativa.</li>
-          <li><strong>expirationDate</strong> — Data de expiração da sessão.</li>
-          <li><strong>companyUrl</strong> — Identificador da empresa logada.</li>
-          <li><strong>companyInfo</strong> — Informações básicas da empresa (nome, imagem).</li>
-          <li><strong>companyProperties</strong> — Configurações da empresa.</li>
-          <li><strong>companyFeatures</strong> — Recursos habilitados no plano atual.</li>
-        </Ul>
-        <P>
-          Todos os cookies são do tipo <strong>SameSite=Strict; Secure</strong> e expiram junto
-          com a sessão ou no prazo máximo de 1 dia. Ao recusar cookies, você pode continuar
-          navegando nas páginas públicas, mas o acesso ao painel administrativo ficará
-          indisponível pois depende da sessão autenticada.
-        </P>
-
-        <Hr />
-
-        {/* ── 6. Compartilhamento ── */}
-        <H2>6. Compartilhamento de Dados</H2>
-        <P>
-          Os dados são compartilhados somente com os seguintes terceiros, na medida estritamente
-          necessária:
+          Usamos somente <strong>cookies e armazenamento local funcionais</strong>, necessários para a
+          plataforma funcionar. Não usamos cookies de publicidade nem ferramentas de analytics de terceiros.
         </P>
         <Ul>
-          <li><strong>Mercado Pago</strong> — e-mail e CPF/CNPJ para processamento de pagamentos PIX.</li>
-          <li><strong>Z-API</strong> — número de telefone do cliente final para envio de notificações via WhatsApp, quando o estabelecimento habilitar este recurso.</li>
-          <li><strong>Railway / Heroku</strong> — infraestrutura de hospedagem (dados em trânsito criptografado via TLS).</li>
-          <li><strong>Google Cloud Storage</strong> — armazenamento de imagens de perfil.</li>
+          <li><strong>Sessão do painel:</strong> token de acesso em cookie protegido (inacessível a scripts) e cookies com a data de expiração e as informações básicas da empresa logada (nome, configurações e recursos do plano).</li>
+          <li><strong>Sessão do cliente final</strong> (<Tag>hc_customer_token</Tag><Tag>hc_customer_session</Tag>): cookies protegidos que mantêm o cliente conectado. O de acesso dura 30 minutos e é renovado sozinho; o de sessão dura até 1 ano e se renova enquanto a conta é usada. Ao sair da conta, os dois são apagados.</li>
+          <li><strong>Preferências</strong> (armazenamento local): aceite deste documento, a escolha de agendar sem cadastro e a indicação de que o navegador já tem uma conta de cliente.</li>
+          <li><strong>Login com o Google:</strong> ao usar o botão do Google, o próprio Google pode gravar cookies conforme a política de privacidade dele.</li>
         </Ul>
-        <P>Não vendemos, alugamos ou cedemos dados pessoais a terceiros para fins comerciais.</P>
-
-        <Hr />
-
-        {/* ── 7. Retenção ── */}
-        <H2>7. Prazo de Retenção</H2>
         <P>
-          Os dados são mantidos enquanto a conta estiver ativa. Após o encerramento do
-          contrato ou solicitação de exclusão, os dados são removidos em até{' '}
-          <strong>30 dias</strong>, salvo obrigação legal de guarda por prazo superior (ex:
-          registros fiscais por 5 anos conforme o Código Tributário Nacional).
+          Sem esses cookies não é possível entrar no painel nem na área do cliente. As páginas públicas e o
+          agendamento sem cadastro continuam funcionando.
         </P>
 
         <Hr />
 
-        {/* ── 8. Direitos do titular ── */}
-        <H2>8. Seus Direitos como Titular</H2>
-        <P>A LGPD garante a você os seguintes direitos, exercíveis mediante solicitação:</P>
+        <H2>6. Com quem compartilhamos</H2>
+        <P>Os dados são compartilhados somente com os fornecedores abaixo, na medida necessária para o serviço:</P>
         <Ul>
-          <li><strong>Confirmação e acesso</strong> — saber se tratamos seus dados e obter uma cópia.</li>
-          <li><strong>Correção</strong> — solicitar a atualização de dados incompletos ou incorretos.</li>
-          <li><strong>Anonimização, bloqueio ou eliminação</strong> — de dados desnecessários ou tratados em desconformidade.</li>
-          <li><strong>Portabilidade</strong> — receber seus dados em formato estruturado e interoperável.</li>
-          <li><strong>Revogação do consentimento</strong> — a qualquer momento, sem prejuízo da licitude dos tratamentos realizados anteriormente.</li>
-          <li><strong>Oposição</strong> — contestar tratamento realizado com base em legítimo interesse.</li>
+          <li><strong>Mercado Pago</strong>: e-mail e CPF/CNPJ do estabelecimento, para as cobranças da assinatura (Pix e cartão).</li>
+          <li><strong>Z-API</strong>: nome e telefone do cliente final e o texto da mensagem, para o envio pelo WhatsApp.</li>
+          <li><strong>Google (Firebase)</strong>: guarda as logos dos estabelecimentos e entrega as notificações do aplicativo.</li>
+          <li><strong>Google (login)</strong>: confirma a identidade de quem entra na área do cliente com o Google.</li>
+          <li><strong>Railway e Vercel</strong>: hospedagem do sistema e do banco de dados, com tráfego criptografado (HTTPS/TLS).</li>
         </Ul>
-
-        <Hr />
-
-        {/* ── 9. Segurança ── */}
-        <H2>9. Segurança dos Dados</H2>
         <P>
-          Adotamos medidas técnicas e organizacionais para proteger seus dados, incluindo:
-          autenticação por JWT, senhas armazenadas em hash bcrypt, comunicação via HTTPS/TLS,
-          e acesso restrito por controle de permissões. Em caso de incidente de segurança que
-          possa afetar seus dados, notificaremos a ANPD e os titulares afetados conforme
-          previsto na LGPD.
+          Cada estabelecimento vê apenas os agendamentos feitos com ele. Alguns desses fornecedores podem
+          processar dados fora do Brasil, sempre com as garantias exigidas pela LGPD. Não vendemos, alugamos
+          nem cedemos dados pessoais para fins comerciais.
         </P>
 
         <Hr />
 
-        {/* ── 10. Termos de uso ── */}
-        <H2>10. Termos de Uso do Serviço</H2>
+        <H2>7. Prazo de guarda e exclusão</H2>
         <P>
-          O <strong>Horário Certo</strong> é uma plataforma SaaS destinada a
-          estabelecimentos que realizam atendimentos com hora marcada (salões, clínicas,
-          consultórios, estúdios, etc.). Ao contratar o serviço, o estabelecimento:
+          Os dados são mantidos enquanto a conta estiver ativa. Depois do encerramento do contrato ou de um
+          pedido de exclusão, eles são apagados em até <strong>30 dias</strong>, salvo quando a lei exigir
+          guarda por mais tempo, como os registros fiscais (5 anos) e os registros de acesso (6 meses, pelo
+          Marco Civil da Internet).
+        </P>
+        <P>
+          Para excluir a conta de estabelecimento ou a conta de cliente final, envie o pedido para{' '}
+          <strong>{COMPANY.email}</strong> a partir do e-mail cadastrado.
+        </P>
+
+        <Hr />
+
+        <H2>8. Seus direitos como titular</H2>
+        <P>A LGPD garante os direitos abaixo, que podem ser exercidos pelo e-mail do item 12:</P>
+        <Ul>
+          <li><strong>Confirmação e acesso:</strong> saber se tratamos seus dados e receber uma cópia.</li>
+          <li><strong>Correção</strong> de dados incompletos ou desatualizados.</li>
+          <li><strong>Anonimização, bloqueio ou eliminação</strong> de dados desnecessários ou tratados em desconformidade.</li>
+          <li><strong>Portabilidade</strong> dos dados em formato estruturado.</li>
+          <li><strong>Revogação do consentimento</strong>, sem afetar o que foi feito antes.</li>
+          <li><strong>Oposição</strong> a tratamentos baseados em legítimo interesse.</li>
+        </Ul>
+        <P>
+          Pedidos sobre agendamentos feitos com um estabelecimento específico também podem ser feitos direto a
+          ele, que é o controlador desses dados.
+        </P>
+
+        <Hr />
+
+        <H2>9. Segurança</H2>
+        <P>
+          Adotamos medidas técnicas e organizacionais para proteger os dados: comunicação por HTTPS/TLS,
+          senhas em hash bcrypt, dados de contato criptografados, cookies de sessão protegidos, limite de
+          tentativas de login e controle de acesso por empresa e por perfil. Em caso de incidente de segurança
+          que possa afetar os titulares, comunicaremos a ANPD e as pessoas afetadas, como prevê a LGPD.
+        </P>
+
+        <Hr />
+
+        <H2>10. Termos de uso do serviço (estabelecimentos)</H2>
+        <P>
+          O <strong>Horário Certo</strong> é uma plataforma por assinatura para prestadores de serviço que
+          atendem com hora marcada. Ao contratar o serviço, o estabelecimento concorda com o seguinte:
         </P>
         <Ul>
-          <li>Declara ser o responsável pelos dados dos seus clientes finais inseridos na plataforma, atuando como <strong>operador</strong> em relação a esses dados.</li>
-          <li>Compromete-se a informar seus próprios clientes sobre o uso da plataforma para gestão de agendamentos.</li>
-          <li>Não utilizará o serviço para fins ilícitos, spam ou coleta abusiva de dados.</li>
-          <li>Responsabiliza-se pelo uso indevido de suas credenciais de acesso.</li>
+          <li><strong>Teste grátis:</strong> todo cadastro começa com 14 dias grátis, sem cartão. Durante o teste, todos os recursos ficam disponíveis, exceto o envio de mensagens pelo WhatsApp.</li>
+          <li><strong>WhatsApp:</strong> o envio de mensagens aos clientes é liberado somente depois do pagamento da primeira mensalidade. O estabelecimento pode encerrar o teste antes e assinar a qualquer momento pela tela de assinatura.</li>
+          <li><strong>Cobrança:</strong> a assinatura é mensal, paga por Pix ou cartão de crédito. Quem assina antes do fim do teste passa a ter vencimento no dia do primeiro pagamento.</li>
+          <li><strong>Atraso:</strong> após o vencimento há 3 dias de carência. Depois disso o acesso é bloqueado até o pagamento, com multa de 2% e juros de 1% ao mês, proporcionais aos dias de atraso.</li>
+          <li><strong>Cupons de desconto:</strong> valem nas condições informadas no cadastro. Um cupom pode ter data limite para novos cadastros e quantidade máxima de usos. O cupom de "1ª mensalidade grátis" cobre apenas a primeira mensalidade; as seguintes são cobradas pelo valor do plano.</li>
+          <li><strong>Plano Fundador:</strong> disponível para os 30 primeiros assinantes, com o preço mantido enquanto a assinatura estiver ativa.</li>
+          <li><strong>Cancelamento:</strong> pode ser feito a qualquer momento, sem multa e sem fidelidade.</li>
+          <li><strong>Dados dos clientes:</strong> o estabelecimento é o controlador dos dados dos seus clientes, deve informá-los sobre o uso da plataforma e é responsável pelo conteúdo que cadastra.</li>
+          <li><strong>Uso adequado:</strong> é proibido usar o serviço para fins ilícitos, spam ou coleta abusiva de dados. O estabelecimento responde pelo uso das suas credenciais e das de sua equipe.</li>
         </Ul>
         <P>
-          O serviço é fornecido "no estado em que se encontra". A Elevatohub não se
-          responsabiliza por indisponibilidades causadas por falhas de terceiros (provedores
-          de infraestrutura, processadores de pagamento, etc.).
+          Fazemos o possível para manter a plataforma disponível, mas não respondemos por indisponibilidades
+          causadas por falhas de terceiros (hospedagem, WhatsApp, processadores de pagamento, operadoras),
+          nem pelo bloqueio do número de WhatsApp por decisão do próprio WhatsApp.
         </P>
 
         <Hr />
 
-        {/* ── 11. Alterações ── */}
-        <H2>11. Alterações neste Documento</H2>
+        <H2>11. Alterações neste documento</H2>
         <P>
-          Podemos atualizar esta política periodicamente. Alterações relevantes serão
-          comunicadas por e-mail ou mediante aviso na plataforma com antecedência mínima de
-          15 dias. O uso continuado após a vigência das alterações implica aceite dos novos termos.
+          Podemos atualizar este documento periodicamente. Mudanças relevantes serão avisadas por e-mail ou na
+          plataforma com pelo menos 15 dias de antecedência. Continuar usando o serviço depois desse prazo
+          significa concordar com a nova versão.
         </P>
 
         <Hr />
 
-        {/* ── 12. Contato ── */}
-        <H2>12. Contato e Encarregado (DPO)</H2>
+        <H2>12. Contato e encarregado de dados (DPO)</H2>
         <ContactBox>
           <p>
-            Para exercer seus direitos ou esclarecer dúvidas sobre o tratamento de dados,
-            entre em contato com nosso Encarregado de Proteção de Dados:
+            Para exercer seus direitos, pedir a exclusão de dados ou esclarecer dúvidas sobre este documento,
+            fale com o encarregado de proteção de dados:
           </p>
           <p style={{ marginTop: '0.6rem' }}>
-            <strong>E-mail:</strong> privacidade@elevatohub.com.br<br />
-            <strong>Empresa:</strong> Elevatohub<br />
+            <strong>E-mail:</strong> {COMPANY.email}<br />
+            <strong>Razão social:</strong> {COMPANY.legalName}<br />
+            <strong>CNPJ:</strong> {COMPANY.cnpj}<br />
+            <strong>Endereço:</strong> {COMPANY.address}<br />
             <strong>Plataforma:</strong> horariocerto.elevatohub.com.br
           </p>
           <p style={{ marginTop: '0.6rem', fontSize: '0.78rem', color: 'var(--ui-muted)' }}>

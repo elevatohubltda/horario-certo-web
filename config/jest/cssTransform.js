@@ -4,8 +4,9 @@
 // http://facebook.github.io/jest/docs/en/webpack.html
 
 module.exports = {
+  // Jest 28+ exige que o transformer devolva um objeto com `code`
   process() {
-    return 'module.exports = {};';
+    return { code: 'module.exports = {};' };
   },
   getCacheKey() {
     // The output is always the same.

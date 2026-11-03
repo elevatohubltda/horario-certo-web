@@ -7,6 +7,7 @@ import { registerUser } from '../services/endpoints/user';
 import { createCompany } from '../services/endpoints/company';
 import { validateDiscountCode, getPublicSubscriptionPlans, updateSubscription } from '../services/endpoints/payment';
 import { formataNumeroTelefone } from '../util/format';
+import { isValidCpfOrCnpj, isValidEmail } from '../util/validate';
 import styled from 'styled-components';
 
 // Faixa de quem chega pelo link de uma empresa parceira
@@ -465,42 +466,6 @@ function Register() {
             .replace(/(\d{3})(\d)/, '$1.$2')
             .replace(/(\d{3})(\d)/, '$1/$2')
             .replace(/(\d{4})(\d{1,2})$/, '$1-$2');
-    };
-
-    const isValidEmail = (email) =>
-        /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
-
-    const calcCpfDigit = (digits, len) => {
-        let sum = 0;
-        for (let i = 0; i < len; i++) sum += parseInt(digits[i]) * (len + 1 - i);
-        const rem = sum % 11;
-        return rem < 2 ? 0 : 11 - rem;
-    };
-
-    const isValidCpf = (value) => {
-        const d = value.replace(/\D/g, '');
-        if (d.length !== 11 || /^(\d)\1+$/.test(d)) return false;
-        return calcCpfDigit(d, 9) === parseInt(d[9]) && calcCpfDigit(d, 10) === parseInt(d[10]);
-    };
-
-    const isValidCnpj = (value) => {
-        const d = value.replace(/\D/g, '');
-        if (d.length !== 14 || /^(\d)\1+$/.test(d)) return false;
-        const w1 = [5,4,3,2,9,8,7,6,5,4,3,2];
-        const w2 = [6,5,4,3,2,9,8,7,6,5,4,3,2];
-        const calc = (digits, weights) => {
-            const sum = weights.reduce((acc, w, i) => acc + parseInt(digits[i]) * w, 0);
-            const rem = sum % 11;
-            return rem < 2 ? 0 : 11 - rem;
-        };
-        const d1 = calc(d, w1);
-        const d2 = calc(d.slice(0,12) + d1, w2);
-        return parseInt(d[12]) === d1 && parseInt(d[13]) === d2;
-    };
-
-    const isValidCpfOrCnpj = (value) => {
-        const digits = value.replace(/\D/g, '');
-        return digits.length === 11 ? isValidCpf(digits) : digits.length === 14 ? isValidCnpj(digits) : false;
     };
 
     const handleError = (error) => toast.error(error);
