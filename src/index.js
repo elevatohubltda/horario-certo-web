@@ -16,6 +16,7 @@ import ChangePassword from './pages/ChangePassword';
 import Register from './pages/Register';
 import MySchedule from './pages/MySchedule';
 import './global.css';
+import { ErrorBoundary, initMonitoring } from './util/monitoring';
 import Payment from './pages/Payment';
 import ChangeSubscription from './pages/ChangeSubscription';
 import Services from './pages/Services';
@@ -77,5 +78,22 @@ const router = createBrowserRouter(
   }
 );
 
+initMonitoring();
+
+// Erro de tela não tratado: registra no Sentry e mostra uma saída em vez da página em branco
+const CrashFallback = () => (
+  <div style={{ maxWidth: 420, margin: '20vh auto', padding: '0 1rem', textAlign: 'center', fontFamily: 'var(--ui-font)' }}>
+    <h2 style={{ color: 'var(--ui-text)' }}>Algo deu errado nesta tela</h2>
+    <p style={{ color: 'var(--ui-muted)' }}>O problema já foi registrado. Recarregue a página para continuar.</p>
+    <button type="button" className="btn btn-primary" onClick={() => window.location.reload()}>
+      Recarregar
+    </button>
+  </div>
+);
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<RouterProvider router={router} />);
+root.render(
+  <ErrorBoundary fallback={<CrashFallback />}>
+    <RouterProvider router={router} />
+  </ErrorBoundary>
+);

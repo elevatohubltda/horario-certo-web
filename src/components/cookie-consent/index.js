@@ -272,7 +272,8 @@ export default function CookieConsent({ onAccept }) {
           <p>
             Seus dados são compartilhados somente com: <strong>Mercado Pago</strong> (cobrança),
             <strong> Z-API</strong> (WhatsApp), <strong>Google</strong> (Firebase e login com Google),{' '}
-            <strong>Railway</strong> e <strong>Vercel</strong> (hospedagem). Não vendemos dados a terceiros.
+            <strong>Railway</strong> e <strong>Vercel</strong> (hospedagem), <strong>Backblaze</strong> (cópias de segurança)
+            e <strong>Sentry</strong> (registro de erros). Não vendemos dados a terceiros.
           </p>
 
           <h3>6. Seus direitos (LGPD)</h3>

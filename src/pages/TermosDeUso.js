@@ -240,6 +240,8 @@ export default function TermosDeUso() {
           <li><strong>Google (Firebase)</strong>: guarda as logos dos estabelecimentos e entrega as notificações do aplicativo.</li>
           <li><strong>Google (login)</strong>: confirma a identidade de quem entra na área do cliente com o Google.</li>
           <li><strong>Railway e Vercel</strong>: hospedagem do sistema e do banco de dados, com tráfego criptografado (HTTPS/TLS).</li>
+          <li><strong>Backblaze</strong>: guarda as cópias de segurança diárias do banco de dados, criptografadas antes do envio.</li>
+          <li><strong>Sentry</strong>: registra erros técnicos do sistema para que possam ser corrigidos. O envio de IP, cookies e dados de identificação está desligado.</li>
         </Ul>
         <P>
           Cada estabelecimento vê apenas os agendamentos feitos com ele. Alguns desses fornecedores podem
