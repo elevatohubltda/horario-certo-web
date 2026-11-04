@@ -35,6 +35,7 @@ import AdminClients from './pages/AdminClients';
 import AdminPlans from './pages/AdminPlans';
 import AdminDiscountCodes from './pages/AdminDiscountCodes';
 import Professionals from './pages/Professionals';
+import NotFound from './pages/NotFound';
 
 const router = createBrowserRouter(
   [
@@ -69,6 +70,8 @@ const router = createBrowserRouter(
     { path: '/admin/clientes',    element: <AdminClients /> },
     { path: '/admin/planos',      element: <AdminPlans /> },
     { path: '/admin/cupons',      element: <AdminDiscountCodes /> },
+    // Qualquer outro endereço (com mais de um trecho; os de um trecho caem em /:companyUrl)
+    { path: '*',                  element: <NotFound /> },
   ],
   {
     future: {

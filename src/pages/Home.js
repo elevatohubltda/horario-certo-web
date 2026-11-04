@@ -11,6 +11,7 @@ import Topbar from "../components/topbar";
 import { Container } from "../components/container/style";
 import { CustomFilterStyle } from "../components/filter/style";
 import { useLocation, useParams } from "react-router-dom";
+import NotFound from "./NotFound";
 import { getCompany, getCompanyProperties, getCompanySchedules, registerCompanyScheduleView } from "../services/endpoints/company";
 import { getServicesPublic } from "../services/endpoints/service";
 import { formataNumeroTelefone, formatSchedulesToISO, transformarHorariosPorData } from "../util/format";
@@ -67,6 +68,7 @@ export default function Home() {
   const [loading, setLoading] = React.useState(true);
   const [loadingSchedule, setLoadingSchedule] = React.useState(true);
   const [companyInfo, setCompanyInfo] = React.useState();
+  const [companyNotFound, setCompanyNotFound] = React.useState(false);
   const [scheduleMode, setScheduleMode] = React.useState(null);
   const [horarios, setHorarios] = React.useState([]);
   const [filtered, setFiltered] = React.useState([]);
@@ -134,7 +136,11 @@ export default function Home() {
       setCompanyInfo(response.data);
       setLoading(false);
     } catch (error) {
-      toast.error("Erro ao buscar os dados da empresa:", error);
+      if (error?.response?.status === 404) {
+        setCompanyNotFound(true);
+      } else {
+        toast.error("Erro ao buscar os dados da empresa.");
+      }
       setLoading(false);
     }
   }
@@ -374,6 +380,9 @@ export default function Home() {
 
   const hasServices = services.length > 0;
   const isScheduleFormInvalid = !selectedSchedule.nome || !selectedSchedule.telefone || (hasServices && !selectedSchedule.servicoId);
+
+  // Link de empresa que não existe (ou rota digitada errado com um trecho só)
+  if (companyNotFound) return <NotFound variant="company" />;
 
   return (
     <>
