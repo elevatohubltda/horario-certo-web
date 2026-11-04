@@ -266,7 +266,7 @@ export default function TermosDeUso() {
         <Hr />
 
         <H2>8. Seus direitos como titular</H2>
-        <P>A LGPD garante os direitos abaixo, que podem ser exercidos pelo e-mail do item 12:</P>
+        <P>A LGPD garante os direitos abaixo, que podem ser exercidos pelo e-mail do item 13:</P>
         <Ul>
           <li><strong>Confirmação e acesso:</strong> saber se tratamos seus dados e receber uma cópia.</li>
           <li><strong>Correção</strong> de dados incompletos ou desatualizados.</li>
@@ -304,7 +304,7 @@ export default function TermosDeUso() {
           <li><strong>Atraso:</strong> após o vencimento há 3 dias de carência. Depois disso o acesso é bloqueado até o pagamento, com multa de 2% e juros de 1% ao mês, proporcionais aos dias de atraso.</li>
           <li><strong>Cupons de desconto:</strong> valem nas condições informadas no cadastro. Um cupom pode ter data limite para novos cadastros e quantidade máxima de usos. O cupom de "1ª mensalidade grátis" cobre apenas a primeira mensalidade; as seguintes são cobradas pelo valor do plano.</li>
           <li><strong>Plano Fundador:</strong> disponível para os 30 primeiros assinantes, com o preço mantido enquanto a assinatura estiver ativa.</li>
-          <li><strong>Cancelamento:</strong> pode ser feito a qualquer momento, sem multa e sem fidelidade.</li>
+          <li><strong>Cancelamento:</strong> pode ser feito a qualquer momento, sem multa e sem fidelidade, conforme o item 11.</li>
           <li><strong>Dados dos clientes:</strong> o estabelecimento é o controlador dos dados dos seus clientes, deve informá-los sobre o uso da plataforma e é responsável pelo conteúdo que cadastra.</li>
           <li><strong>Uso adequado:</strong> é proibido usar o serviço para fins ilícitos, spam ou coleta abusiva de dados. O estabelecimento responde pelo uso das suas credenciais e das de sua equipe.</li>
         </Ul>
@@ -316,7 +316,50 @@ export default function TermosDeUso() {
 
         <Hr />
 
-        <H2>11. Alterações neste documento</H2>
+        <H2>11. Cancelamento e reembolso</H2>
+        <P>
+          Esta política vale para a assinatura dos estabelecimentos. O cancelamento é feito pelo próprio
+          estabelecimento, a qualquer momento, na tela <strong>Assinatura</strong> do painel. Os demais pedidos
+          (como cobrança indevida ou desconto por instabilidade) são feitos pelo e-mail{' '}
+          <strong>{COMPANY.email}</strong>, a partir do e-mail cadastrado na conta; respondemos em até 5 dias úteis.
+        </P>
+        <Ul>
+          <li>
+            <strong>Arrependimento (7 dias):</strong> quem cancelar em até 7 dias corridos após o pagamento da
+            primeira mensalidade pode escolher, na própria tela de cancelamento, receber o valor de volta
+            integralmente, como prevê o artigo 49 do Código de Defesa do Consumidor. Nesse caso o acesso termina
+            no mesmo dia. Vale para a primeira mensalidade de cada estabelecimento.
+          </li>
+          <li>
+            <strong>Cancelamento depois disso:</strong> o acesso continua até o fim do período já pago, e a
+            mensalidade seguinte não é cobrada. Não há devolução proporcional dos dias que restam do mês. Até o
+            último dia de acesso, o cancelamento pode ser desfeito na mesma tela.
+          </li>
+          <li>
+            <strong>Cobrança indevida:</strong> pagamento em duplicidade ou com valor errado por falha nossa é
+            devolvido integralmente, sem prazo para pedir.
+          </li>
+          <li>
+            <strong>Sistema fora do ar:</strong> se a plataforma ficar mais de 24 horas fora do ar no mesmo mês,
+            somando as interrupções, o estabelecimento recebe desconto na mensalidade seguinte, proporcional ao
+            tempo fora do ar. O pedido deve ser feito em até 30 dias, e o tempo é medido pelo nosso monitor de
+            disponibilidade. Não contam manutenções avisadas com 48 horas de antecedência, problemas na internet
+            ou no aparelho do estabelecimento e bloqueios do número de WhatsApp feitos pelo próprio WhatsApp.
+          </li>
+          <li>
+            <strong>Como o dinheiro volta:</strong> pelo mesmo meio do pagamento, em até 10 dias úteis depois da
+            aprovação do pedido. No Pix, para a conta que pagou; no cartão, como estorno na fatura, no prazo da
+            operadora.
+          </li>
+          <li>
+            Mensalidades quitadas por cupom (como a 1ª mensalidade grátis) não geram reembolso, porque não houve
+            pagamento.
+          </li>
+        </Ul>
+
+        <Hr />
+
+        <H2>12. Alterações neste documento</H2>
         <P>
           Podemos atualizar este documento periodicamente. Mudanças relevantes serão avisadas por e-mail ou na
           plataforma com pelo menos 15 dias de antecedência. Continuar usando o serviço depois desse prazo
@@ -325,7 +368,7 @@ export default function TermosDeUso() {
 
         <Hr />
 
-        <H2>12. Contato e encarregado de dados (DPO)</H2>
+        <H2>13. Contato e encarregado de dados (DPO)</H2>
         <ContactBox>
           <p>
             Para exercer seus direitos, pedir a exclusão de dados ou esclarecer dúvidas sobre este documento,

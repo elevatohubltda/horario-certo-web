@@ -54,3 +54,14 @@ export const cancelCardSubscription = (companyUrl) => {
     const params = new URLSearchParams({ companyUrl }).toString();
     return api.delete(`/payment/card-subscription?${params}`, { withAuth: true });
 };
+// Cancela a assinatura; refund=true só vale até 7 dias do 1º pagamento (arrependimento)
+export const cancelSubscription = (companyUrl, payload) => {
+    const params = new URLSearchParams({ companyUrl }).toString();
+    return api.post(`/payment/cancel-subscription?${params}`, payload, { withAuth: true });
+};
+
+// Desfaz o cancelamento antes do fim do acesso
+export const reactivateSubscription = (companyUrl) => {
+    const params = new URLSearchParams({ companyUrl }).toString();
+    return api.post(`/payment/reactivate-subscription?${params}`, {}, { withAuth: true });
+};

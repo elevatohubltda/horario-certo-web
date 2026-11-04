@@ -4,7 +4,7 @@ import Cookies from "js-cookie";
 
 import { Container } from "../components/container/style";
 import { Clock } from "lucide-react";
-import { Notice, PageLayout, Button as UiButton } from "../components/admin";
+import { Field, Input, Modal, Notice, PageLayout, Select, Button as UiButton } from "../components/admin";
 import { Button } from "../components/button";
 import { Separator } from "../components/separator/style";
 import { Title } from "../components/title";
@@ -17,6 +17,8 @@ import {
   createCardSubscription,
   subscribeNow,
   cancelCardSubscription,
+  cancelSubscription,
+  reactivateSubscription,
 } from "../services/endpoints/payment";
 import { toast } from "react-toastify";
 
@@ -210,6 +212,32 @@ const PendingTag = styled.span`
   font-size: 0.72rem;
   font-weight: 600;
   white-space: nowrap;
+`;
+
+const CANCEL_REASONS = [
+  "O preço não cabe no meu orçamento",
+  "Não usei o suficiente",
+  "Faltou um recurso que eu preciso",
+  "Vou usar outro sistema",
+  "Encerrei ou pausei as atividades",
+  "Outro motivo",
+];
+
+const CancelOption = styled.label`
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  padding: 0.75rem;
+  border: 1px solid ${({ $checked }) => ($checked ? "var(--ui-primary)" : "var(--ui-border)")};
+  border-radius: var(--ui-radius-sm);
+  font-size: 0.85rem;
+  color: var(--ui-text-secondary);
+  cursor: pointer;
+
+  strong {
+    display: block;
+    color: var(--ui-text);
+  }
 `;
 
 const CopyButton = styled.button`
@@ -408,7 +436,7 @@ function Payment() {
 
   const [isSubscribing, setIsSubscribing] = useState(false);
   // Quem ainda não pagou nada pode encerrar o teste e assinar já (libera o WhatsApp assim que o Pix for pago)
-  const canSubscribeNow = paymentProps?.status === "trial" && paymentProps?.whatsappAvailable === false && !isCardActive;
+  const canSubscribeNow = paymentProps?.status === "trial" && paymentProps?.whatsappAvailable === false && !isCardActive && !paymentProps?.cancelRequestedAt;
   // Cupom de 1ª mensalidade grátis ainda não usado: assinar não gera Pix
   const firstMonthFree = Boolean(paymentProps?.firstMonthFree);
 
@@ -432,6 +460,56 @@ function Payment() {
       toast.error(error?.response?.data || "Não foi possível gerar o Pix da assinatura");
     } finally {
       setIsSubscribing(false);
+    }
+  };
+
+  // Cancelamento da assinatura
+  const isCancelled = Boolean(paymentProps?.cancelRequestedAt);
+  const refundableAmount = paymentProps?.refundableAmount;
+  const [cancelOpen, setCancelOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
+  const [cancelDetail, setCancelDetail] = useState("");
+  const [cancelWithRefund, setCancelWithRefund] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
+
+  const openCancel = () => {
+    setCancelReason("");
+    setCancelDetail("");
+    setCancelWithRefund(false);
+    setCancelOpen(true);
+  };
+
+  const handleCancelSubscription = async () => {
+    if (isCancelling) return;
+    const reason = [cancelReason, cancelDetail.trim()].filter(Boolean).join(" · ");
+    try {
+      setIsCancelling(true);
+      await cancelSubscription(companyUrl, { reason, refund: cancelWithRefund });
+      setCancelOpen(false);
+      await Promise.all([fetchPaymentData(), fetchClientStatus()]);
+      toast.success(
+        cancelWithRefund
+          ? "Assinatura cancelada. O reembolso foi solicitado e volta em até 10 dias úteis."
+          : "Assinatura cancelada. Você continua usando até o fim do período."
+      );
+    } catch (error) {
+      toast.error(error?.response?.data || "Não foi possível cancelar a assinatura");
+    } finally {
+      setIsCancelling(false);
+    }
+  };
+
+  const handleReactivate = async () => {
+    if (isCancelling) return;
+    try {
+      setIsCancelling(true);
+      await reactivateSubscription(companyUrl);
+      await Promise.all([fetchPaymentData(), fetchClientStatus()]);
+      toast.success("Cancelamento desfeito. Sua assinatura continua normalmente.");
+    } catch (error) {
+      toast.error(error?.response?.data || "Não foi possível manter a assinatura");
+    } finally {
+      setIsCancelling(false);
     }
   };
 
@@ -851,6 +929,10 @@ function Payment() {
 
               {loading ? (
                 <Skeleton height="3rem" width="100%" />
+              ) : isCancelled ? (
+                <div style={{ fontSize: "0.85rem", color: "#374151" }}>
+                  Sua assinatura está cancelada: nenhuma cobrança nova será feita.
+                </div>
               ) : isCardActive ? (
                 <>
                   <BadgeWaiting
@@ -988,7 +1070,114 @@ function Payment() {
                 ))}
               </FeatureList>
             </FullWidthCard>
+
+            {!loading && paymentProps && (
+              <FullWidthCard>
+                <Title $fontsize="1.1rem" $margin="0 0 1rem 0">
+                  {isCancelled ? "Assinatura cancelada" : "Cancelar assinatura"}
+                </Title>
+                <Separator $margin="0 0 1rem 0" $width="100%" $style="dotted"/>
+
+                {isCancelled ? (
+                  <>
+                    <Notice>
+                      <Clock size={18} />
+                      <span>
+                        {paymentProps.refundRequested ? (
+                          <>
+                            <strong>Cancelada em {formatDate(paymentProps.cancelRequestedAt)}, com reembolso solicitado.</strong>{" "}
+                            O valor volta pelo mesmo meio do pagamento em até 10 dias úteis. A agenda é desativada a partir de amanhã.
+                          </>
+                        ) : (
+                          <>
+                            <strong>Você usa normalmente até {formatDate(paymentProps.accessUntil)}.</strong>{" "}
+                            Depois disso a agenda é desativada e nenhuma cobrança nova é feita.
+                          </>
+                        )}
+                      </span>
+                    </Notice>
+                    {paymentProps.canReactivate && (
+                      <UiButton type="button" onClick={handleReactivate} disabled={isCancelling}>
+                        {isCancelling ? "Mantendo..." : "Manter minha assinatura"}
+                      </UiButton>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <div style={{ fontSize: "0.85rem", color: "#374151", marginBottom: "0.75rem" }}>
+                      Sem multa e sem fidelidade. Se cancelar, você continua usando até{" "}
+                      <strong>{formatDate(paymentProps.cancelPreviewUntil)}</strong> e nenhuma cobrança nova é feita.
+                      {refundableAmount && (
+                        <> Como seu primeiro pagamento foi há menos de 7 dias, você também pode pedir o reembolso integral.</>
+                      )}
+                    </div>
+                    <UiButton type="button" $variant="outline" onClick={openCancel}>
+                      Cancelar assinatura
+                    </UiButton>
+                  </>
+                )}
+              </FullWidthCard>
+            )}
           </PageGrid>
+
+          <Modal
+            open={cancelOpen}
+            title="Cancelar assinatura"
+            onClose={() => !isCancelling && setCancelOpen(false)}
+            footer={
+              <>
+                <UiButton type="button" $variant="outline" onClick={() => setCancelOpen(false)} disabled={isCancelling}>
+                  Voltar
+                </UiButton>
+                <UiButton type="button" $variant="danger" onClick={handleCancelSubscription} disabled={isCancelling}>
+                  {isCancelling ? "Cancelando..." : "Confirmar cancelamento"}
+                </UiButton>
+              </>
+            }
+          >
+            <Field>
+              Por que você está cancelando? (opcional)
+              <Select value={cancelReason} onChange={(e) => setCancelReason(e.target.value)}>
+                <option value="">Prefiro não dizer</option>
+                {CANCEL_REASONS.map((reason) => (
+                  <option key={reason} value={reason}>{reason}</option>
+                ))}
+              </Select>
+            </Field>
+            <Field>
+              Quer contar mais? (opcional)
+              <Input
+                value={cancelDetail}
+                maxLength={300}
+                placeholder="Ex.: faltou lembrete por SMS"
+                onChange={(e) => setCancelDetail(e.target.value)}
+              />
+            </Field>
+
+            {refundableAmount ? (
+              <div style={{ display: "grid", gap: "0.5rem" }}>
+                <CancelOption $checked={!cancelWithRefund}>
+                  <input type="radio" name="cancel-mode" checked={!cancelWithRefund} onChange={() => setCancelWithRefund(false)} />
+                  <span>
+                    <strong>Cancelar no fim do período</strong>
+                    Você usa até {formatDate(paymentProps?.cancelPreviewUntil)} e não é mais cobrado.
+                  </span>
+                </CancelOption>
+                <CancelOption $checked={cancelWithRefund}>
+                  <input type="radio" name="cancel-mode" checked={cancelWithRefund} onChange={() => setCancelWithRefund(true)} />
+                  <span>
+                    <strong>Cancelar agora e receber {formatAmount(refundableAmount)} de volta</strong>
+                    Direito de arrependimento: vale até 7 dias do primeiro pagamento. A agenda é desativada a partir de amanhã.
+                  </span>
+                </CancelOption>
+              </div>
+            ) : (
+              <div style={{ fontSize: "0.85rem", color: "#374151" }}>
+                Você continua usando até <strong>{formatDate(paymentProps?.cancelPreviewUntil)}</strong>. Depois disso a agenda
+                é desativada e nenhuma cobrança nova é feita. Até lá, dá para desfazer o cancelamento por aqui.
+              </div>
+            )}
+          </Modal>
       </PageLayout>
     </>
   );

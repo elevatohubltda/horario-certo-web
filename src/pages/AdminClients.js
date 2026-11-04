@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
-import { CalendarDays, Lock, LockOpen, MessageCircle } from "lucide-react";
+import { Banknote, CalendarDays, Lock, LockOpen, MessageCircle } from "lucide-react";
 import {
   AdminLayout,
   Badge,
@@ -11,6 +11,7 @@ import {
   Input,
   Message,
   Muted,
+  Notice,
   Select,
   SummaryGrid,
   SummaryLabel,
@@ -21,7 +22,7 @@ import {
   formatDate,
   formatMoney,
 } from "../components/admin";
-import { blockClientAccess, getAdminClients, releaseClientAccess } from "../services/endpoints/admin";
+import { blockClientAccess, getAdminClients, markClientRefundDone, releaseClientAccess } from "../services/endpoints/admin";
 
 const STATUS = {
   TESTE: { label: "Em teste", tone: "blue" },
@@ -32,7 +33,12 @@ const STATUS = {
   BLOQUEADO_MANUAL: { label: "Bloqueado manual", tone: "red" },
   LIBERADO_MANUAL: { label: "Liberado manual", tone: "purple" },
   GRATUITO: { label: "Gratuito", tone: "gray" },
+  CANCELAMENTO_AGENDADO: { label: "Cancelou (usando)", tone: "yellow" },
+  CANCELADO: { label: "Cancelado", tone: "gray" },
 };
+
+// Filtro extra: quem pediu reembolso de arrependimento e ainda não foi devolvido
+const REFUND_FILTER = "__refund";
 
 // Quem conta como receita recorrente: está pagando ou deveria estar
 const REVENUE_STATUSES = ["EM_DIA", "VENCE_HOJE", "EM_ATRASO", "LIBERADO_MANUAL"];
@@ -84,7 +90,9 @@ function AdminClients() {
           .toLowerCase();
         if (!haystack.includes(search)) return false;
       }
-      if (filters.status && c.status !== filters.status) return false;
+      if (filters.status === REFUND_FILTER) {
+        if (!c.refundRequested) return false;
+      } else if (filters.status && c.status !== filters.status) return false;
       if (filters.plan && c.planName !== filters.plan) return false;
       if (filters.coupon === "__with" && !c.discountCode) return false;
       if (filters.coupon === "__without" && c.discountCode) return false;
@@ -100,6 +108,7 @@ function AdminClients() {
       trial: clients.filter((c) => c.status === "TESTE").length,
       attention: clients.filter((c) => ["EM_ATRASO", "BLOQUEADO", "BLOQUEADO_MANUAL"].includes(c.status)).length,
       revenue: paying.reduce((sum, c) => sum + Number(c.monthlyAmount || 0), 0),
+      refunds: clients.filter((c) => c.refundRequested).length,
     };
   }, [clients]);
 
@@ -124,6 +133,20 @@ function AdminClients() {
       await fetchClients();
     } catch (err) {
       toast.error(errorMessage(err, "Não foi possível alterar o acesso."));
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const handleRefundDone = async (client) => {
+    if (!window.confirm(`Confirma que o reembolso de "${client.companyName}" já foi devolvido no Mercado Pago?`)) return;
+    setBusyId(client.companyId);
+    try {
+      await markClientRefundDone(client.companyId);
+      toast.success("Reembolso marcado como devolvido");
+      await fetchClients();
+    } catch (err) {
+      toast.error(errorMessage(err, "Não foi possível marcar o reembolso."));
     } finally {
       setBusyId(null);
     }
@@ -165,6 +188,16 @@ function AdminClients() {
             </Card>
           </SummaryGrid>
 
+          {summary.refunds > 0 && (
+            <Notice>
+              <Banknote size={18} />
+              <span>
+                <strong>{summary.refunds === 1 ? "1 reembolso pendente." : `${summary.refunds} reembolsos pendentes.`}</strong>{" "}
+                Devolva o primeiro pagamento no Mercado Pago (Atividade → o pagamento → Devolver) em até 10 dias úteis e marque como devolvido aqui. Use o filtro de status "Reembolso pendente".
+              </span>
+            </Notice>
+          )}
+
           <FilterBar>
             <Field>
               Buscar
@@ -178,6 +211,7 @@ function AdminClients() {
               Status
               <Select value={filters.status} onChange={(e) => setFilter("status", e.target.value)}>
                 <option value="">Todos</option>
+                <option value={REFUND_FILTER}>Reembolso pendente</option>
                 {Object.entries(STATUS).map(([value, { label }]) => (
                   <option key={value} value={value}>{label}</option>
                 ))}
@@ -237,6 +271,12 @@ function AdminClients() {
                         <td>
                           <Badge $tone={status.tone}>{status.label}</Badge>
                           {client.statusMessage && <Muted style={{ maxWidth: 220 }}>{client.statusMessage}</Muted>}
+                          {client.cancelReason && <Muted style={{ maxWidth: 220 }}>Motivo: {client.cancelReason}</Muted>}
+                          {client.refundRequested && (
+                            <div style={{ marginTop: "0.3rem" }}>
+                              <Badge $tone="red">Reembolso pendente</Badge>
+                            </div>
+                          )}
                         </td>
                         <td>
                           {client.planName}
@@ -289,6 +329,16 @@ function AdminClients() {
                             >
                               <LockOpen size={16} />
                             </IconButton>
+                            {client.refundRequested && (
+                              <IconButton
+                                title="Marcar reembolso como devolvido"
+                                onClick={() => handleRefundDone(client)}
+                                disabled={busy}
+                                $color="#16a34a"
+                              >
+                                <Banknote size={16} />
+                              </IconButton>
+                            )}
                           </div>
                         </td>
                       </tr>

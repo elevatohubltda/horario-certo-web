@@ -13,6 +13,10 @@ export const blockClientAccess = (companyId) =>
 export const releaseClientAccess = (companyId) =>
     api.post(`/admin/clients/${companyId}/release`, {}, { withAuth: true });
 
+// Reembolso de arrependimento já devolvido no Mercado Pago
+export const markClientRefundDone = (companyId) =>
+    api.post(`/admin/clients/${companyId}/refund-done`, {}, { withAuth: true });
+
 export const getAdminPlans = () => api.get("/admin/plans", { withAuth: true });
 
 export const createAdminPlan = (payload) => api.post("/admin/plans", payload, { withAuth: true });

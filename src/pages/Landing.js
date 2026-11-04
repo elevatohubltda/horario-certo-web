@@ -1332,7 +1332,7 @@ const faqItems = [
   },
   {
     question: 'Como cancelo se não gostar?',
-    answer: 'Direto pelo painel, a qualquer momento, sem multa e sem precisar falar com ninguém. Não existe fidelidade mínima.',
+    answer: 'Direto pelo painel, na tela Assinatura, a qualquer momento, sem multa e sem precisar falar com ninguém. Você continua usando até o fim do mês já pago. E se assinar e se arrepender em até 7 dias do primeiro pagamento, devolvemos o valor integral.',
   },
 ];
 
