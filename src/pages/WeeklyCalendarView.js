@@ -89,25 +89,105 @@ const isEventScheduled = (event) => {
 const PageWrapper = styled.div`
   display: flex;
   flex-direction: row;
-  height: calc(100vh - 60px - 2rem);
-  background: #fff;
-  margin-top: 1rem;
+  gap: 1.25rem;
+  height: calc(100vh - 60px - 2.5rem);
+  margin: 1rem 0 1.5rem;
   min-height: 0;
+
+  @media (max-width: 768px) {
+    margin: 0.75rem 0.75rem 1rem;
+    height: calc(100dvh - 60px - 1.75rem);
+  }
+`;
+
+const panelCard = `
+  background: #fff;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius);
+  box-shadow: var(--ui-card-shadow);
 `;
 
 const MainColumn = styled.div`
+  ${panelCard}
   display: flex;
   flex-direction: column;
   flex: 1;
   min-width: 0;
   min-height: 0;
+  overflow: hidden;
 `;
 
-const MiniCalendarPanel = styled.div`
-  width: max-content;
+// Coluna lateral (só em telas largas): mini calendário + resumo da semana
+const SidePanel = styled.aside`
+  width: 280px;
   flex-shrink: 0;
-  padding: 0 1rem 0 1.5rem;
-  border-right: 1px solid #e3e3e3;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  overflow-y: auto;
+
+  @media (max-width: 1100px) {
+    display: none;
+  }
+`;
+
+const SideCard = styled.section`
+  ${panelCard}
+  padding: 1rem;
+`;
+
+const SideTitle = styled.h3`
+  margin: 0 0 0.85rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ui-muted);
+`;
+
+const StatRow = styled.div`
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  font-size: 0.9rem;
+  color: var(--ui-text-secondary);
+
+  & + & {
+    border-top: 1px solid var(--ui-border);
+  }
+
+  strong {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--ui-primary);
+  }
+`;
+
+const LegendList = styled.ul`
+  list-style: none;
+  margin: 0.85rem 0 0;
+  padding: 0.85rem 0 0;
+  border-top: 1px solid var(--ui-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  font-size: 0.8rem;
+  color: var(--ui-text-secondary);
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+`;
+
+const LegendDot = styled.span`
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+  background: ${({ $color }) => $color};
+  border: ${({ $border }) => ($border ? "1px solid #dadce0" : "none")};
 `;
 
 const MiniCalendarStyle = styled.div`
@@ -243,9 +323,14 @@ const MiniCalendarStyle = styled.div`
     text-decoration: none !important;
   }
 
-  .flatpickr-days {
+  .flatpickr-days,
+  .flatpickr-rContainer,
+  .flatpickr-weekdays,
+  .dayContainer {
     border: none !important;
     width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
   }
 
   .flatpickr-day {
@@ -257,8 +342,9 @@ const MiniCalendarStyle = styled.div`
     border-radius: 50% !important;
     max-width: none !important;
     width: 14.28% !important;
-    height: 32px !important;
-    line-height: 32px !important;
+    flex-basis: 14.28% !important;
+    height: 35px !important;
+    line-height: 33px !important;
   }
 
   .flatpickr-day:hover,
@@ -290,9 +376,8 @@ const MiniCalendarStyle = styled.div`
 const GCalToolbar = styled.div`
   display: flex;
   align-items: center;
-  gap: 1.25rem;
-  padding: 0.9rem 1.5rem;
-  border-bottom: 1px solid #e3e3e3;
+  gap: 1rem;
+  padding: 0 0 1rem;
   background: #fff;
   flex-wrap: wrap;
 `;
@@ -341,7 +426,10 @@ const ToolbarTitle = styled.h2`
   font-size: 1.375rem;
   font-weight: 700;
   color: #3c4043;
-  text-transform: capitalize;
+
+  &::first-letter {
+    text-transform: uppercase;
+  }
 `;
 
 const ViewSelect = styled.select`
@@ -363,8 +451,12 @@ const ViewSelect = styled.select`
 
 const CalendarArea = styled.div`
   flex: 1;
-  padding: 0 1.5rem 1.5rem 1.5rem;
+  padding: 1.25rem;
   min-height: 0;
+
+  @media (max-width: 768px) {
+    padding: 0.85rem;
+  }
 `;
 
 const LoadingWrapper = styled.div`
@@ -378,13 +470,13 @@ const ProfessionalFilter = styled.div`
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  margin-bottom: 0.75rem;
+  padding: 1rem 1.25rem 0;
   font-size: 0.85rem;
-  color: #374151;
+  color: var(--ui-text-secondary);
 
   select {
-    border: 1px solid #d1d5db;
-    border-radius: 0.5rem;
+    border: 1px solid var(--ui-input-border);
+    border-radius: var(--ui-radius-sm);
     padding: 0.4rem 0.6rem;
     font-size: 0.85rem;
     background: #fff;
@@ -402,7 +494,7 @@ const ConfigBanner = styled.div`
   border: 1px solid #f4d97a;
   border-radius: 8px;
   padding: 0.85rem 1.25rem;
-  margin: 1rem 1.5rem 0 1.5rem;
+  margin: 1rem 1.25rem 0;
   font-size: 0.85rem;
   color: #4a3f00;
 `;
@@ -595,6 +687,11 @@ const CalendarGlobalStyle = styled.div`
     border-top: none;
   }
 
+  /* Por padrão o react-big-calendar reserva 10px à direita de cada coluna */
+  .rbc-day-slot .rbc-events-container {
+    margin-right: 4px;
+  }
+
   .rbc-time-content > * + * > * {
     border-left: 1px solid #e3e3e3;
   }
@@ -677,6 +774,11 @@ function CustomToolbar({ label, onNavigate, onView, view }) {
   );
 }
 
+// Título da visão de dia em português ("quarta-feira, 4 de novembro")
+const calendarFormats = {
+  dayHeaderFormat: (date) => format(date, "EEEE, d 'de' MMMM", { locale: ptBR }),
+};
+
 const components = {
   header: CustomDayHeader,
   event: CustomEvent,
@@ -692,7 +794,9 @@ export default function WeeklyCalendarView() {
   const [mobile, setMobile] = useState();
   const [events, setEvents] = useState([]);
   const [hasAnyOpenDay, setHasAnyOpenDay] = useState(true);
+  // No celular a semana inteira fica apertada demais: abre na visão de dia
   const [range, setRange] = useState(() => {
+    if (isMobile()) return { start: new Date(), days: 1, view: "day" };
     const start = startOfWeek(new Date(), { locale: ptBR });
     return { start, days: 7, view: "week" };
   });
@@ -823,6 +927,11 @@ export default function WeeklyCalendarView() {
     []
   );
 
+  // Resumo da coluna lateral
+  const bookedEvents = events.filter((event) => event.type === "booked");
+  const todayCount = bookedEvents.filter((event) => isSameDay(event.start, new Date())).length;
+  const periodLabel = range.view === "day" ? "Neste dia" : "Nesta semana";
+
   const handleNavigate = (action, view, date) => {
     const days = view === "day" ? 1 : 7;
     if (action === "TODAY") {
@@ -928,20 +1037,38 @@ export default function WeeklyCalendarView() {
         <Sidebar>
           <PageWrapper>
             {!mobile && (
-              <MiniCalendarPanel>
-                <MiniCalendarStyle>
-                  <Flatpickr
-                    value={range.start}
-                    onChange={handleSelectMiniCalendarDate}
-                    options={{
-                      inline: true,
-                      locale: Portuguese,
-                      dateFormat: "d/m/Y",
-                      monthSelectorType: "static"
-                    }}
-                  />
-                </MiniCalendarStyle>
-              </MiniCalendarPanel>
+              <SidePanel>
+                <SideCard>
+                  <MiniCalendarStyle>
+                    <Flatpickr
+                      value={range.start}
+                      onChange={handleSelectMiniCalendarDate}
+                      options={{
+                        inline: true,
+                        locale: Portuguese,
+                        dateFormat: "d/m/Y",
+                        monthSelectorType: "static"
+                      }}
+                    />
+                  </MiniCalendarStyle>
+                </SideCard>
+                <SideCard>
+                  <SideTitle>Resumo</SideTitle>
+                  <StatRow>
+                    <span>Agendamentos hoje</span>
+                    <strong>{loading ? "–" : todayCount}</strong>
+                  </StatRow>
+                  <StatRow>
+                    <span>{periodLabel}</span>
+                    <strong>{loading ? "–" : bookedEvents.length}</strong>
+                  </StatRow>
+                  <LegendList>
+                    <li><LegendDot $color="#4285F4" /> Agendado (cor do serviço)</li>
+                    <li><LegendDot $color="#f1f3f4" $border /> Intervalo ou fechado</li>
+                    <li><LegendDot $color="#fff" $border /> Livre para agendar</li>
+                  </LegendList>
+                </SideCard>
+              </SidePanel>
             )}
             <MainColumn>
               {professionals.length > 1 && (
@@ -993,6 +1120,7 @@ export default function WeeklyCalendarView() {
                       onSelectEvent={handleSelectEvent}
                       eventPropGetter={eventPropGetter}
                       components={components}
+                      formats={calendarFormats}
                       style={{ height: "100%" }}
                     />
                   </CalendarGlobalStyle>
