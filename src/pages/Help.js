@@ -14,6 +14,8 @@ import {
   Bell,
   Banknote,
   ListOrdered,
+  Users,
+  UserRound,
   ChevronDown,
   Search,
 } from "lucide-react";
@@ -185,47 +187,24 @@ const topics = [
     Icon: Rocket,
     items: [
       {
-        q: 'Como compartilho o link de agendamento com meus clientes?',
-        a: 'No menu superior, clique no ícone de usuário e selecione "Link compartilhável". Um modal abre com o link único da sua empresa. Você pode copiar o link ou compartilhar diretamente no WhatsApp. Envie para seus clientes pela bio do Instagram, grupo de WhatsApp ou onde preferir — eles agendam pelo navegador, sem instalar nada.'
-      },
-      {
-        q: 'Como configuro as informações da minha empresa?',
-        a: 'Acesse "Configurações" no menu lateral. Lá você edita o nome da empresa, o número de WhatsApp, o Instagram, a logo e o tempo mínimo para cancelamento de agendamentos. Salve as alterações ao finalizar.'
-      },
-      {
-        q: 'Como faço login no aplicativo mobile?',
-        a: 'Baixe o aplicativo Horário Certo na App Store (iOS) ou Google Play (Android). Na tela de login, use o mesmo e-mail e senha do painel web. O aplicativo sincroniza tudo em tempo real.'
-      },
-      {
         q: 'O que devo configurar primeiro ao criar minha conta?',
-        a: 'Siga essa ordem para ter tudo pronto rapidamente: (1) Cadastre seus serviços com nome e preço em "Serviços". (2) Crie os horários disponíveis para o dia em "Criar agendamentos". (3) Ajuste as informações da empresa em "Configurações". (4) Compartilhe o link com seus clientes pelo menu superior. Em menos de 30 minutos sua agenda já pode receber agendamentos.'
-      },
-    ]
-  },
-  {
-    id: 'agendamentos',
-    label: 'Agendamentos',
-    Icon: CalendarDays,
-    items: [
-      {
-        q: 'Como vejo os agendamentos?',
-        a: 'No Dashboard você vê um resumo dos próximos agendamentos. Para a visão completa, acesse "Agendamentos" no menu lateral — lá você filtra por período (3 dias, 7 dias ou personalizado), por status (Disponível, Agendado, Concluído, Expirado) e por serviço.'
+        a: 'Siga esta ordem: (1) Em "Configurações", preencha os dados da empresa (nome, WhatsApp, Instagram, logo, e-mail e CPF/CNPJ) e escolha o modo de agenda. (2) Cadastre seus serviços em "Serviços". (3) Defina seus horários: no modo Simples, em "Configuração Horários"; no modo Padrão, em "Criar agendamentos". (4) Compartilhe o link com seus clientes. Em poucos minutos sua agenda já pode receber agendamentos. Se preferir, nossa equipe faz essa configuração junto com você.'
       },
       {
-        q: 'O que significa cada status de agendamento?',
-        a: '"Disponível" significa que o horário foi criado por você mas ainda não foi reservado por nenhum cliente. "Agendado" indica que um cliente reservou o horário. "Concluído" é um horário agendado cuja data/hora já passou. "Expirado" é um horário disponível que não foi reservado e já passou.'
+        q: 'Como compartilho o link de agendamento com meus clientes?',
+        a: 'No menu do usuário (ícone no canto superior direito), clique em "Link compartilhável" para copiar o link da sua agenda ou enviar direto pelo WhatsApp. Coloque o link na bio do Instagram, no status e nas conversas com clientes: eles agendam pelo navegador do celular, sem baixar nada e sem cadastro. Em "Divulgação" você também baixa cartazes prontos com o QR Code da sua agenda.'
       },
       {
-        q: 'Como cancelo um agendamento?',
-        a: 'Na listagem de "Agendamentos", localize o horário desejado na tabela e use a ação de cancelamento disponível. Se você tiver o WhatsApp ativo, o cliente pode ser notificado automaticamente.'
+        q: 'Qual a diferença entre o modo Simples e o modo Padrão de agenda?',
+        a: 'No modo Simples, você informa os dias de atendimento, o horário de abertura e fechamento e os intervalos da semana, e cada serviço tem a própria duração: o sistema calcula sozinho os horários livres. É o modo recomendado e o único que permite equipe com vários profissionais. No modo Padrão, você cria manualmente os horários de cada dia em "Criar agendamentos". O modo é escolhido em "Configurações".'
       },
       {
-        q: 'O cliente recebe confirmação quando agenda?',
-        a: 'Você sempre recebe uma notificação push no celular quando um cliente agenda (desde que o app esteja instalado e as notificações ativas). Se você tiver o recurso de WhatsApp contratado, o cliente também recebe uma mensagem automática de confirmação.'
+        q: 'Como uso o Horário Certo no celular?',
+        a: 'O painel funciona no navegador do celular e do computador, com o mesmo usuário e senha. O aplicativo Horário Certo, com notificações no celular, ainda não está nas lojas de aplicativos; quando estiver disponível, avisaremos por aqui.'
       },
       {
-        q: 'O que acontece quando um cliente tenta agendar em um horário já ocupado?',
-        a: 'Horários com status "Agendado" ficam automaticamente indisponíveis na página pública. O cliente só consegue reservar horários com status "Disponível", eliminando o risco de duplo agendamento.'
+        q: 'Como funciona o teste grátis?',
+        a: 'Todo cadastro começa com 14 dias grátis, sem cartão. Durante o teste você usa todos os recursos, exceto o envio de mensagens pelo WhatsApp, que começa após o pagamento da primeira mensalidade. Para assinar antes do fim do teste, use "Assinar agora" em "Assinatura".'
       },
     ]
   },
@@ -235,20 +214,47 @@ const topics = [
     Icon: Clock,
     items: [
       {
-        q: 'Como crio os horários disponíveis para um dia?',
-        a: 'Acesse "Criar agendamentos" no menu lateral. Selecione a data, informe o horário de abertura, o de fechamento e a duração de cada atendimento em minutos. Clique em "Gerar horários" — o sistema calcula automaticamente todos os slots do dia. Revise e clique em "Salvar agendamentos".'
+        q: 'Como defino meus dias e horários de atendimento (modo Simples)?',
+        a: 'Acesse "Configuração Horários". Para cada dia da semana, marque se atende e informe a abertura, o fechamento e, se quiser, o intervalo (ex.: almoço das 12:00 às 13:00). Os clientes só veem horários livres dentro desse período, já considerando a duração de cada serviço e os agendamentos existentes.'
       },
       {
-        q: 'Como bloqueio um dia inteiro (folga ou feriado)?',
-        a: 'Simplesmente não crie horários para aquele dia em "Criar agendamentos". Sem horários cadastrados, o dia fica sem disponibilidade na página pública e os clientes não conseguem agendar nessa data.'
+        q: 'Como crio os horários de um dia (modo Padrão)?',
+        a: 'Acesse "Criar agendamentos", selecione a data, informe abertura, fechamento e a duração de cada atendimento e clique em "Gerar horários". Você pode inserir intervalos e remover horários específicos antes de salvar.'
       },
       {
-        q: 'Como adiciono um intervalo de almoço ou pausa no meio do dia?',
-        a: 'Em "Criar agendamentos", após preencher os horários de abertura e fechamento, clique em "Inserir intervalo". Informe o início e o fim da pausa (ex.: 12:00 às 13:00). O sistema ignora esse período ao gerar os horários disponíveis. Você pode adicionar mais de um intervalo se precisar.'
+        q: 'Como bloqueio um dia de folga ou feriado?',
+        a: 'No modo Simples, deixe o dia como fechado em "Configuração Horários" na semana correspondente. No modo Padrão, basta não criar horários para aquele dia. Sem horários disponíveis, os clientes não conseguem agendar nessa data.'
       },
       {
-        q: 'Posso remover um horário específico antes de salvar?',
-        a: 'Sim. Após gerar os horários, eles aparecem como chips na tela. Clique no X de qualquer chip para remover aquele slot individualmente antes de salvar. Também é possível limpar todos de uma vez com o botão "Limpar horários".'
+        q: 'Onde vejo minha agenda?',
+        a: 'No modo Simples, use "Agenda semanal": ela mostra a semana (ou o dia) com os agendamentos coloridos pela cor do serviço, os intervalos e os períodos fechados. No celular, a agenda abre na visão do dia. No modo Padrão, use "Agendamentos", com filtros por período, status e serviço. O Dashboard mostra um resumo dos próximos atendimentos.'
+      },
+    ]
+  },
+  {
+    id: 'agendamentos',
+    label: 'Agendamentos',
+    Icon: CalendarDays,
+    items: [
+      {
+        q: 'Como o cliente agenda?',
+        a: 'Ele abre o seu link, escolhe o serviço, o profissional (ou "sem preferência") e o horário, e informa nome e WhatsApp. Não precisa baixar aplicativo nem criar conta. Um horário reservado some na hora para os outros clientes, então não há agendamento duplicado.'
+      },
+      {
+        q: 'O cliente recebe confirmação e lembrete?',
+        a: 'Sim, pelo WhatsApp, a partir do pagamento da primeira mensalidade: confirmação na hora do agendamento e lembrete antes do horário (a antecedência é configurada em "Notificações"). No teste grátis as mensagens não são enviadas.'
+      },
+      {
+        q: 'Como cancelo ou altero um agendamento?',
+        a: 'Abra o agendamento na agenda e use as ações disponíveis: falar com o cliente no WhatsApp, editar data e horário ou cancelar. Profissionais da equipe só alteram os próprios agendamentos.'
+      },
+      {
+        q: 'O cliente pode cancelar ou remarcar sozinho?',
+        a: 'Sim. Quem agenda com conta na área do cliente pode cancelar e remarcar por lá; quem agenda sem conta cancela pelo código recebido. Em "Configurações" você define a antecedência mínima para o cliente desmarcar: dentro desse prazo, só o estabelecimento consegue cancelar.'
+      },
+      {
+        q: 'Posso trocar o profissional de um agendamento já feito?',
+        a: 'Ainda não. Nesse caso, cancele o agendamento e faça um novo com o outro profissional.'
       },
     ]
   },
@@ -258,43 +264,35 @@ const topics = [
     Icon: Scissors,
     items: [
       {
-        q: 'Como adiciono um novo serviço?',
-        a: 'Acesse "Serviços" no menu lateral e clique em "Novo serviço". Preencha o nome (ex.: Consulta, Sessão completa, Avaliação) e o valor em reais. O serviço fica disponível imediatamente para seus clientes escolherem ao agendar.'
+        q: 'Como cadastro um serviço?',
+        a: 'Acesse "Serviços" e clique em "Novo serviço". Informe o nome, o valor, a duração em minutos e a cor que aparece na agenda. Com equipe, escolha quais profissionais fazem o serviço e o valor de cada um.'
       },
       {
-        q: 'Como altero o nome ou o preço de um serviço?',
-        a: 'Em "Serviços", clique no serviço que deseja editar. Altere o nome ou o valor e salve. Atenção: não é possível cadastrar dois serviços com o mesmo nome.'
+        q: 'Como funciona a comissão da equipe?',
+        a: 'No cadastro do serviço, informe a "Parte do estabelecimento nos atendimentos da equipe" (%). Cada atendimento guarda o valor e a comissão do momento, e o Dashboard e os Relatórios mostram o faturamento e a parte do estabelecimento.'
       },
       {
-        q: 'Como desativo um serviço temporariamente sem excluí-lo?',
-        a: 'Na listagem de serviços, use o toggle (chave) ao lado do serviço para inativá-lo. Um serviço inativo some da página pública mas permanece no histórico de agendamentos. Você pode reativá-lo a qualquer momento pelo mesmo toggle.'
-      },
-      {
-        q: 'A duração do serviço é configurada em Serviços?',
-        a: 'Não. A duração de cada slot de atendimento é definida em "Criar agendamentos", no campo "Duração do agendamento (minutos)". Esse valor vale para todos os horários gerados naquele dia. O cadastro de serviços registra apenas nome e valor.'
+        q: 'Como altero ou deixo de oferecer um serviço?',
+        a: 'Em "Serviços", clique no serviço para editar nome, valor, duração ou cor. Para tirar um serviço da sua agenda, exclua-o: com equipe, você pode só deixar de prestá-lo, e ele continua disponível com os outros profissionais. Não é possível ter dois serviços com o mesmo nome.'
       },
     ]
   },
   {
-    id: 'analises',
-    label: 'Análises e relatórios',
-    Icon: BarChart2,
+    id: 'equipe',
+    label: 'Equipe',
+    Icon: Users,
     items: [
       {
-        q: 'O que aparece no Dashboard?',
-        a: 'O Dashboard exibe três cards de resumo (agendamentos realizados, em aberto e total no período) e uma lista dos próximos agendamentos. Use o filtro de período — "essa semana", "próximos 15 dias" ou "próximos 30 dias" — para ajustar a visualização.'
+        q: 'Como cadastro os profissionais da minha equipe?',
+        a: 'Acesse "Profissionais" e clique em "Novo profissional". Cada profissional ganha usuário e senha próprios, com agenda e serviços próprios. O número de profissionais depende do seu plano e aparece no topo da tela. A agenda com equipe funciona no modo Simples.'
       },
       {
-        q: 'O que mostra a página de Análise?',
-        a: 'A página "Análise" traz quatro métricas principais: visualizações da sua página, agendamentos realizados, horários não agendados e valor total dos agendamentos. Cada card compara o período atual com o anterior e exibe variação percentual. Há também um gráfico de barras por dia e um gráfico de pizza por serviço. Use o filtro para ver os últimos 7, 15 ou 30 dias.'
+        q: 'O que o profissional vê no sistema?',
+        a: 'Ele vê e gerencia só os próprios agendamentos, serviços e lista de espera, e no Dashboard só o próprio faturamento. Dados da assinatura e da empresa ficam só com o dono.'
       },
       {
-        q: 'Para que serve a seção de Relatórios?',
-        a: 'Em "Relatórios" você vê a lista detalhada de cada agendamento: data, hora, status, serviço, nome e telefone do cliente. Há filtros por período (incluindo datas personalizadas), status e serviço. Você também pode ordenar qualquer coluna clicando no cabeçalho.'
-      },
-      {
-        q: 'Como exporto os dados de relatórios?',
-        a: 'Na página "Relatórios" há dois botões de exportação: "Exportar CSV" (planilha) e "Exportar PDF". Ambos geram o arquivo com os dados filtrados no momento da exportação, incluindo logo e data de geração.'
+        q: 'Como o cliente escolhe o profissional?',
+        a: 'Na sua página, o cliente escolhe o profissional ou "sem preferência". Com "sem preferência", ele vê os horários livres de todos os profissionais que fazem o serviço.'
       },
     ]
   },
@@ -304,43 +302,20 @@ const topics = [
     Icon: Bell,
     items: [
       {
-        q: 'Como ativo as notificações push no celular?',
-        a: 'As notificações push funcionam pelo aplicativo mobile. Após instalar o app e fazer login, acesse "Notificações Push" no menu. Ative a opção e permita o acesso quando o sistema operacional solicitar. Você passa a receber alertas em tempo real para novos agendamentos e cancelamentos.'
+        q: 'Quais mensagens de WhatsApp meus clientes recebem?',
+        a: 'Confirmação ao agendar, lembrete antes do horário, aviso de remarcação e de cancelamento e, se você ativar, a "Notificação de retorno" para clientes que costumam voltar e ainda não voltaram. Em "Notificações" você liga cada envio e define a antecedência do lembrete e os dias da mensagem de retorno. O WhatsApp está incluso em todos os planos e começa após a primeira mensalidade.'
       },
       {
-        q: 'O que são as notificações de WhatsApp e como configuro?',
-        a: 'As notificações de WhatsApp são mensagens automáticas enviadas para seus clientes — um lembrete antes do agendamento ("Lembrete de agendamento") e uma mensagem incentivando o retorno após um período sem visita ("Notificação de retorno"). Acesse "Notificações" no menu lateral para configurar os prazos. Esse recurso exige o WhatsApp contratado no plano.'
+        q: 'Como ativo as notificações no meu celular?',
+        a: 'As notificações push chegam pelo aplicativo Horário Certo. No app, abra o menu, entre em "Notificações Push", ative e permita quando o celular pedir. Cada pessoa da equipe ativa no próprio celular.'
       },
       {
-        q: 'Qual é a diferença entre "Notificações" e "Notificações Push" no menu?',
-        a: '"Notificações" configura o envio automático de mensagens de WhatsApp para os seus clientes (requer recurso adicional de WhatsApp). "Notificações Push" configura os alertas que chegam no seu próprio celular via aplicativo, avisando sobre novos agendamentos e cancelamentos — aparece apenas quando você está usando o app mobile.'
+        q: 'Que avisos chegam no celular e posso escolher quais quero?',
+        a: 'Você pode receber: novos agendamentos, cancelamentos, remarcações feitas pelo cliente, avisos da lista de espera (nova pessoa e vaga liberada por cancelamento) e o resumo do dia, às 7h. O dono recebe também os lembretes da assinatura. Em "Notificações Push", logo abaixo do botão principal, você liga e desliga cada tipo. Avisos importantes da assinatura (pagamento confirmado, cobrança recusada e agenda bloqueada) sempre chegam enquanto as notificações estiverem ativadas.'
       },
       {
-        q: 'Recebi uma notificação de agendamento cancelado — o que faço?',
-        a: 'O horário volta automaticamente para o status "Disponível" após o cancelamento. Você pode verificar em "Agendamentos" e, se quiser, entrar em contato com um cliente da lista de espera para oferecer o horário liberado.'
-      },
-    ]
-  },
-  {
-    id: 'assinatura',
-    label: 'Assinatura',
-    Icon: Banknote,
-    items: [
-      {
-        q: 'Como vejo minha fatura e faço o pagamento?',
-        a: 'Acesse "Assinatura" no menu lateral. Se houver uma fatura em aberto, você verá o QR Code do Pix e o código para cópia. O código expira após um tempo — se isso acontecer, a página atualiza automaticamente com um novo. Após pagar, clique em "Já fiz o pagamento" para confirmar.'
-      },
-      {
-        q: 'Como mudo de plano?',
-        a: 'Em "Assinatura", clique em "Mudar assinatura". Você será direcionado para a página de troca de plano, onde pode escolher um novo plano e confirmar a alteração.'
-      },
-      {
-        q: 'O que acontece se eu não pagar a fatura no prazo?',
-        a: 'Após o vencimento, há um período de carência de 3 dias. Se a fatura continuar em aberto após esse prazo, sua agenda é bloqueada — clientes não conseguem fazer novos agendamentos e a página pública exibe uma mensagem de indisponibilidade. A fatura em atraso já é gerada automaticamente com multa de 2% e juros de 1% a.m. pro-rata; basta acessar "Assinatura" e efetuar o pagamento para reativar.'
-      },
-      {
-        q: 'Como adiciono o recurso de WhatsApp ao meu plano?',
-        a: 'Acesse "Mudar assinatura" e selecione o recurso adicional desejado: WhatsApp Básico (até 500 mensagens/mês) ou WhatsApp Plus (mensagens ilimitadas). Confirme a contratação para ativar o recurso no seu plano.'
+        q: 'Meu funcionário recebe os avisos de cobrança?',
+        a: 'Não. Cada profissional recebe só os avisos dos próprios agendamentos. Avisos da assinatura vão só para o dono.'
       },
     ]
   },
@@ -351,19 +326,88 @@ const topics = [
     items: [
       {
         q: 'Como funciona a lista de espera?',
-        a: 'Quando não há horários disponíveis na sua agenda, o cliente pode entrar na lista de espera pela página pública, informando nome e telefone. Você gerencia essa fila pela página "Lista de espera" no menu lateral.'
+        a: 'Quando não encontra horário, o cliente entra na lista de espera do dia pela sua página, informando nome e telefone. Você vê a fila em "Lista de espera", com botões para chamar no WhatsApp ou ligar.'
       },
       {
-        q: 'Como vejo e contato quem está na lista de espera?',
-        a: 'Acesse "Lista de espera" no menu lateral. A tabela exibe a posição na fila do dia, a data de entrada, o nome e o telefone de cada cliente. Use o botão de WhatsApp para abrir uma conversa direta ou o botão de ligação para ligar pelo celular.'
+        q: 'Sou avisado quando alguém entra na lista ou quando abre uma vaga?',
+        a: 'Sim, pelas notificações do aplicativo: quando alguém entra na lista e quando um cancelamento libera horário num dia com gente esperando. O contato com o cliente da lista é feito por você, pelos botões da tela.'
       },
       {
-        q: 'O sistema notifica o cliente automaticamente quando um horário abre?',
-        a: 'O contato com clientes da lista de espera é feito manualmente por você, pelos botões de WhatsApp e ligação disponíveis na página. Não há envio automático de notificação ao liberar um horário — você escolhe quem contatar e quando.'
+        q: 'Como removo alguém da lista de espera?',
+        a: 'Em "Lista de espera", clique no ícone de lixeira ao lado do cliente.'
+      },
+    ]
+  },
+  {
+    id: 'clientes',
+    label: 'Seus clientes',
+    Icon: UserRound,
+    items: [
+      {
+        q: 'Meu cliente precisa criar conta para agendar?',
+        a: 'Não. Ele pode agendar só com nome e WhatsApp. Se quiser, cria uma conta na área do cliente (com e-mail e senha ou com o Google) para ver, remarcar e cancelar os horários em todos os estabelecimentos que usam o Horário Certo.'
       },
       {
-        q: 'Como removo um cliente da lista de espera?',
-        a: 'Na página "Lista de espera", clique no ícone de lixeira ao lado do cliente para removê-lo da fila. Útil quando o cliente já foi atendido por outro canal ou não tem mais interesse.'
+        q: 'Por que um agendamento não aparece na área do cliente?',
+        a: 'Na área do cliente aparecem só os agendamentos feitos com a conta conectada. Os feitos sem conta e os já cancelados não aparecem lá.'
+      },
+      {
+        q: 'O que acontece quando alguém clica em "Entrar" na minha página?',
+        a: 'O sistema pergunta se a pessoa é cliente ou estabelecimento. Clientes vão para a área do cliente; você vai para o seu painel.'
+      },
+    ]
+  },
+  {
+    id: 'analises',
+    label: 'Análises e relatórios',
+    Icon: BarChart2,
+    items: [
+      {
+        q: 'O que aparece no Dashboard?',
+        a: 'Resumo do período escolhido: total de agendamentos, faturamento e, com equipe, a parte do estabelecimento, além da lista dos próximos atendimentos.'
+      },
+      {
+        q: 'O que mostra a página de Análise?',
+        a: 'Visualizações da sua página, agendamentos realizados, horários não agendados e valor total, comparando com o período anterior, com gráficos por dia e por serviço. Filtre por 7, 15 ou 30 dias.'
+      },
+      {
+        q: 'Como exporto meus relatórios?',
+        a: 'Em "Relatórios" você vê cada agendamento com data, hora, status, serviço, cliente e valores, com filtros por período, status e serviço. Use "Exportar CSV" (planilha) ou "Exportar PDF".'
+      },
+    ]
+  },
+  {
+    id: 'assinatura',
+    label: 'Assinatura',
+    Icon: Banknote,
+    items: [
+      {
+        q: 'Como pago minha mensalidade?',
+        a: 'Em "Assinatura", escolha Pix ou cartão de crédito. No Pix, a fatura do mês aparece com QR Code e código para copiar; o código é renovado automaticamente se expirar. No cartão, a cobrança é automática todo mês e o cartão é cadastrado numa página segura da Stripe: o Horário Certo não vê nem guarda os dados dele.'
+      },
+      {
+        q: 'Posso assinar antes do fim do teste grátis?',
+        a: 'Sim. Em "Assinatura", clique em "Assinar agora" e escolha Pix ou cartão. O teste termina, o WhatsApp é liberado assim que o pagamento é confirmado e sua mensalidade passa a vencer no dia do pagamento.'
+      },
+      {
+        q: 'Como troco o cartão ou volto para o Pix?',
+        a: 'Em "Assinatura", na área Forma de pagamento: "Trocar cartão" abre a página segura para cadastrar outro cartão, e "Voltar a pagar via Pix" desliga a cobrança no cartão e as próximas faturas passam a ser por Pix.'
+      },
+      {
+        q: 'O que acontece se o pagamento atrasar?',
+        a: 'Depois do vencimento há 3 dias de carência com a agenda funcionando. Se continuar em aberto, a agenda é bloqueada: o painel mostra como regularizar e sua página fica indisponível para os clientes. A fatura em atraso tem multa de 2% e juros de 1% ao mês, proporcionais aos dias. Pagou, a agenda volta na hora.'
+      },
+      {
+        q: 'Meu cartão foi recusado. E agora?',
+        a: 'Você recebe um aviso e, em "Assinatura", aparece o botão "Atualizar cartão". Novas tentativas de cobrança são feitas nos dias seguintes. Você também pode pagar pelo Pix. Se a mensalidade só for paga depois do bloqueio, a multa e os juros entram na cobrança seguinte do cartão.'
+      },
+      {
+        q: 'Como mudo de plano?',
+        a: 'Em "Assinatura", clique em "Mudar assinatura" e escolha o novo plano. No cartão, o novo valor vale a partir da próxima cobrança.'
+      },
+      {
+        q: 'Como cancelo minha assinatura? Tenho direito a reembolso?',
+        a: 'Em "Assinatura", use "Cancelar assinatura", a qualquer momento, sem multa. Você continua usando até o fim do período já pago e não é mais cobrado; até lá dá para desfazer o cancelamento. Se pedir em até 7 dias do primeiro pagamento, pode escolher o reembolso integral (o acesso termina no mesmo dia).'
       },
     ]
   },
