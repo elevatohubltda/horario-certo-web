@@ -45,8 +45,9 @@ export const subscribeNow = (companyUrl) => {
     return api.post(`/payment/subscribe-now?${params}`, {}, { withAuth: true });
 };
 
-export const createCardSubscription = (companyUrl) => {
-    const params = new URLSearchParams({ companyUrl }).toString();
+// startNow = "Assinar agora" no cartão: cobra na hora e encerra o teste grátis
+export const createCardSubscription = (companyUrl, startNow = false) => {
+    const params = new URLSearchParams({ companyUrl, startNow: String(startNow) }).toString();
     return api.post(`/payment/card-subscription?${params}`, {}, { withAuth: true });
 };
 

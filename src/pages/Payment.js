@@ -241,6 +241,11 @@ const CancelOption = styled.label`
   color: var(--ui-text-secondary);
   cursor: pointer;
 
+  input {
+    accent-color: var(--ui-primary);
+    margin-top: 0.2rem;
+  }
+
   strong {
     display: block;
     color: var(--ui-text);
@@ -449,13 +454,44 @@ function Payment() {
   // Cupom de 1ª mensalidade grátis ainda não usado: assinar não gera Pix
   const firstMonthFree = Boolean(paymentProps?.firstMonthFree);
 
-  const handleSubscribeNow = async () => {
+  // Primeira mensalidade: escolha entre Pix e cartão (o cartão só aparece com a cobrança no cartão ligada)
+  const canChoosePaymentMethod = CARD_PAYMENT_ENABLED && !firstMonthFree;
+  const [payChoiceOpen, setPayChoiceOpen] = useState(false);
+  const [payChoice, setPayChoice] = useState("card");
+
+  const handleSubscribeNow = () => {
     if (isSubscribing) return;
+    if (canChoosePaymentMethod) {
+      setPayChoice("card");
+      setPayChoiceOpen(true);
+      return;
+    }
     const dueDay = new Date().getDate();
     const question = firstMonthFree
       ? `Encerrar o teste grátis e ativar a assinatura agora? Seu cupom cobre a 1ª mensalidade e as próximas passam a vencer todo dia ${dueDay}.`
       : `Encerrar o teste grátis e gerar agora o Pix da primeira mensalidade? A partir do pagamento, sua mensalidade passa a vencer todo dia ${dueDay}.`;
     if (!window.confirm(question)) return;
+    startSubscriptionWithPix();
+  };
+
+  const handleConfirmPayChoice = async () => {
+    if (isSubscribing) return;
+    if (payChoice === "pix") {
+      setPayChoiceOpen(false);
+      startSubscriptionWithPix();
+      return;
+    }
+    try {
+      setIsSubscribing(true);
+      const response = await createCardSubscription(companyUrl, true);
+      window.location.href = response.data.initPoint;
+    } catch (error) {
+      toast.error(error?.response?.data || "Não foi possível abrir o pagamento com cartão");
+      setIsSubscribing(false);
+    }
+  };
+
+  const startSubscriptionWithPix = async () => {
     try {
       setIsSubscribing(true);
       const response = await subscribeNow(companyUrl);
@@ -887,11 +923,12 @@ function Payment() {
                         <span>
                           Assine agora e libere o envio de mensagens pelo WhatsApp assim que o pagamento for confirmado.
                           O teste grátis termina e sua mensalidade passa a vencer todo dia {new Date().getDate()}.
+                          {canChoosePaymentMethod && " Pague com Pix ou cartão de crédito."}
                         </span>
                       )}
                       <UiButton type="button" onClick={handleSubscribeNow} disabled={isSubscribing}>
                         {isSubscribing
-                          ? firstMonthFree ? "Ativando..." : "Gerando Pix..."
+                          ? firstMonthFree ? "Ativando..." : "Aguarde..."
                           : firstMonthFree ? "Ativar assinatura grátis" : `Assinar agora por ${formatAmount(paymentProps?.amount)}`}
                       </UiButton>
                     </SubscribeNowBox>
@@ -1165,6 +1202,46 @@ function Payment() {
               </FullWidthCard>
             )}
           </PageGrid>
+
+          <Modal
+            open={payChoiceOpen}
+            title="Como você quer pagar?"
+            onClose={() => !isSubscribing && setPayChoiceOpen(false)}
+            footer={
+              <>
+                <UiButton type="button" $variant="outline" onClick={() => setPayChoiceOpen(false)} disabled={isSubscribing}>
+                  Voltar
+                </UiButton>
+                <UiButton type="button" onClick={handleConfirmPayChoice} disabled={isSubscribing}>
+                  {isSubscribing
+                    ? "Abrindo página segura..."
+                    : payChoice === "card" ? "Continuar para o cartão" : "Gerar Pix"}
+                </UiButton>
+              </>
+            }
+          >
+            <div style={{ fontSize: "0.85rem", color: "#374151" }}>
+              Primeira mensalidade de <strong>{formatAmount(paymentProps?.amount)}</strong>. O teste grátis termina e sua
+              mensalidade passa a vencer todo dia {new Date().getDate()}.
+            </div>
+            <div style={{ display: "grid", gap: "0.5rem" }}>
+              <CancelOption $checked={payChoice === "card"}>
+                <input type="radio" name="pay-choice" checked={payChoice === "card"} onChange={() => setPayChoice("card")} />
+                <span>
+                  <strong>Cartão de crédito</strong>
+                  Cobrança automática todo mês, sem precisar gerar nem pagar faturas. O cartão é cadastrado numa página
+                  segura da Stripe; o Horário Certo não vê nem guarda os dados dele.
+                </span>
+              </CancelOption>
+              <CancelOption $checked={payChoice === "pix"}>
+                <input type="radio" name="pay-choice" checked={payChoice === "pix"} onChange={() => setPayChoice("pix")} />
+                <span>
+                  <strong>Pix</strong>
+                  Pague agora pelo QR Code. Todo mês geramos uma nova fatura Pix para você pagar até o vencimento.
+                </span>
+              </CancelOption>
+            </div>
+          </Modal>
 
           <Modal
             open={cancelOpen}
