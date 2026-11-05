@@ -178,7 +178,7 @@ export default function TermosDeUso() {
         <Ul>
           <li><strong>Dados da empresa:</strong> nome fantasia, endereço de acesso (link), WhatsApp, Instagram e logo.</li>
           <li><strong>Dados do responsável e da equipe:</strong> nome de usuário e senha (guardada em hash irreversível).</li>
-          <li><strong>Dados de cobrança:</strong> e-mail e CPF ou CNPJ, usados exclusivamente para gerar as cobranças da assinatura na Stripe.</li>
+          <li><strong>Dados de cobrança:</strong> e-mail e CPF ou CNPJ, usados exclusivamente para gerar as cobranças da assinatura na Stripe e emitir a nota fiscal de serviço (NFS-e) de cada mensalidade paga.</li>
           <li><strong>Dados dos clientes finais nos agendamentos:</strong> nome, telefone/WhatsApp, serviço e horário.</li>
           <li><strong>Conta do cliente final (área do cliente):</strong> nome, e-mail, telefone, senha (em hash irreversível) ou, no login com o Google, nome, e-mail e o identificador da conta Google. Guardamos também o histórico de agendamentos feitos com a conta.</li>
           <li><strong>Dados técnicos:</strong> registros de acesso e de envio de mensagens, mantidos para segurança, diagnóstico e controle de uso.</li>
@@ -236,6 +236,7 @@ export default function TermosDeUso() {
         <P>Os dados são compartilhados somente com os fornecedores abaixo, na medida necessária para o serviço:</P>
         <Ul>
           <li><strong>Stripe</strong>: nome, e-mail e CPF/CNPJ do estabelecimento, para as cobranças da assinatura por Pix e cartão. Os dados do cartão são digitados direto na página da Stripe; o Horário Certo não vê nem guarda número, validade ou código de segurança.</li>
+          <li><strong>Focus NFe</strong>: nome, e-mail e CPF/CNPJ do estabelecimento e o valor da mensalidade, para emitir a nota fiscal de serviço no sistema nacional da NFS-e (a nota é enviada para o e-mail cadastrado).</li>
           <li><strong>Z-API</strong>: nome e telefone do cliente final e o texto da mensagem, para o envio pelo WhatsApp.</li>
           <li><strong>Google (Firebase)</strong>: guarda as logos dos estabelecimentos e entrega as notificações do aplicativo.</li>
           <li><strong>Google (login)</strong>: confirma a identidade de quem entra na área do cliente com o Google.</li>

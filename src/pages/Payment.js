@@ -776,6 +776,24 @@ function Payment() {
                     {formatAmount(paymentProps?.amount)}
                   </div>
 
+                  {isPaid && paymentProps?.invoiceUrl && (
+                    <a
+                      href={paymentProps.invoiceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        display: "inline-block",
+                        marginTop: "0.5rem",
+                        fontSize: "0.9rem",
+                        fontWeight: 600,
+                        color: "var(--ui-primary)",
+                        textDecoration: "underline",
+                      }}
+                    >
+                      Baixar nota fiscal (PDF)
+                    </a>
+                  )}
+
                   {paymentProps?.lateFeeAmount && (
                     <div
                       style={{

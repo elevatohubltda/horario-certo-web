@@ -15,6 +15,7 @@ export const ADMIN_MENU_ITEMS = [
   { label: "Cupons de desconto", url: "/admin/cupons", icon: TicketPercent },
   { label: "Uso WhatsApp", url: "/admin/whatsapp", icon: MessageCircle },
   { label: "Notificações push", url: "/admin/notificacoes", icon: BellRing },
+  { label: "Notas fiscais", url: "/admin/notas-fiscais", icon: FileText },
   { label: "Alterar senha", url: "/alterar-senha", icon: KeyRound },
   { label: "Ajuda", url: "/ajuda", icon: HelpCircle },
 ]

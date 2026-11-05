@@ -142,8 +142,11 @@ function AdminClients() {
     if (!window.confirm(`Confirma que o reembolso de "${client.companyName}" já foi devolvido ao cliente?`)) return;
     setBusyId(client.companyId);
     try {
-      await markClientRefundDone(client.companyId);
-      toast.success("Reembolso marcado como devolvido");
+      const response = await markClientRefundDone(client.companyId);
+      const message = typeof response?.data === "string" ? response.data : "Reembolso marcado como devolvido";
+      // Aviso quando a nota fiscal da mensalidade não pôde ser cancelada automaticamente
+      if (message.includes("Atenção")) toast.warning(message, { autoClose: false });
+      else toast.success(message);
       await fetchClients();
     } catch (err) {
       toast.error(errorMessage(err, "Não foi possível marcar o reembolso."));

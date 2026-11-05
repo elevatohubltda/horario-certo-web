@@ -35,6 +35,7 @@ import AdminClients from './pages/AdminClients';
 import AdminPlans from './pages/AdminPlans';
 import AdminDiscountCodes from './pages/AdminDiscountCodes';
 import AdminPushMessages from './pages/AdminPushMessages';
+import AdminInvoices from './pages/AdminInvoices';
 import Professionals from './pages/Professionals';
 import NotFound from './pages/NotFound';
 
@@ -72,6 +73,7 @@ const router = createBrowserRouter(
     { path: '/admin/planos',      element: <AdminPlans /> },
     { path: '/admin/cupons',      element: <AdminDiscountCodes /> },
     { path: '/admin/notificacoes', element: <AdminPushMessages /> },
+    { path: '/admin/notas-fiscais', element: <AdminInvoices /> },
     // Qualquer outro endereço (com mais de um trecho; os de um trecho caem em /:companyUrl)
     { path: '*',                  element: <NotFound /> },
   ],

@@ -246,7 +246,7 @@ export default function CookieConsent({ onAccept }) {
           <ul>
             <li><strong>Cadastrais:</strong> nome da empresa, URL, WhatsApp, Instagram.</li>
             <li><strong>Acesso:</strong> usuário e senha (armazenada em hash irreversível).</li>
-            <li><strong>Cobrança:</strong> e-mail e CPF/CNPJ, usados exclusivamente para emissão de cobranças via Stripe.</li>
+            <li><strong>Cobrança:</strong> e-mail e CPF/CNPJ, usados exclusivamente para emissão de cobranças via Stripe e da nota fiscal de cada mensalidade (Focus NFe).</li>
             <li><strong>Clientes finais:</strong> nome, telefone e agendamentos; na área do cliente, também e-mail e senha ou a conta Google.</li>
           </ul>
 
@@ -264,13 +264,14 @@ export default function CookieConsent({ onAccept }) {
           <h3>4. Finalidade do tratamento</h3>
           <ul>
             <li>Prestação do serviço de agendamentos contratado.</li>
-            <li>Cobrança da assinatura mensal por Pix ou cartão (Stripe).</li>
+            <li>Cobrança da assinatura mensal por Pix ou cartão (Stripe) e emissão da nota fiscal de serviço.</li>
             <li>Mensagens pelo WhatsApp, quando habilitadas pelo estabelecimento e somente após o pagamento da primeira mensalidade.</li>
           </ul>
 
           <h3>5. Compartilhamento</h3>
           <p>
             Seus dados são compartilhados somente com: <strong>Stripe</strong> (cobrança),
+            <strong> Focus NFe</strong> (nota fiscal),
             <strong> Z-API</strong> (WhatsApp), <strong>Google</strong> (Firebase e login com Google),{' '}
             <strong>Railway</strong> e <strong>Vercel</strong> (hospedagem), <strong>Backblaze</strong> (cópias de segurança)
             e <strong>Sentry</strong> (registro de erros). Não vendemos dados a terceiros.

@@ -17,7 +17,20 @@ export const releaseClientAccess = (companyId) =>
 export const markClientRefundDone = (companyId) =>
     api.post(`/admin/clients/${companyId}/refund-done`, {}, { withAuth: true });
 
-export const getAdminPlans = () => api.get("/admin/plans", { withAuth: true });
+// Notas fiscais (NFS-e) das mensalidades
+export const getAdminInvoices = () => api.get("/admin/invoices", { withAuth: true });
+
+export const retryAdminInvoice = (paymentId) =>
+    api.post(`/admin/invoices/${paymentId}/retry`, {}, { withAuth: true });
+
+// Homologação: nota de teste sem valor fiscal (opcionalmente com os dados de um cliente)
+export const emitTestInvoice = (companyId) =>
+    api.post(`/admin/invoices/test${companyId ? `?companyId=${companyId}` : ""}`, {}, { withAuth: true });
+
+export const getTestInvoice = (ref) =>
+    api.get(`/admin/invoices/test/${encodeURIComponent(ref)}`, { withAuth: true });
+
+export const getAdminPlans =() => api.get("/admin/plans", { withAuth: true });
 
 export const createAdminPlan = (payload) => api.post("/admin/plans", payload, { withAuth: true });
 
