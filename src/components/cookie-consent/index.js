@@ -264,7 +264,7 @@ export default function CookieConsent({ onAccept }) {
           <h3>4. Finalidade do tratamento</h3>
           <ul>
             <li>Prestação do serviço de agendamentos contratado.</li>
-            <li>Cobrança da assinatura mensal por Pix (Stripe) ou cartão (Mercado Pago).</li>
+            <li>Cobrança da assinatura mensal por Pix ou cartão (Stripe).</li>
             <li>Mensagens pelo WhatsApp, quando habilitadas pelo estabelecimento e somente após o pagamento da primeira mensalidade.</li>
           </ul>
 

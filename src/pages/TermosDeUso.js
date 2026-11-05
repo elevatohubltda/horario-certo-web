@@ -235,8 +235,8 @@ export default function TermosDeUso() {
         <H2>6. Com quem compartilhamos</H2>
         <P>Os dados são compartilhados somente com os fornecedores abaixo, na medida necessária para o serviço:</P>
         <Ul>
-          <li><strong>Stripe</strong>: nome, e-mail e CPF/CNPJ do estabelecimento, para as cobranças da assinatura por Pix.</li>
-          <li><strong>Mercado Pago</strong>: e-mail e CPF/CNPJ do estabelecimento, para a cobrança no cartão e para as cobranças geradas antes da troca para a Stripe.</li>
+          <li><strong>Stripe</strong>: nome, e-mail e CPF/CNPJ do estabelecimento, para as cobranças da assinatura por Pix e cartão. Os dados do cartão são digitados direto na página da Stripe; o Horário Certo não vê nem guarda número, validade ou código de segurança.</li>
+          <li><strong>Mercado Pago</strong>: e-mail e CPF/CNPJ do estabelecimento, apenas para as cobranças geradas antes da troca para a Stripe.</li>
           <li><strong>Z-API</strong>: nome e telefone do cliente final e o texto da mensagem, para o envio pelo WhatsApp.</li>
           <li><strong>Google (Firebase)</strong>: guarda as logos dos estabelecimentos e entrega as notificações do aplicativo.</li>
           <li><strong>Google (login)</strong>: confirma a identidade de quem entra na área do cliente com o Google.</li>

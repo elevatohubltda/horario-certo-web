@@ -50,6 +50,12 @@ export const createCardSubscription = (companyUrl) => {
     return api.post(`/payment/card-subscription?${params}`, {}, { withAuth: true });
 };
 
+// Portal da Stripe para trocar o cartão da assinatura (devolve { url })
+export const openCardPortal = (companyUrl) => {
+    const params = new URLSearchParams({ companyUrl }).toString();
+    return api.post(`/payment/card-portal?${params}`, {}, { withAuth: true });
+};
+
 export const cancelCardSubscription = (companyUrl) => {
     const params = new URLSearchParams({ companyUrl }).toString();
     return api.delete(`/payment/card-subscription?${params}`, { withAuth: true });

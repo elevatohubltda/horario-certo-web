@@ -17,12 +17,13 @@ import {
   createCardSubscription,
   subscribeNow,
   cancelCardSubscription,
+  openCardPortal,
   cancelSubscription,
   reactivateSubscription,
 } from "../services/endpoints/payment";
 import { toast } from "react-toastify";
 
-// Cobrança automática no cartão fica como "Em breve" até migrar para a Stripe (Pix já migrou)
+// Cobrança automática no cartão (Stripe) aparece só com REACT_APP_CARD_PAYMENT_ENABLED=true na Vercel
 const CARD_PAYMENT_ENABLED = process.env.REACT_APP_CARD_PAYMENT_ENABLED === "true";
 
 // Id da Stripe é longo (pi_3Qx...): mostra só o final, como um número de fatura
@@ -371,10 +372,12 @@ function Payment() {
   const [isGeneratingOverdue, setIsGeneratingOverdue] = useState(false);
   const [isUpdatingCard, setIsUpdatingCard] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
-  // O Mercado Pago devolve o usuário com ?preapproval_id=... após o checkout do cartão
-  const [returnedFromCheckout] = useState(() => searchParams.has("preapproval_id"));
+  // A Stripe devolve com ?cartao=ok após o cadastro do cartão (o Mercado Pago, nas antigas, com ?preapproval_id=)
+  const [returnedFromCheckout] = useState(() => searchParams.has("cartao") || searchParams.has("preapproval_id"));
 
   const cardStatus = paymentProps?.cardSubscriptionStatus;
+  // Só pela Stripe dá para trocar o cartão pelo portal
+  const canManageCard = paymentProps?.cardProvider === "STRIPE";
   // No teste grátis os recursos de WhatsApp aparecem, mas só funcionam após a primeira mensalidade
   const isWhatsAppPending = (feature) => paymentProps?.whatsappAvailable === false && /whatsapp/i.test(feature);
   const isCardActive = cardStatus === "authorized";
@@ -436,7 +439,7 @@ function Payment() {
 
   useEffect(() => {
     if (!returnedFromCheckout) return;
-    toast.info("Recebemos seu cartão! A confirmação do Mercado Pago pode levar alguns minutos.");
+    toast.info("Recebemos seu cartão! A confirmação pode levar alguns instantes.");
     setSearchParams({}, { replace: true });
   }, [returnedFromCheckout, setSearchParams]);
 
@@ -527,6 +530,18 @@ function Payment() {
       window.location.href = response.data.initPoint;
     } catch (error) {
       toast.error(error?.response?.data || "Erro ao ativar a cobrança no cartão");
+      setIsUpdatingCard(false);
+    }
+  };
+
+  const handleManageCard = async () => {
+    if (isUpdatingCard) return;
+    try {
+      setIsUpdatingCard(true);
+      const response = await openCardPortal(companyUrl);
+      window.location.href = response.data.url;
+    } catch (error) {
+      toast.error(error?.response?.data || "Erro ao abrir a troca de cartão");
       setIsUpdatingCard(false);
     }
   };
@@ -949,31 +964,56 @@ function Payment() {
                   <div style={{ fontSize: "0.85rem", color: "#374151", margin: "0.75rem 0" }}>
                     Sua mensalidade é cobrada todo mês no cartão de crédito. Você não precisa gerar nem pagar faturas.
                   </div>
-                  <CardActionButton $outline onClick={handleCancelCard} disabled={isUpdatingCard}>
-                    {isUpdatingCard ? "Cancelando..." : "Voltar a pagar via Pix"}
-                  </CardActionButton>
+                  <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                    {canManageCard && (
+                      <CardActionButton onClick={handleManageCard} disabled={isUpdatingCard}>
+                        Trocar cartão
+                      </CardActionButton>
+                    )}
+                    <CardActionButton $outline onClick={handleCancelCard} disabled={isUpdatingCard}>
+                      {isUpdatingCard ? "Aguarde..." : "Voltar a pagar via Pix"}
+                    </CardActionButton>
+                  </div>
+                </>
+              ) : cardStatus === "paused" && canManageCard ? (
+                <>
+                  {/* Cartão recusado: a Stripe segue tentando cobrar; dá para trocar o cartão ou voltar ao Pix */}
+                  <CardNotice>
+                    Não conseguimos cobrar sua mensalidade no cartão (ele pode ter vencido ou sido recusado).
+                    Atualize o cartão para continuar usando o sistema sem interrupção.
+                  </CardNotice>
+                  <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginTop: "0.75rem" }}>
+                    <CardActionButton onClick={handleManageCard} disabled={isUpdatingCard}>
+                      {isUpdatingCard ? "Abrindo..." : "Atualizar cartão"}
+                    </CardActionButton>
+                    <CardActionButton $outline onClick={handleCancelCard} disabled={isUpdatingCard}>
+                      Voltar a pagar via Pix
+                    </CardActionButton>
+                  </div>
                 </>
               ) : (
                 <>
                   {cardStatus === "paused" && (
                     <CardNotice>
-                      A cobrança no cartão foi pausada pelo Mercado Pago (o cartão pode ter sido recusado).
+                      A cobrança no cartão foi pausada (o cartão pode ter sido recusado).
                       Cadastre o cartão novamente ou pague a fatura via Pix.
                     </CardNotice>
                   )}
                   {cardStatus === "pending" && returnedFromCheckout && (
                     <CardNotice>
-                      Estamos aguardando a confirmação do cartão pelo Mercado Pago. Atualize a página em alguns minutos.
+                      Estamos aguardando a confirmação do cartão. Atualize a página em alguns instantes.
                     </CardNotice>
                   )}
                   {CARD_PAYMENT_ENABLED ? (
                     <>
                       <div style={{ fontSize: "0.85rem", color: "#374151", marginBottom: "0.75rem" }}>
                         Hoje você paga via <strong>Pix</strong>, gerando a fatura todo mês. Ative a cobrança automática
-                        no cartão de crédito e esqueça as faturas. O cartão é cadastrado direto no Mercado Pago.
+                        no cartão de crédito e esqueça as faturas: a primeira cobrança acontece no seu próximo vencimento
+                        (se houver fatura vencida, ela é cobrada na hora).
+                        O cartão é cadastrado numa página segura da Stripe; o Horário Certo não vê nem guarda os dados dele.
                       </div>
                       <CardActionButton onClick={handleActivateCard} disabled={isUpdatingCard}>
-                        {isUpdatingCard ? "Abrindo Mercado Pago..." : "Ativar cobrança automática no cartão"}
+                        {isUpdatingCard ? "Abrindo página segura..." : "Ativar cobrança automática no cartão"}
                       </CardActionButton>
                     </>
                   ) : (
