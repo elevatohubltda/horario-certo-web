@@ -13,7 +13,7 @@ export const blockClientAccess = (companyId) =>
 export const releaseClientAccess = (companyId) =>
     api.post(`/admin/clients/${companyId}/release`, {}, { withAuth: true });
 
-// Reembolso de arrependimento já devolvido no Mercado Pago
+// Reembolso de arrependimento já devolvido ao cliente (na Stripe ou no Mercado Pago)
 export const markClientRefundDone = (companyId) =>
     api.post(`/admin/clients/${companyId}/refund-done`, {}, { withAuth: true });
 

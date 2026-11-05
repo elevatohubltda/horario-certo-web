@@ -139,7 +139,7 @@ function AdminClients() {
   };
 
   const handleRefundDone = async (client) => {
-    if (!window.confirm(`Confirma que o reembolso de "${client.companyName}" já foi devolvido no Mercado Pago?`)) return;
+    if (!window.confirm(`Confirma que o reembolso de "${client.companyName}" já foi devolvido ao cliente?`)) return;
     setBusyId(client.companyId);
     try {
       await markClientRefundDone(client.companyId);
@@ -193,7 +193,7 @@ function AdminClients() {
               <Banknote size={18} />
               <span>
                 <strong>{summary.refunds === 1 ? "1 reembolso pendente." : `${summary.refunds} reembolsos pendentes.`}</strong>{" "}
-                Devolva o primeiro pagamento no Mercado Pago (Atividade → o pagamento → Devolver) em até 10 dias úteis e marque como devolvido aqui. Use o filtro de status "Reembolso pendente".
+                Devolva o primeiro pagamento em até 10 dias úteis, na plataforma em que ele foi pago (Stripe: Pagamentos → o pagamento → Reembolsar; Mercado Pago: Atividade → o pagamento → Devolver), e marque como devolvido aqui. Use o filtro de status "Reembolso pendente".
               </span>
             </Notice>
           )}

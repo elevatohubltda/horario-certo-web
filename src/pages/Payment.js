@@ -22,8 +22,14 @@ import {
 } from "../services/endpoints/payment";
 import { toast } from "react-toastify";
 
-// Cobrança automática no cartão fica como "Em breve" até o recebimento migrar para a conta PJ no Mercado Pago
+// Cobrança automática no cartão fica como "Em breve" até migrar para a Stripe (Pix já migrou)
 const CARD_PAYMENT_ENABLED = process.env.REACT_APP_CARD_PAYMENT_ENABLED === "true";
+
+// Id da Stripe é longo (pi_3Qx...): mostra só o final, como um número de fatura
+export const invoiceNumber = (paymentId) => {
+  const id = String(paymentId ?? "");
+  return id.startsWith("pi_") ? id.slice(-8).toUpperCase() : id;
+};
 
 /* ================= ANIMATIONS ================= */
 
@@ -659,7 +665,7 @@ function Payment() {
               ) : hasPayment ? (
                 <>
                   <Title $fontsize="1.2rem">
-                    Fatura #{paymentProps?.paymentId}
+                    Fatura #{invoiceNumber(paymentProps?.paymentId)}
                   </Title>
 
                   <BadgeWaiting
