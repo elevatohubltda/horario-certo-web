@@ -10,9 +10,51 @@ import { toast } from "react-toastify";
 import {
   getPushNotificationSettings,
   updatePushNotificationSettings,
+  updatePushPreferences,
   registerPushToken,
   unregisterPushToken,
 } from "../services/endpoints/pushNotifications";
+
+// Tipos de aviso que cada pessoa pode ligar/desligar (ownerOnly: só o dono recebe)
+const PREFERENCES = [
+  { key: "bookingCreated", title: "Novos agendamentos", hint: "Quando um cliente marca um horário." },
+  { key: "bookingCancelled", title: "Cancelamentos", hint: "Quando um cliente desmarca." },
+  { key: "bookingRescheduled", title: "Remarcações", hint: "Quando o cliente muda o horário pela área do cliente." },
+  { key: "waitingList", title: "Lista de espera", hint: "Nova pessoa na lista e vaga liberada por um cancelamento." },
+  { key: "dailySummary", title: "Resumo do dia", hint: "Às 7h, quantos agendamentos você tem e qual é o primeiro." },
+  {
+    key: "billingReminders",
+    title: "Lembretes da assinatura",
+    hint: "Fatura disponível, fatura vencendo hoje, último dia sem bloqueio e fim do acesso.",
+    ownerOnly: true,
+  },
+];
+
+const PreferenceRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1.2rem;
+
+  & + & {
+    border-top: 1px solid var(--ui-border);
+  }
+`;
+
+const PreferenceText = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.78rem;
+  color: var(--ui-text-secondary);
+
+  strong {
+    font-size: 0.9rem;
+    color: var(--ui-text);
+    font-weight: 600;
+  }
+`;
 
 /* ── Toggle iOS ─────────────────────────────────── */
 const ToggleLabel = styled.label`
@@ -147,7 +189,27 @@ export default function PushNotifications() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [enabled, setEnabled] = useState(false);
+  const [isOwner, setIsOwner] = useState(true);
+  const [preferences, setPreferences] = useState({});
   const pendingTokenRef = useRef(null);
+
+  const applySettings = (data) => {
+    setEnabled(Boolean(data?.enabled));
+    setIsOwner(data?.owner !== false);
+    setPreferences(data?.preferences || {});
+  };
+
+  const handlePreference = async (key) => {
+    const value = !(preferences[key] !== false);
+    setPreferences((prev) => ({ ...prev, [key]: value }));
+    try {
+      const res = await updatePushPreferences(companyUrl, { [key]: value });
+      applySettings(res.data);
+    } catch {
+      setPreferences((prev) => ({ ...prev, [key]: !value }));
+      toast.error("Não foi possível salvar a preferência");
+    }
+  };
 
   const inApp = isMobileApp();
 
@@ -186,7 +248,7 @@ export default function PushNotifications() {
     try {
       const res = await getPushNotificationSettings(companyUrl);
       if (res.status === 200) {
-        setEnabled(res.data.enabled);
+        applySettings(res.data);
       }
     } catch (err) {
       console.error(err);
@@ -204,7 +266,7 @@ export default function PushNotifications() {
 
       const res = await updatePushNotificationSettings(companyUrl, { enabled: value });
       if (res.status === 200) {
-        setEnabled(res.data.enabled);
+        applySettings(res.data);
         toast.success(
           value
             ? "Notificações push ativadas com sucesso!"
@@ -284,19 +346,16 @@ export default function PushNotifications() {
                       importante acontecer na sua agenda. Ao ativar, o
                       aplicativo solicitará a permissão de notificações do seu
                       dispositivo.
+                      {!isOwner && " Você recebe só os avisos dos seus próprios agendamentos."}
                     </p>
 
-                    <ExampleBlock>
-                      <strong>Agendamento realizado!</strong>
-                      <br />
-                      Maria agendou uma Consulta em Segunda-feira, 10/06/2026 às 14:00.
-                    </ExampleBlock>
-
-                    <ExampleBlock>
-                      <strong>Agendamento cancelado!</strong>
-                      <br />
-                      Maria cancelou a Consulta de Segunda-feira, 10/06/2026 às 14:00.
-                    </ExampleBlock>
+                    {!enabled && (
+                      <ExampleBlock>
+                        <strong>Agendamento realizado!</strong>
+                        <br />
+                        Maria agendou uma Consulta em Segunda-feira, 10/06/2026 às 14:00.
+                      </ExampleBlock>
+                    )}
 
                     <p style={{ margin: "0.6rem 0 0 0" }}>
                       Você pode desativar as notificações a qualquer momento
@@ -312,6 +371,40 @@ export default function PushNotifications() {
                     )}
                   </CardBody>
                 </Card>
+
+                {enabled && (
+                  <Card>
+                    <CardHeader>
+                      <CardHeaderLeft>
+                        <CardTitle>O que você quer receber</CardTitle>
+                        <CardSubtitle>Desligue os avisos que não fazem sentido para você.</CardSubtitle>
+                      </CardHeaderLeft>
+                    </CardHeader>
+                    <div style={{ borderTop: "1px solid var(--ui-border)" }}>
+                      {PREFERENCES.filter((p) => isOwner || !p.ownerOnly).map((pref) => {
+                        const on = preferences[pref.key] !== false;
+                        return (
+                          <PreferenceRow key={pref.key}>
+                            <PreferenceText>
+                              <strong>{pref.title}</strong>
+                              {pref.hint}
+                            </PreferenceText>
+                            <ToggleLabel aria-label={pref.title}>
+                              <ToggleInput type="checkbox" checked={on} onChange={() => handlePreference(pref.key)} />
+                              <ToggleSlider $on={on} />
+                            </ToggleLabel>
+                          </PreferenceRow>
+                        );
+                      })}
+                    </div>
+                    {isOwner && (
+                      <CardBody>
+                        Avisos importantes da assinatura (pagamento confirmado, cobrança recusada no cartão e agenda
+                        bloqueada) sempre chegam enquanto as notificações estiverem ativadas.
+                      </CardBody>
+                    )}
+                  </Card>
+                )}
               </div>
             </>
           )}

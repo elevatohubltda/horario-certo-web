@@ -14,6 +14,7 @@ export const ADMIN_MENU_ITEMS = [
   { label: "Planos", url: "/admin/planos", icon: Layers },
   { label: "Cupons de desconto", url: "/admin/cupons", icon: TicketPercent },
   { label: "Uso WhatsApp", url: "/admin/whatsapp", icon: MessageCircle },
+  { label: "Notificações push", url: "/admin/notificacoes", icon: BellRing },
   { label: "Alterar senha", url: "/alterar-senha", icon: KeyRound },
   { label: "Ajuda", url: "/ajuda", icon: HelpCircle },
 ]
@@ -27,6 +28,8 @@ export const professionalMenuItems = (scheduleMode) => [
   { label: "Serviços", url: "/servicos", icon: Scissors },
   { label: "Lista de Espera", url: "/lista-de-espera", icon: ListOrdered },
   { label: "Divulgação", url: "/divulgacao", icon: Megaphone },
+  // No app, cada profissional ativa o push no próprio celular (recebe só os próprios agendamentos)
+  ...(isMobileApp() ? [{ label: "Notificações Push", url: "/notificacoes-push", icon: BellRing }] : []),
   { label: "Alterar senha", url: "/alterar-senha", icon: KeyRound },
   { label: "Ajuda", url: "/ajuda", icon: HelpCircle },
 ]

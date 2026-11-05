@@ -4,6 +4,7 @@ import { ReactComponent as MenuLogo } from '../../assets/icons/menu.svg?componen
 import { ReactComponent as Logo } from '../../assets/horario-certo-logo-horizontal.svg?component';
 import { TopbarStyle } from './style';
 import { Instagram, WhatsApp } from '@mui/icons-material';
+import { CalendarCheck, Store } from 'lucide-react';
 import businessLogo from '../../assets/images/corporate-building.png';
 import { isAdmin, isAvailableLogin, isProfessional, logout } from '../../util/auth';
 import { ADMIN_MENU_ITEMS, professionalMenuItems } from '../sidebar';
@@ -92,10 +93,54 @@ const WhatsAppButton = styled(DialogButton)`
   justify-content: center;
 `;
 
+// Escolha "Como você quer entrar?": cliente final ou estabelecimento
+const LoginChoice = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  background: #fff;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius);
+  padding: 0.9rem 1rem;
+  font-family: inherit;
+  transition: border-color 0.15s, background 0.15s;
+
+  & + & {
+    margin-top: 0.75rem;
+  }
+
+  &:hover {
+    border-color: var(--ui-primary);
+    background: #f8f9fc;
+  }
+
+  svg {
+    flex-shrink: 0;
+    color: var(--ui-primary);
+  }
+
+  span {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 0.82rem;
+    color: var(--ui-text-secondary);
+  }
+
+  strong {
+    font-size: 0.95rem;
+    color: var(--ui-text);
+  }
+`;
+
 export default function Topbar({imagem, whatsapp, instagram, name}) {
   const [isAuth, setIsAuth] = useState(false);
   const [open, setOpen] = useState(false);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [loginChoiceOpen, setLoginChoiceOpen] = useState(false);
   const menuRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -236,10 +281,10 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
         {open && (
           <div className="user-dropdown">
             <div className="dropdown-item">
-              <button onClick={() => handleNavigate(customerLoginPath)}>Entrar</button>
+              <button onClick={() => handleNavigate(customerLoginPath)}>Entrar como cliente</button>
             </div>
             <div className="dropdown-item">
-              <button onClick={() => handleNavigate('/login')}>Sou empresa</button>
+              <button onClick={() => handleNavigate('/login')}>Entrar como estabelecimento</button>
             </div>
           </div>
         )}
@@ -379,11 +424,29 @@ export default function Topbar({imagem, whatsapp, instagram, name}) {
 
           {!mobile && !isAuth && !customer && (
             <div className="menu">
-              <button className="my-area" onClick={() => handleNavigate(customerLoginPath)}>
+              <button className="my-area" onClick={() => setLoginChoiceOpen(true)}>
                 Entrar
               </button>
             </div>
           )}
+
+          <Dialog open={loginChoiceOpen} onClose={() => setLoginChoiceOpen(false)} mobile={mobile}>
+            <DialogTitle>Como você quer entrar?</DialogTitle>
+            <LoginChoice type="button" onClick={() => { setLoginChoiceOpen(false); handleNavigate(customerLoginPath); }}>
+              <CalendarCheck size={28} aria-hidden="true" />
+              <span>
+                <strong>Sou cliente</strong>
+                Ver, remarcar ou cancelar meus agendamentos.
+              </span>
+            </LoginChoice>
+            <LoginChoice type="button" onClick={() => { setLoginChoiceOpen(false); handleNavigate('/login'); }}>
+              <Store size={28} aria-hidden="true" />
+              <span>
+                <strong>Sou o estabelecimento</strong>
+                Acessar o painel para gerenciar a agenda, os serviços e a equipe.
+              </span>
+            </LoginChoice>
+          </Dialog>
 
           {mobile && !isAuth && !customer && renderMenuNotAuth()}
           {!isAuth && customer && renderMenuCustomer()}

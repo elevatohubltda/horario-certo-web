@@ -11,3 +11,11 @@ export const registerPushToken = (companyUrl, token) =>
 
 export const unregisterPushToken = (companyUrl, token) =>
     api.post(`/push-notifications/unregister?companyUrl=${companyUrl}`, { token }, { withAuth: true });
+
+// Preferências de push da pessoa logada (só os campos enviados mudam)
+export const updatePushPreferences = (companyUrl, preferences) =>
+    api.put(`/push-notifications/preferences?companyUrl=${companyUrl}`, preferences, { withAuth: true });
+
+// Admin: { title, description, route, companyId } (companyId null = todos os clientes)
+export const sendAdminPush = (payload) =>
+    api.post(`/push-notifications/broadcast`, payload, { withAuth: true });
