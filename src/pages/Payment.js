@@ -377,8 +377,8 @@ function Payment() {
   const [isGeneratingOverdue, setIsGeneratingOverdue] = useState(false);
   const [isUpdatingCard, setIsUpdatingCard] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
-  // A Stripe devolve com ?cartao=ok após o cadastro do cartão (o Mercado Pago, nas antigas, com ?preapproval_id=)
-  const [returnedFromCheckout] = useState(() => searchParams.has("cartao") || searchParams.has("preapproval_id"));
+  // A Stripe devolve com ?cartao=ok após o cadastro do cartão
+  const [returnedFromCheckout] = useState(() => searchParams.has("cartao"));
 
   const cardStatus = paymentProps?.cardSubscriptionStatus;
   // Só pela Stripe dá para trocar o cartão pelo portal
@@ -1017,7 +1017,9 @@ function Payment() {
                   {/* Cartão recusado: a Stripe segue tentando cobrar; dá para trocar o cartão ou voltar ao Pix */}
                   <CardNotice>
                     Não conseguimos cobrar sua mensalidade no cartão (ele pode ter vencido ou sido recusado).
-                    Atualize o cartão para continuar usando o sistema sem interrupção.
+                    A Stripe tenta cobrar de novo nos próximos dias, mas o mais rápido é atualizar o cartão. Se a mensalidade
+                    não for paga em até 3 dias após o vencimento, sua agenda é bloqueada e o valor passa a ter multa de 2% e
+                    juros de 1% ao mês (no cartão, eles entram na cobrança seguinte).
                   </CardNotice>
                   <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginTop: "0.75rem" }}>
                     <CardActionButton onClick={handleManageCard} disabled={isUpdatingCard}>

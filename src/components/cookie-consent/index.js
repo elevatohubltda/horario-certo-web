@@ -246,7 +246,7 @@ export default function CookieConsent({ onAccept }) {
           <ul>
             <li><strong>Cadastrais:</strong> nome da empresa, URL, WhatsApp, Instagram.</li>
             <li><strong>Acesso:</strong> usuário e senha (armazenada em hash irreversível).</li>
-            <li><strong>Cobrança:</strong> e-mail e CPF/CNPJ, usados exclusivamente para emissão de cobranças via Stripe ou Mercado Pago.</li>
+            <li><strong>Cobrança:</strong> e-mail e CPF/CNPJ, usados exclusivamente para emissão de cobranças via Stripe.</li>
             <li><strong>Clientes finais:</strong> nome, telefone e agendamentos; na área do cliente, também e-mail e senha ou a conta Google.</li>
           </ul>
 
@@ -270,7 +270,7 @@ export default function CookieConsent({ onAccept }) {
 
           <h3>5. Compartilhamento</h3>
           <p>
-            Seus dados são compartilhados somente com: <strong>Stripe</strong> e <strong>Mercado Pago</strong> (cobrança),
+            Seus dados são compartilhados somente com: <strong>Stripe</strong> (cobrança),
             <strong> Z-API</strong> (WhatsApp), <strong>Google</strong> (Firebase e login com Google),{' '}
             <strong>Railway</strong> e <strong>Vercel</strong> (hospedagem), <strong>Backblaze</strong> (cópias de segurança)
             e <strong>Sentry</strong> (registro de erros). Não vendemos dados a terceiros.

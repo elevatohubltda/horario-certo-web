@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import BlockedAccessPage from "../components/blockedAccess";
 import Slider from "react-slick";
 import { ReactComponent as ArrowLeft } from '../assets/icons/arrow-left.svg?component';
 import { ReactComponent as ArrowRight } from '../assets/icons/arrow-right.svg?component';
@@ -382,11 +381,12 @@ export default function Home() {
   const isScheduleFormInvalid = !selectedSchedule.nome || !selectedSchedule.telefone || (hasServices && !selectedSchedule.servicoId);
 
   // Link de empresa que não existe (ou rota digitada errado com um trecho só)
-  if (companyNotFound) return <NotFound variant="company" />;
+  // Link inexistente ou estabelecimento bloqueado (mensalidade não paga após a carência, ou assinatura encerrada):
+  // para o cliente final a agenda simplesmente não está disponível
+  if (companyNotFound || companyInfo?.active === false) return <NotFound variant="company" />;
 
   return (
     <>
-      {companyInfo && companyInfo.active === false && <BlockedAccessPage variant="public" />}
       {companyInfo && companyInfo.active !== false && scheduleMode === "SIMPLES" &&
         <SimpleScheduleFlow companyUrl={companyUrl} companyInfo={companyInfo} mobile={mobile} customer={customer} reschedule={reschedule} />
       }
