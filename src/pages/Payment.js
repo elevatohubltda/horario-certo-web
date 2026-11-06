@@ -450,7 +450,8 @@ function Payment() {
 
   const [isSubscribing, setIsSubscribing] = useState(false);
   // Quem ainda não pagou nada pode encerrar o teste e assinar já (libera o WhatsApp assim que o Pix for pago)
-  const canSubscribeNow = paymentProps?.status === "trial" && paymentProps?.whatsappAvailable === false && !isCardActive && !paymentProps?.cancelRequestedAt;
+  // Ainda não pagou nenhuma mensalidade (o Fundador tem WhatsApp no teste, mas também pode assinar antes)
+  const canSubscribeNow = paymentProps?.status === "trial" && paymentProps?.subscriber === false && !isCardActive && !paymentProps?.cancelRequestedAt;
   // Cupom de 1ª mensalidade grátis ainda não usado: assinar não gera Pix
   const firstMonthFree = Boolean(paymentProps?.firstMonthFree);
 
@@ -939,8 +940,10 @@ function Payment() {
                         </span>
                       ) : (
                         <span>
-                          Assine agora e libere o envio de mensagens pelo WhatsApp assim que o pagamento for confirmado.
-                          O teste grátis termina e sua mensalidade passa a vencer todo dia {new Date().getDate()}.
+                          {paymentProps?.whatsappAvailable
+                            ? "Assine agora e garanta o seu plano sem esperar o fim do teste."
+                            : "Assine agora e libere o envio de mensagens pelo WhatsApp assim que o pagamento for confirmado."}
+                          {" "}O teste grátis termina e sua mensalidade passa a vencer todo dia {new Date().getDate()}.
                           {canChoosePaymentMethod && " Pague com Pix ou cartão de crédito."}
                         </span>
                       )}

@@ -265,7 +265,7 @@ export default function CookieConsent({ onAccept }) {
           <ul>
             <li>Prestação do serviço de agendamentos contratado.</li>
             <li>Cobrança da assinatura mensal por Pix ou cartão (Stripe) e emissão da nota fiscal de serviço.</li>
-            <li>Mensagens pelo WhatsApp, quando habilitadas pelo estabelecimento e somente após o pagamento da primeira mensalidade.</li>
+            <li>Mensagens pelo WhatsApp, quando habilitadas pelo estabelecimento, após o pagamento da primeira mensalidade (no plano Fundador, já durante o teste grátis).</li>
           </ul>
 
           <h3>5. Compartilhamento</h3>

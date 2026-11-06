@@ -1328,7 +1328,7 @@ const faqItems = [
   },
   {
     question: 'Como funcionam os lembretes no WhatsApp?',
-    answer: 'Quando o cliente agenda, ele recebe a confirmação no WhatsApp e, perto do horário, um lembrete. Isso reduz as faltas sem você precisar mandar mensagem um por um. O envio pelo WhatsApp começa depois do pagamento da primeira mensalidade; no teste grátis você usa todo o resto do sistema.',
+    answer: 'Quando o cliente agenda, ele recebe a confirmação no WhatsApp e, perto do horário, um lembrete. Isso reduz as faltas sem você precisar mandar mensagem um por um. O envio pelo WhatsApp começa depois do pagamento da primeira mensalidade; no teste grátis você usa todo o resto do sistema. No plano Fundador (os 30 primeiros estabelecimentos), o WhatsApp já funciona durante o teste.',
   },
   {
     question: 'Como cancelo se não gostar?',
@@ -1337,7 +1337,7 @@ const faqItems = [
 ];
 
 const isWhatsAppFeature = (feature) => /whatsapp/i.test(feature);
-// Marca os itens de WhatsApp com * (a nota explica que o envio começa após a primeira mensalidade)
+// Marca os itens de WhatsApp com * (a nota explica quando o envio começa; no Fundador, já no teste)
 const withWhatsAppMark = (feature) => (isWhatsAppFeature(feature) ? `${feature} *` : feature);
 
 const formatBRL = (value) =>
@@ -1830,7 +1830,7 @@ function Landing() {
                     ))}
                   </AllPlansList>
                   {hasWhatsAppFeature && (
-                    <small>* O envio de mensagens pelo WhatsApp é liberado após o pagamento da primeira mensalidade.</small>
+                    <small>* O envio de mensagens pelo WhatsApp é liberado após o pagamento da primeira mensalidade. No plano Fundador, já funciona durante o teste grátis.</small>
                   )}
                 </AllPlans>
               )}

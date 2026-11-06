@@ -811,7 +811,9 @@ function Register() {
                                                     </div>
                                                 ))}
                                                 <span style={{ display: 'block', marginTop: '0.5rem', fontSize: '0.75rem', color: 'var(--ui-accent-ink)' }}>
-                                                    O envio de mensagens pelo WhatsApp é liberado após o pagamento da primeira mensalidade.
+                                                    {plan.founder
+                                                        ? 'No plano Fundador, as mensagens pelo WhatsApp já funcionam durante o teste grátis.'
+                                                        : 'O envio de mensagens pelo WhatsApp é liberado após o pagamento da primeira mensalidade.'}
                                                 </span>
                                             </div>
                                         )}

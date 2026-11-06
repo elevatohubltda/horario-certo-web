@@ -204,7 +204,7 @@ const topics = [
       },
       {
         q: 'Como funciona o teste grátis?',
-        a: 'Todo cadastro começa com 14 dias grátis, sem cartão. Durante o teste você usa todos os recursos, exceto o envio de mensagens pelo WhatsApp, que começa após o pagamento da primeira mensalidade. Para assinar antes do fim do teste, use "Assinar agora" em "Assinatura".'
+        a: 'Todo cadastro começa com 14 dias grátis, sem cartão. Durante o teste você usa todos os recursos, exceto o envio de mensagens pelo WhatsApp, que começa após o pagamento da primeira mensalidade (no plano Fundador, o WhatsApp já funciona durante o teste). Para assinar antes do fim do teste, use "Assinar agora" em "Assinatura".'
       },
     ]
   },
@@ -242,7 +242,7 @@ const topics = [
       },
       {
         q: 'O cliente recebe confirmação e lembrete?',
-        a: 'Sim, pelo WhatsApp, a partir do pagamento da primeira mensalidade: confirmação na hora do agendamento e lembrete antes do horário (a antecedência é configurada em "Notificações"). No teste grátis as mensagens não são enviadas.'
+        a: 'Sim, pelo WhatsApp, a partir do pagamento da primeira mensalidade: confirmação na hora do agendamento e lembrete antes do horário (a antecedência é configurada em "Notificações"). No teste grátis as mensagens não são enviadas, exceto no plano Fundador, em que já funcionam durante o teste.'
       },
       {
         q: 'Como cancelo ou altero um agendamento?',
@@ -303,7 +303,7 @@ const topics = [
     items: [
       {
         q: 'Quais mensagens de WhatsApp meus clientes recebem?',
-        a: 'Confirmação ao agendar, lembrete antes do horário, aviso de remarcação e de cancelamento e, se você ativar, a "Notificação de retorno" para clientes que costumam voltar e ainda não voltaram. Em "Notificações" você liga cada envio e define a antecedência do lembrete e os dias da mensagem de retorno. O WhatsApp está incluso em todos os planos e começa após a primeira mensalidade.'
+        a: 'Confirmação ao agendar, lembrete antes do horário, aviso de remarcação e de cancelamento e, se você ativar, a "Notificação de retorno" para clientes que costumam voltar e ainda não voltaram. Em "Notificações" você liga cada envio e define a antecedência do lembrete e os dias da mensagem de retorno. O WhatsApp está incluso em todos os planos e começa após a primeira mensalidade; no plano Fundador, já durante o teste grátis.'
       },
       {
         q: 'Como ativo as notificações no meu celular?',

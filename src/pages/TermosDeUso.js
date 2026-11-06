@@ -300,7 +300,7 @@ export default function TermosDeUso() {
         </P>
         <Ul>
           <li><strong>Teste grátis:</strong> todo cadastro começa com 14 dias grátis, sem cartão. Durante o teste, todos os recursos ficam disponíveis, exceto o envio de mensagens pelo WhatsApp.</li>
-          <li><strong>WhatsApp:</strong> o envio de mensagens aos clientes é liberado somente depois do pagamento da primeira mensalidade. O estabelecimento pode encerrar o teste antes e assinar a qualquer momento pela tela de assinatura.</li>
+          <li><strong>WhatsApp:</strong> o envio de mensagens aos clientes é liberado somente depois do pagamento da primeira mensalidade. Exceção: no plano Fundador, oferta de lançamento limitada aos 30 primeiros estabelecimentos, o envio já funciona durante o teste grátis; se a primeira mensalidade não for paga ao fim do teste, o envio é interrompido. O estabelecimento pode encerrar o teste antes e assinar a qualquer momento pela tela de assinatura.</li>
           <li><strong>Cobrança:</strong> a assinatura é mensal, paga por Pix ou cartão de crédito. Quem assina antes do fim do teste passa a ter vencimento no dia do primeiro pagamento.</li>
           <li><strong>Atraso:</strong> após o vencimento há 3 dias de carência. Depois disso o acesso é bloqueado até o pagamento, com multa de 2% e juros de 1% ao mês, proporcionais aos dias de atraso.</li>
           <li><strong>Cupons de desconto:</strong> valem nas condições informadas no cadastro. Um cupom pode ter data limite para novos cadastros e quantidade máxima de usos. O cupom de "1ª mensalidade grátis" cobre apenas a primeira mensalidade; as seguintes são cobradas pelo valor do plano.</li>
