@@ -3,7 +3,7 @@ import styled from "styled-components";
 import "../styles/index.css";
 import { PageLayout } from "../components/admin";
 import Alert from "../components/alert";
-import { isAvailableLogin, isProfessional, setSecureCookie } from "../util/auth";
+import { isAvailableLogin, isProfessional, setSecureCookie, redirectToLogin } from "../util/auth";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { getClientStatus } from "../services/endpoints/payment";
@@ -352,7 +352,7 @@ export default function Dashboard() {
         .then((response) => setScheduleMode(response.data?.scheduleMode || "PADRAO"))
         .catch(() => {});
     } else {
-      navigate("/" + companyUrl);
+      redirectToLogin(navigate);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companyUrl, navigate]);

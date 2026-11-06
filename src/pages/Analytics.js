@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import styled, { keyframes } from "styled-components";
 import "../styles/index.css";
 import { PageLayout } from "../components/admin";
-import { isAvailableLogin } from "../util/auth";
+import { isAvailableLogin, redirectToLogin } from "../util/auth";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { Filter, TrendingUp, TrendingDown, Minus } from "lucide-react";
@@ -369,7 +369,7 @@ export default function Analytics() {
   useEffect(() => {
     if (isAvailableLogin()) {
     } else {
-      navigate("/" + companyUrl);
+      redirectToLogin(navigate);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companyUrl, navigate]);

@@ -3,7 +3,7 @@ import styled from "styled-components";
 import "../styles/index.css";
 import Cookies from "js-cookie";
 import { PageLayout, Button as UiButton } from "../components/admin";
-import { isAvailableLogin, isProfessional } from "../util/auth";
+import { isAvailableLogin, isProfessional, redirectToLogin } from "../util/auth";
 import { getProfessionals } from "../services/endpoints/professional";
 import { useNavigate } from "react-router-dom";
 import { isMobile } from "../util/util";
@@ -363,7 +363,7 @@ export default function Services() {
       // Profissional da equipe só gerencia os próprios serviços: não escolhe profissional
       if (!isProfessional()) fetchProfessionals();
     } else {
-      navigate("/" + companyUrl);
+      redirectToLogin(navigate);
     }
     // eslint-disable-next-line
   }, []);

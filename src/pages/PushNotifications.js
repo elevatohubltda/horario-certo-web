@@ -4,7 +4,7 @@ import "../styles/index.css";
 import { Message, PageLayout } from "../components/admin";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
-import { isAvailableLogin } from "../util/auth";
+import { isAvailableLogin, redirectToLogin } from "../util/auth";
 import { isMobileApp } from "../services/api";
 import { toast } from "react-toastify";
 import {
@@ -215,7 +215,7 @@ export default function PushNotifications() {
 
   useEffect(() => {
     if (!isAvailableLogin()) {
-      navigate("/" + companyUrl);
+      redirectToLogin(navigate);
       return;
     }
     loadPage();

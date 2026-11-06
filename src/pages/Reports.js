@@ -4,7 +4,7 @@ import "../styles/index.css";
 import { PageLayout } from "../components/admin";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
-import { isAvailableLogin } from "../util/auth";
+import { isAvailableLogin, redirectToLogin } from "../util/auth";
 import { Download, FileText, FileSpreadsheet, Filter } from "lucide-react";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -315,7 +315,7 @@ export default function Reports() {
     if (isAvailableLogin()) {
       return;
     }
-    navigate("/" + companyUrl);
+    redirectToLogin(navigate);
   }, [companyUrl, navigate]);
 
   useEffect(() => {

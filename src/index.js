@@ -38,9 +38,14 @@ import AdminPushMessages from './pages/AdminPushMessages';
 import AdminInvoices from './pages/AdminInvoices';
 import Professionals from './pages/Professionals';
 import NotFound from './pages/NotFound';
+import SessionGuard from './components/session-guard';
 
-const router = createBrowserRouter(
-  [
+// Telas do painel (exigem login) estão listadas em PANEL_PATHS (util/auth.js): ao criar uma, inclua lá.
+// SessionGuard leva ao login quando a sessão do painel vence.
+const router = createBrowserRouter([
+  {
+  element: <SessionGuard />,
+  children: [
     { path: '/',                  element: <Landing /> },
     { path: '/login',             element: <Login /> },
     { path: '/esqueci-senha',     element: <ForgotPassword /> },
@@ -77,13 +82,8 @@ const router = createBrowserRouter(
     // Qualquer outro endereço (com mais de um trecho; os de um trecho caem em /:companyUrl)
     { path: '*',                  element: <NotFound /> },
   ],
-  {
-    future: {
-      v7_relativeSplatPath: true,
-      v7_startTransition: true,
-    },
-  }
-);
+  },
+]);
 
 initMonitoring();
 

@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { login } from '../services/endpoints/auth';
 import { getFeaturesByCompany } from '../services/endpoints/plans';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Cookies from 'js-cookie';
-import { homePath, isAvailableLogin, setSecureCookie } from '../util/auth';
+import { homePath, isAvailableLogin, markPanelSession, safeReturnPath, setSecureCookie } from '../util/auth';
 import { isMobileApp } from '../services/api';
-import { expiresAt } from '../util/date';
 import styled from 'styled-components';
 import { format, parse } from 'date-fns';
 import CookieConsent, { hasConsented } from '../components/cookie-consent';
@@ -262,8 +261,22 @@ const IllustrationText = styled.p`
   }
 `;
 
+const ExpiredNotice = styled.div`
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.6rem;
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  color: #92400e;
+  font-size: 0.9rem;
+`;
+
 function Login() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const sessionExpired = searchParams.get("sessao") === "expirada";
+  // Depois de entrar, volta para a tela em que estava quando a sessão venceu
+  const afterLoginPath = () => safeReturnPath(searchParams.get("voltar")) || homePath();
   const [isMobileViewport, setIsMobileViewport] = useState(window.innerWidth <= 768);
   const [showConsent, setShowConsent] = useState(false);
   const [userData, setUserData] = useState({
@@ -293,9 +306,10 @@ function Login() {
         const companyUrl = res.data.companyUrl;
 
         if (res.status === 200) {
-          // No app o token vale 7 dias — o cookie precisa acompanhar essa validade,
-          // caso contrário expiraria em 3h e derrubaria a sessão antes da hora.
-          const cookieExpiry = isMobileApp() ? expirationDate : expiresAt;
+          // Os cookies da sessão vencem junto com o token (60 min no navegador, 7 dias no app).
+          // Antes o navegador usava um prazo fixo de 3h contado do carregamento da página,
+          // que podia terminar antes ou bem depois do token.
+          const cookieExpiry = expirationDate;
           // No navegador o token já chegou como cookie httpOnly (Set-Cookie do
           // backend) — só o app mobile precisa do cookie legível por JS, pois
           // monta o header Authorization manualmente.
@@ -322,8 +336,9 @@ function Login() {
             }
           }
 
+          markPanelSession();
           if (hasConsented()) {
-            navigate(homePath());
+            navigate(afterLoginPath(), { replace: true });
           } else {
             setShowConsent(true);
           }
@@ -337,8 +352,9 @@ function Login() {
 
   useEffect(() => {
     if(isAvailableLogin()) {
-      navigate(homePath());
+      navigate(afterLoginPath(), { replace: true });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate]);
 
   useEffect(() => {
@@ -356,7 +372,7 @@ function Login() {
   return (
     <>
     {showConsent && (
-      <CookieConsent onAccept={() => navigate(homePath())} />
+      <CookieConsent onAccept={() => navigate(afterLoginPath(), { replace: true })} />
     )}
     <Page>
       <LoginShell>
@@ -366,6 +382,12 @@ function Login() {
           <Subheading>
             Organize sua rotina e acesse sua agenda em poucos segundos com sua conta.
           </Subheading>
+
+          {sessionExpired && (
+            <ExpiredNotice role="status">
+              Sua sessão expirou por segurança. Entre novamente para continuar de onde parou.
+            </ExpiredNotice>
+          )}
 
           <LoginForm onSubmit={handleLogin}>
             <FieldGroup>

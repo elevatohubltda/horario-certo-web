@@ -19,7 +19,7 @@ import Topbar from "../components/topbar";
 import { Container } from "../components/container/style";
 import Cookies from "js-cookie";
 import Sidebar from "../components/sidebar";
-import { isAvailableLogin, isProfessional, myProfessionalId } from "../util/auth";
+import { isAvailableLogin, isProfessional, myProfessionalId, redirectToLogin } from "../util/auth";
 import { useNavigate } from "react-router-dom";
 import { isMobile, openWhatsApp } from "../util/util";
 import { formataNumeroTelefone, maskTime, paraHoraSemSegundos } from "../util/format";
@@ -910,7 +910,7 @@ export default function WeeklyCalendarView() {
       setMobile(isMobile());
       fetchAvailability();
     } else {
-      navigate("/" + companyUrl);
+      redirectToLogin(navigate);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companyUrl, navigate, range, professionalFilter]);

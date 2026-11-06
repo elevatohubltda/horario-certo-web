@@ -7,7 +7,7 @@ import {
   updateCompanyProperties
 } from "../services/endpoints/company";
 import Cookies from "js-cookie";
-import { isAvailableLogin, setSecureCookie } from "../util/auth";
+import { isAvailableLogin, setSecureCookie, redirectToLogin } from "../util/auth";
 import { useNavigate } from "react-router-dom";
 import { isMobile } from "../util/util";
 import { ToastContainer, toast } from "react-toastify";
@@ -211,7 +211,7 @@ export default function Config() {
       getCompanyProps();
       setMobile(isMobile());
     } else {
-      navigate("/" + companyUrl);
+      redirectToLogin(navigate);
     }
     // eslint-disable-next-line
   }, [companyUrl]);

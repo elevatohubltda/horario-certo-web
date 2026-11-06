@@ -5,7 +5,7 @@ import { Clock } from "lucide-react";
 import { Message, Notice, PageLayout } from "../components/admin";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
-import { isAvailableLogin } from "../util/auth";
+import { isAvailableLogin, redirectToLogin } from "../util/auth";
 import { toast } from "react-toastify";
 import { getNotificationSettings, updateNotificationSettings } from "../services/endpoints/notifications";
 
@@ -293,7 +293,7 @@ export default function Notifications() {
 
   useEffect(() => {
     if (!isAvailableLogin()) {
-      navigate("/" + companyUrl);
+      redirectToLogin(navigate);
       return;
     }
     loadPage();
